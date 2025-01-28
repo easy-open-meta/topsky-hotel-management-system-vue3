@@ -89,4 +89,5 @@ topsky-hotel-manager-system-vue3
 #  :computer: Project Setup and Deployment：
 
 **1. Download and install nodejs.**
+
 **2.download and install Microsoft Visual Studio Code, and unzip the Zip package by downloading it, in VS Code's [File]-->[Open Folder], select the folder just after the Zip package is unzipped in the pop-up dialog box, and click the [Open] button.** 
