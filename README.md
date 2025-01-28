@@ -89,6 +89,7 @@ topsky-hotel-manager-system-vue3
 #  :computer: 项目运行部署：
 
 **1、下载并安装nodejs。**
+
 **2、下载并安装Microsoft Visual Studio Code，并通过下载Zip包解压，在VS Code的【文件】——>【打开文件夹】，在弹出的对话框里选择刚刚Zip包解压后的文件夹，点击【打开】按钮即可。**
 
 ![java-and-net/ TopskyHotelManagerSystem-Vue3](https://gitee.com/java-and-net/topsky-hotel-manager-system-vue3/widgets/widget_card.svg?colors=4183c4,ffffff,ffffff,e3e9ed,666666,9b9b9b)
