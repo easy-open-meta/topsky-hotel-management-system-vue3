@@ -1,10 +1,9 @@
 import api from '../api';
 
-// 获取菜单列表
-export const fetchMenus = async () => {
+// 获取菜单树
+export const fetchMenusTree = async () => {
   try {
-    const response = await api.get('/api/Menu/BuildMenuAll'); // 修改为你的实际API路径
-    console.log(response);
+    const response = await api.get('/api/Menu/BuildMenuAll');
     return response.data;
   } catch (error) {
     console.error('Error fetching menus:', error);
@@ -15,7 +14,7 @@ export const fetchMenus = async () => {
 // 创建新菜单项
 export const createMenu = async (menu) => {
   try {
-    const response = await api.post('/menu', menu);
+    const response = await api.post('/api/Menu/InsertMenu', menu);
     return response.data;
   } catch (error) {
     console.error('Error creating menu:', error);
@@ -23,21 +22,10 @@ export const createMenu = async (menu) => {
   }
 };
 
-// 获取单个菜单项
-export const fetchMenu = async (id) => {
-  try {
-    const response = await api.get(`/menu/${id}`);
-    return response.data;
-  } catch (error) {
-    console.error(`Error fetching menu with id ${id}:`, error);
-    throw error;
-  }
-};
-
 // 更新菜单项
-export const updateMenu = async (id, menu) => {
+export const updateMenu = async (menu) => {
   try {
-    const response = await api.put(`/menu/${id}`, menu);
+    const response = await api.put(`/api/Menu/UpdateMenu`, menu);
     return response.data;
   } catch (error) {
     console.error(`Error updating menu with id ${id}:`, error);
@@ -46,9 +34,9 @@ export const updateMenu = async (id, menu) => {
 };
 
 // 删除菜单项
-export const deleteMenu = async (id) => {
+export const deleteMenu = async (menu) => {
   try {
-    const response = await api.delete(`/menu/${id}`);
+    const response = await api.delete(`/api/Menu/DeleteMenu`,menu);
     return response.data;
   } catch (error) {
     console.error(`Error deleting menu with id ${id}:`, error);

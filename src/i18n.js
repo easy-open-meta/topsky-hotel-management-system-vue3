@@ -1,0 +1,95 @@
+import { createI18n } from 'vue-i18n';
+
+const messages = {
+  en: {
+    message: {
+        hello: 'hello',
+        welcome: 'Welcome to our application!',
+        username: 'Username',
+        password: 'Password',
+        signin: 'Sign In',
+        signup: "Sign Up",
+        logout: "Log out",
+        home: "Home",
+        department: "Department",
+        addDepartment: "Add Department",
+        departmentNo: "Department No",
+        departmentName: "Department Name",
+        departmentDesc: "Department Description",
+        departmentLeader: "Department Leader",
+        departmentParent: "Department Parent",
+        departmentDate: "Department Date",
+        operation: "Operation",
+        edit: "Edit",
+        delete: "Delete",
+        areYouSureToDelete: "Are you sure to delete this department?",
+        pleaseInputDepartmentName: "Please input department name",
+        addSuccess: "Add Success",
+        updateSuccess: "Update Success",
+        deleteSuccess: "Delete Success",
+        operationFailed: "Operation Failed",
+        pleaseTryAgainLater: "Please try again later",
+        loginExpired: "Login Expired",
+        pleaseLoginAgain: "Please Login Again",
+        loginSuccess: "Login Success",
+        welcomeBack: "Welcome Back",
+        loginFailed: "Login Failed",
+        checkUsernameAndPassword: "Please check username and password",
+        fetchDataFailed: "Fetch Data Failed",
+        systemName: "TopSky Hotel Management System - Backstage",
+        insertDepartment:"Create Department",
+        updateDepartment:"Edit Department",
+        org:"Easy Open Meta"
+    }
+  },
+  zh: {
+    message: {
+        hello: '你好',
+        welcome: '欢迎使用我们的应用程序！',
+        username: '用户名',
+        password: '密码',
+        signin: '登录',
+        signup: '注册',
+        logout: "登出",
+        home: "主页",
+        department: "部门管理",
+        addDepartment: "添加部门",
+        departmentNo: "部门编号",
+        departmentName: "部门名称",
+        departmentDesc: "部门描述",
+        departmentLeader: "部门主管",
+        departmentParent: "上级部门",
+        departmentDate: "建立时间",
+        operation: "操作",
+        edit: "编辑",
+        delete: "删除",
+        areYouSureToDelete: "确定要删除这个部门吗？",
+        pleaseInputDepartmentName: "请输入部门名称",
+        addSuccess: "添加成功",
+        updateSuccess: "更新成功",
+        deleteSuccess: "删除成功",
+        operationFailed: "操作失败",
+        pleaseTryAgainLater: "请稍后重试",
+        loginExpired: "登录过期",
+        pleaseLoginAgain: "请重新登录",
+        loginSuccess: "登录成功",
+        welcomeBack: "欢迎回来",
+        loginFailed: "登录失败",
+        checkUsernameAndPassword: "请检查用户名和密码",
+        fetchDataFailed: "获取数据失败",
+        systemName: "TopSky酒店管理系统 - 后台管理系统",
+        insertDepartment:"添加部门",
+        updateDepartment:"编辑部门",
+        org:"易开元"
+    }
+  }
+};
+
+const i18n = createI18n({
+  locale: 'zh',
+  fallbackLocale: 'zh',
+  messages,
+  legacy: false,
+});
+
+export default i18n;
