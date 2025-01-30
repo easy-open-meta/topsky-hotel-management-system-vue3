@@ -11,7 +11,6 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
-    console.error('Request Error:', error);
     return Promise.reject(error);
   }
 );
@@ -21,8 +20,14 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    console.error('Response Error:', error);
-    return Promise.reject(error);
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('username');
+       window.$notification('error', '登录过期', '请重新登录');
+      router.push('/signin');
+      return Promise.reject(error);
+  }
+  return Promise.reject(error);
   }
 );
 

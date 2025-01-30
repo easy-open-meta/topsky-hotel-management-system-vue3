@@ -11,18 +11,28 @@
     >
       <div style="display: flex; align-items: center">
         <img
-          src="../assets/vue.svg"
+          src="../assets/logo.ico"
           alt="Logo"
           style="height: 40px; margin-right: 10px"
         />
         <span style="font-size: 20px; font-weight: bold"
-          >Top Sky 酒店管理系统-后台管理系统</span
+          >{{ $t('message.systemName') }}</span
         >
       </div>
-      <div>
-        <router-link to="/signin">
-          <a-button type="link">Sign in</a-button>
-        </router-link>
+      <div style="display: flex; align-items: center;">
+        <template v-if="isLoggedIn">
+            <a-button type="link" style="margin-right: 10px;">{{ username }}</a-button>
+            <a-button type="link" @click="logout" style="margin-right: 10px;">{{ $t('message.logout') }}</a-button>
+        </template>
+        <template v-else>
+          <router-link to="/signin">
+            <a-button type="link" style="margin-right: 10px;">{{ $t('message.signin') }}</a-button>
+          </router-link>
+        </template>
+         <a-select v-model:value="currentLocale" style="width: 120px;" @change="handleLanguageChange">
+              <a-select-option value="zh-CN">中文</a-select-option>
+              <a-select-option value="en-US">English</a-select-option>
+         </a-select>
       </div>
     </a-layout-header>
     <a-layout>
@@ -64,26 +74,71 @@
       </a-layout-content>
     </a-layout>
     <a-layout-footer style="text-align: center">
-      © 2024 My System
+      © 2024 {{ $t('message.org') }} {{ $t('message.systemName') }}
     </a-layout-footer>
   </a-layout>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
-import { fetchMenus } from '../api/menuapi';
+import { ref, onMounted, computed, watch, onBeforeMount } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { fetchMenusTree } from '../api/menuapi';
+import { useI18n } from 'vue-i18n';
 
 const route = useRoute();
+const router = useRouter();
 const menuData = ref([]);
+const username = ref('');
+const isLoggedIn = ref(false);
+const { locale } = useI18n();
+const currentLocale = ref(locale.value);
+
+const handleLanguageChange = (value) =>{
+  localStorage.setItem('locale', value);
+  locale.value = value;
+  currentLocale.value = value;
+}
+
+const checkLoginStatus = () => {
+    const storedToken = localStorage.getItem('token');
+    if (storedToken) {
+        isLoggedIn.value = true;
+        const storedUsername = localStorage.getItem('username');
+        if (storedUsername) {
+            username.value = storedUsername;
+        } else {
+           username.value = 'User';
+        }
+    } else {
+        isLoggedIn.value = false;
+        username.value = '';
+    }
+};
+
+const logout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    isLoggedIn.value = false;
+    username.value = '';
+    router.push('/signin');
+};
+
+onBeforeMount(() => {
+    currentLocale.value = locale.value;
+    checkLoginStatus();
+})
 
 onMounted(async () => {
   try {
-    const data = await fetchMenus();
+    const data = await fetchMenusTree();
     menuData.value = data;
   } catch (error) {
     console.error('Failed to fetch menu data:', error);
-    window.$notification('error', '获取菜单失败', '请稍后重试');
+     window.$notification('error', '获取菜单失败', '请稍后重试');
   }
+});
+
+watch(() => route.path, () => {
+  checkLoginStatus();
 });
 </script>

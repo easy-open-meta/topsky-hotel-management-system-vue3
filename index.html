@@ -2,12 +2,20 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="./src/assets/logo.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Top Sky 酒店管理系统-后台管理系统</title>
+    <title id="app-title"></title>
   </head>
   <body>
     <div id="app"></div>
     <script type="module" src="/src/main.js"></script>
+    <script>
+      window.addEventListener('load', () => {
+        if (window.i18n) {
+          const titleElement = document.getElementById('app-title');
+          titleElement.textContent = window.i18n.global.t('message.systemName');
+        }
+      });
+    </script>
   </body>
 </html>
