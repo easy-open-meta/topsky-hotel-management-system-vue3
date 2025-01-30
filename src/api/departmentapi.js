@@ -25,7 +25,7 @@ export const addDepartment = async (data) => {
 // 更新部门
 export const updateDepartment = async (data) => {
   try {
-    const response = await api.post(`/api/UpdDept`, data);
+    const response = await api.post(`/api/Base/UpdDept`, data);
     return response.data;
   } catch (error) {
     console.error('Failed to update department:', error);
@@ -36,7 +36,7 @@ export const updateDepartment = async (data) => {
 // 删除部门
 export const deleteDepartment = async (data) => {
   try {
-    const response = await api.post(`/api/DelDept`,data);
+    const response = await api.post(`/api/Base/DelDept`,data);
       return response.data;
   } catch (error) {
     console.error('Failed to delete department:', error);

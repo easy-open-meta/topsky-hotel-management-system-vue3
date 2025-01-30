@@ -30,8 +30,8 @@
           </router-link>
         </template>
          <a-select v-model:value="currentLocale" style="width: 120px;" @change="handleLanguageChange">
-              <a-select-option value="zh">中文</a-select-option>
-              <a-select-option value="en">English</a-select-option>
+              <a-select-option value="zh-CN">中文</a-select-option>
+              <a-select-option value="en-US">English</a-select-option>
          </a-select>
       </div>
     </a-layout-header>
@@ -94,6 +94,7 @@ const { locale } = useI18n();
 const currentLocale = ref(locale.value);
 
 const handleLanguageChange = (value) =>{
+  localStorage.setItem('locale', value);
   locale.value = value;
   currentLocale.value = value;
 }
