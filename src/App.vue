@@ -9,6 +9,7 @@
 import { onMounted, ref, watch } from 'vue';
 import { showNotification } from './utils/index.js';
 import GlobalNotification from './components/GlobalNotification.vue';
+import { checkTokenValidity } from './utils/auth';
 import { useI18n } from 'vue-i18n';
 import { ConfigProvider } from 'ant-design-vue';
 import zhCN from 'ant-design-vue/es/locale/zh_CN';
@@ -36,5 +37,6 @@ watch(
 
 onMounted(() => {
   window.$notification = showNotification;
+  checkTokenValidity();
 });
 </script>

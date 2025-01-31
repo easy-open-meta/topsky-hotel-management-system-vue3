@@ -3,7 +3,7 @@ import api from '../api';
 // 获取民族列表
 export const fetchNations = async (params) => {
   try {
-    const response = await api.get('/api/Base/SelectNationAll', { params });
+    const response = await api.get('/Base/SelectNationAll', { params });
     return response.data;
   } catch (error) {
     console.error('Failed to fetch Nations:', error);
@@ -14,7 +14,7 @@ export const fetchNations = async (params) => {
 // 添加民族
 export const addNation = async (data) => {
   try {
-    const response = await api.post('/api/Base/AddNation', data);
+    const response = await api.post('/Base/AddNation', data);
     return response.data;
   } catch (error) {
     console.error('Failed to add Nation:', error);
@@ -25,7 +25,7 @@ export const addNation = async (data) => {
 // 更新民族
 export const updateNation = async (data) => {
   try {
-    const response = await api.post(`/api/Base/UpdNation`, data);
+    const response = await api.post(`/Base/UpdNation`, data);
     return response.data;
   } catch (error) {
     console.error('Failed to update Nation:', error);
@@ -36,7 +36,7 @@ export const updateNation = async (data) => {
 // 删除民族
 export const deleteNation = async (data) => {
   try {
-    const response = await api.post(`/api/Base/DelNation`,data);
+    const response = await api.post(`/Base/DelNation`,data);
       return response.data;
   } catch (error) {
     console.error('Failed to delete Nation:', error);

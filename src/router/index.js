@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import HomeView from '../views/HomeView.vue';
-import NotFound from '../views/NotFound.vue';
+import NotFound from '../views/responsepage/NotFound.vue';
 import MainLayout from '../layouts/MainLayout.vue';
 import SignIn from '../views/SignInView.vue';
 import Position from '../views/basic/PositionView.vue';
@@ -22,107 +22,127 @@ import OperationLog from '../views/operationmanagement/OperationLogView.vue';
 import AddAdmin from '../views/systemmanagement/AddAdminiView.vue';
 import ZeroConfig from '../views/systemmanagement/ZeroConfigView.vue';
 import SystemModule from '../views/systemmanagement/SystemModuleView.vue';
+import { checkTokenValidity } from '../utils/auth';
 
 const routes = [
   {
     path: '/',
     component: MainLayout,
     children: [
-      { path: '', component: HomeView },
+      { path: '', component: HomeView, meta: { requiresAuth: true } },
       {
         path: '/position',
         name: 'position',
-        component: Position
+        component: Position,
+        meta: { requiresAuth: true }
       },
       {
         path: '/nation',
         name: 'nation',
-        component: Nation
+        component: Nation,
+        meta: { requiresAuth: true }
       },
       {
         path: '/qualification',
         name: 'qualification',
-        component: Qualification
+        component: Qualification,
+        meta: { requiresAuth: true }
       },
       {
         path: '/department',
         name: 'department',
-        component: Department
+        component: Department,
+        meta: { requiresAuth: true }
       },
       {
         path: '/internalfinance',
         name: 'internalfinance',
-        component: InternalFinance
+        component: InternalFinance,
+        meta: { requiresAuth: true }
       },
       {
         path: '/hydroelectricity',
         name: 'hydroelectricity',
-        component: Hydroelectricity
+        component: Hydroelectricity,
+        meta: { requiresAuth: true }
       },
       {
         path: '/supervisioninfo',
         name: 'supervisioninfo',
-        component: Supervision
+        component: Supervision,
+        meta: { requiresAuth: true }
       },
       {
         path: '/roommap',
         name: 'roommap',
-        component: RoomMap
+        component: RoomMap,
+        meta: { requiresAuth: true }
       },
       {
         path: '/addroom',
         name: 'addroom',
-        component: AddRoom
+        component: AddRoom,
+        meta: { requiresAuth: true }
       },
       {
         path: '/roomconfig',
         name: 'roomconfig',
-        component: RoomConfig
+        component: RoomConfig,
+        meta: { requiresAuth: true }
       },
       {
         path: '/viplevel',
         name: 'viplevel',
-        component: VipLevel
+        component: VipLevel,
+        meta: { requiresAuth: true }
       },
       {
         path: '/customer',
         name: 'customer',
-        component: Customer
+        component: Customer,
+        meta: { requiresAuth: true }
       },
       {
         path: '/customerspend',
         name: 'customerspend',
-        component: CustomerSpend
+        component: CustomerSpend,
+        meta: { requiresAuth: true }
       },
       {
         path: '/staffmanagement',
         name: 'staffmanagement',
-        component: StaffManagement
+        component: StaffManagement,
+        meta: { requiresAuth: true }
       },
       {
         path: '/goodsManagement',
         name: 'goodsManagement',
-        component: GoodsManagement
+        component: GoodsManagement,
+        meta: { requiresAuth: true }
       },
       {
         path: '/operationLog',
         name: 'operationLog',
-        component: OperationLog
+        component: OperationLog,
+        meta: { requiresAuth: true }
       },
       {
         path: '/addadmin',
         name: 'addadmin',
-        component: AddAdmin
+        component: AddAdmin,
+        meta: { requiresAuth: true }
       },
       {
         path: '/zeroconfig',
         name: 'zeroconfig',
-        component: ZeroConfig
+        component: ZeroConfig,
+        meta: { requiresAuth: true }
       },
       {
         path: '/systemmodule',
         name: 'systemmodule',
-        component: SystemModule
+        component: SystemModule,
+        meta: { requiresAuth: true }
       }
     ]
   },
@@ -141,6 +161,17 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
+});
+
+router.beforeEach((to, from, next) => {
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+      if (!checkTokenValidity()) {
+          return
+      }
+      next();
+  } else {
+      next();
+  }
 });
 
 export default router;

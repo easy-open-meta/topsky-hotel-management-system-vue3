@@ -53,6 +53,10 @@ const sortedInfo = ref({ order: null, columnKey: null });
 const form = reactive({
   nation_no: null,
   nation_name: '',
+  datains_usr: '',
+  datains_date: null,
+  datachg_usr: '',
+  datachg_date: null,
   modifystatus: '',
 });
 
@@ -94,6 +98,7 @@ const fetchNationData = async () => {
     const result = await fetchNations({
       page: pagination.current,
       pageSize: pagination.pageSize,
+      delete_mk: 0
     });
     nations.value = result;
     pagination.total = result.length;
@@ -150,6 +155,7 @@ const handleModalCancel = () => {
 
 const handleDelete = async (record) => {
   try {
+    record.delete_mk = 1;
     await deleteNation(record);
     window.$notification('success', t('message.operationTitle'), t('message.deleteSuccess'));
     fetchNationData();
