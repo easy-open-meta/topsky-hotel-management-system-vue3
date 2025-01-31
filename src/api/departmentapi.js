@@ -3,7 +3,7 @@ import api from '../api';
 // 获取部门列表
 export const fetchDepartments = async (params) => {
   try {
-    const response = await api.get('/api/Base/SelectDeptAll', { params });
+    const response = await api.get('/Base/SelectDeptAll', { params });
     return response.data;
   } catch (error) {
     console.error('Failed to fetch departments:', error);
@@ -14,7 +14,7 @@ export const fetchDepartments = async (params) => {
 // 添加部门
 export const addDepartment = async (data) => {
   try {
-    const response = await api.post('/api/Base/AddDept', data);
+    const response = await api.post('/Base/AddDept', data);
     return response.data;
   } catch (error) {
     console.error('Failed to add department:', error);
@@ -25,7 +25,7 @@ export const addDepartment = async (data) => {
 // 更新部门
 export const updateDepartment = async (data) => {
   try {
-    const response = await api.post(`/api/Base/UpdDept`, data);
+    const response = await api.post(`/Base/UpdDept`, data);
     return response.data;
   } catch (error) {
     console.error('Failed to update department:', error);
@@ -36,7 +36,7 @@ export const updateDepartment = async (data) => {
 // 删除部门
 export const deleteDepartment = async (data) => {
   try {
-    const response = await api.post(`/api/Base/DelDept`,data);
+    const response = await api.post(`/Base/DelDept`,data);
       return response.data;
   } catch (error) {
     console.error('Failed to delete department:', error);

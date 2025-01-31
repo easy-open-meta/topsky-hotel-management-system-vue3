@@ -14,7 +14,7 @@
         <p style="text-align: right;">{{ $t('message.selectYourLang') }}</p>
         <p style="text-align: right;">
           <a-select v-model:value="currentLocale" style="width: 100px;" @change="handleLanguageChange">
-            <a-select-option value="zh-CN">中文</a-select-option>
+            <a-select-option value="zh-CN">简体中文</a-select-option>
             <a-select-option value="en-US">English</a-select-option>
          </a-select>
         </p>
@@ -55,6 +55,7 @@ const onFinish = async () => {
     if (response && response.user_token) {
       localStorage.setItem('token', response.user_token);
       localStorage.setItem('username',response.AdminName);
+      localStorage.setItem('account',response.AdminAccount);
       router.push('/');
        window.$notification('success', '登录成功', '欢迎回来');
     } else {

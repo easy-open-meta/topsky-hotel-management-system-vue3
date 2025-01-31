@@ -83,6 +83,10 @@ const form = reactive({
   dept_leader: '',
   dept_parent: '',
   dept_date: null,
+  datains_usr: '',
+  datains_date: null,
+  datachg_usr: '',
+  datachg_date: null,
   modifystatus: '',
 });
 
@@ -148,6 +152,7 @@ const fetchDepartmentData = async () => {
     const result = await fetchDepartments({
       page: pagination.current,
       pageSize: pagination.pageSize,
+      delete_mk: 0
     });
     departments.value = result;
     pagination.total = result.length;
@@ -237,6 +242,7 @@ const handleModalCancel = () => {
 
 const handleDelete = async (record) => {
   try {
+    record.delete_mk = 1;
     await deleteDepartment(record);
     window.$notification('success', t('message.operationTitle'), t('message.deleteSuccess'));
     fetchDepartmentData();
