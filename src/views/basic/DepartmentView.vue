@@ -6,7 +6,7 @@
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'operation'">
           <a-button @click="editDepartment(record)" style="margin-right: 15px;">{{ $t('message.edit') }}</a-button>
-            <a-popconfirm :title="t('message.areYouSureToDeleteDepartment')" @confirm="handleDelete(record)">
+            <a-popconfirm :title="t('message.areYouSureToDeleteRecord')" @confirm="handleDelete(record)">
             <a-button danger>{{ $t('message.delete') }}</a-button>
           </a-popconfirm>
         </template>
@@ -56,13 +56,12 @@ import { useRoute } from 'vue-router';
 import { getPageTitle } from '@/utils/pageTitle';
 import { fetchDepartments, addDepartment, updateDepartment, deleteDepartment } from '@/api/departmentapi';
 import { fetchWorkers } from '@/api/workerapi';
-import { message } from 'ant-design-vue';
 import { formatDate } from '@/utils/index';
 import { useI18n } from 'vue-i18n';
-import { getListNewId } from '@/utils/generateId';
+import generateSnowflakeId from '@/utils/snowflake';
 import moment from 'moment';
 
-const { t, locale } = useI18n();
+const { t } = useI18n();
 const route = useRoute();
 const pageTitleKey = computed(() => getPageTitle(route.path));
 const translatedPageTitle = computed(() => t(pageTitleKey.value));
@@ -196,7 +195,10 @@ onMounted(() => {
 const showModal = () => {
   modalVisible.value = true;
   modalTitle.value = t('message.insertDepartment');
-  form.dept_no = getListNewId('D', 3, 1)[0];
+  form.dept_no = generateSnowflakeId({
+      prefix: 'D-',
+      separator: null,
+    });
   form.dept_name = '';
   form.dept_desc = '';
   form.dept_leader = '';

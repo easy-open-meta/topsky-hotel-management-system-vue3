@@ -2,11 +2,11 @@
   <div>
     <h1 style="margin-bottom: 15px;">{{ translatedPageTitle }}</h1>
     <a-button type="primary" @click="showModal" style="margin-bottom: 15px;">{{ $t('message.insertInternalFinance') }}</a-button>
-    <a-table :columns="columns" :data-source="cashs" :loading="loading" :pagicash="pagicash" @change="handleTableChange" @sorterChange="handleSorterChange" bordered>
+    <a-table :columns="filteredColumns" :data-source="cashs" :loading="loading" :pagicash="pagicash" @change="handleTableChange" @sorterChange="handleSorterChange" bordered>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'operation'">
           <a-button @click="editInternalfinance(record)" style="margin-right: 15px;">{{ $t('message.edit') }}</a-button>
-            <a-popconfirm :title="t('message.areYouSureToDeleteInternalFinance')" @confirm="handleDelete(record)">
+            <a-popconfirm :title="t('message.areYouSureToDeleteRecord')" @confirm="handleDelete(record)">
             <a-button danger>{{ $t('message.delete') }}</a-button>
           </a-popconfirm>
         </template>
@@ -63,13 +63,12 @@ import { getPageTitle } from '@/utils/pageTitle';
 import { fetchInternalFinances, addInternalFinance, updateInternalFinance, deleteInternalFinance } from '@/api/internalfinanceapi';
 import { fetchDepartments } from '@/api/departmentapi';
 import { fetchWorkers } from '@/api/workerapi';
-import { message } from 'ant-design-vue';
 import { formatDate } from '@/utils/index';
 import { useI18n } from 'vue-i18n';
-import { getListNewId } from '@/utils/generateId';
+import generateSnowflakeId from '@/utils/snowflake';
 import moment from 'moment';
 
-const { t, locale } = useI18n();
+const { t } = useI18n();
 const route = useRoute();
 const pageTitleKey = computed(() => getPageTitle(route.path));
 const translatedPageTitle = computed(() => t(pageTitleKey.value));
@@ -101,6 +100,11 @@ const form = reactive({
 
 const rules = {
   CashName: [{ required: true, message: t('message.pleaseInputInternalFinanceName'), trigger: 'blur' }],
+  CashPrice: [{ required: true, message: t('message.pleaseInputInternalFinancePrice'), trigger: 'blur' }],
+  CashClub: [{ required: true, message: t('message.pleaseInputInternalFinanceDepartment'), trigger: 'blur' }],
+  CashTime: [{ required: true, message: t('message.pleaseInputInternalFinanceTime'), trigger: 'blur' }],
+  CashSource: [{ required: true, message: t('message.pleaseInputInternalFinanceSource'), trigger: 'blur' }],
+  CashPerson: [{ required: true, message: t('message.pleaseInputInternalFinancePerson'), trigger: 'blur' }],
 };
 
 const cashNoLabel = computed(() => t('message.internalfinanceNo'));
@@ -133,6 +137,13 @@ const columns = computed(() => [
     title: t('message.internalfinanceDepartment'),
     dataIndex: 'CashClub',
     key: 'CashClub',
+    hidden: true,
+  },
+  {
+    title: t('message.internalfinanceDepartment'),
+    dataIndex: 'DeptName',
+    key: 'DeptName',
+    hidden: false,
   },
   {
     title: t('message.internalfinanceTime'),
@@ -148,12 +159,21 @@ const columns = computed(() => [
     title: t('message.internalfinancePerson'),
     dataIndex: 'CashPerson',
     key: 'CashPerson',
+    hidden: true,
+  },
+  {
+    title: t('message.internalfinancePerson'),
+    dataIndex: 'PersonName',
+    key: 'PersonName',
+    hidden: false,
   },
   {
     title: t('message.operation'),
     key: 'operation',
   },
 ]);
+
+const filteredColumns = computed(() => columns.value.filter(column => !column.hidden));
 
 const pagicash = reactive({
   current: 1,
@@ -211,7 +231,10 @@ onMounted(() => {
 const showModal = () => {
   modalVisible.value = true;
   modalTitle.value = t('message.insertInternalFinance');
-  form.CashNo = getListNewId('CN', 3, 1)[0];
+  form.CashNo = generateSnowflakeId({
+      prefix: 'IF-',
+      separator: null,
+    });
   form.CashName = '';
   form.CashPrice = 0;
   form.CashClub = '';

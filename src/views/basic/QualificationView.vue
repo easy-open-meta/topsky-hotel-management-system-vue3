@@ -6,7 +6,7 @@
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'operation'">
           <a-button @click="editQualification(record)" style="margin-right: 15px;">{{ $t('message.edit') }}</a-button>
-            <a-popconfirm :title="t('message.areYouSureToDeleteQualification')" @confirm="handleDelete(record)">
+            <a-popconfirm :title="t('message.areYouSureToDeleteRecord')" @confirm="handleDelete(record)">
             <a-button danger>{{ $t('message.delete') }}</a-button>
           </a-popconfirm>
         </template>
@@ -32,13 +32,10 @@ import { ref, onMounted, computed, reactive } from 'vue';
 import { useRoute } from 'vue-router';
 import { getPageTitle } from '@/utils/pageTitle';
 import { fetchQualifications, addQualification, updateQualification, deleteQualification } from '@/api/qualificationapi';
-import { message } from 'ant-design-vue';
-import { formatDate } from '@/utils/index';
 import { useI18n } from 'vue-i18n';
-import { getListNewId } from '@/utils/generateId';
-import moment from 'moment';
+import generateSnowflakeId from '@/utils/snowflake';
 
-const { t, locale } = useI18n();
+const { t } = useI18n();
 const route = useRoute();
 const pageTitleKey = computed(() => getPageTitle(route.path));
 const translatedPageTitle = computed(() => t(pageTitleKey.value));
@@ -117,7 +114,10 @@ onMounted(() => {
 const showModal = () => {
   modalVisible.value = true;
   modalTitle.value = t('message.insertQualification');
-  form.education_no = getListNewId('E', 3, 1)[0];
+  form.education_no = generateSnowflakeId({
+      prefix: 'E-',
+      separator: null,
+    });
   form.education_name = '';
   form.delete_mk = 0;
   form.modifystatus = 'insert';
