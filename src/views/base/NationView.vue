@@ -1,6 +1,7 @@
 <template>
   <div>
     <h1 style="margin-bottom: 15px;">{{ translatedPageTitle }}</h1>
+    <a-button @click="refreshData" style="margin-bottom: 15px;margin-right: 15px;">{{ $t('message.refreshData') }}</a-button>
     <a-button type="primary" @click="showModal" style="margin-bottom: 15px;">{{ $t('message.insertNation') }}</a-button>
     <a-table :columns="columns" :data-source="nations" :loading="loading" :pagination="pagination" @change="handleTableChange" @sorterChange="handleSorterChange" bordered>
       <template #bodyCell="{ column, record }">
@@ -31,6 +32,7 @@
 import { ref, onMounted, computed, reactive } from 'vue';
 import { useRoute } from 'vue-router';
 import { getPageTitle } from '@/utils/pageTitle';
+import { showNotification } from '@/utils/index';
 import { fetchNations, addNation, updateNation, deleteNation } from '@/api/nationapi';
 import { useI18n } from 'vue-i18n';
 import generateSnowflakeId from '@/utils/snowflake';
@@ -100,7 +102,7 @@ const fetchNationData = async () => {
     nations.value = result;
     pagination.total = result.length;
   } catch (error) {
-    window.$notification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
   } finally {
     loading.value = false;
   }
@@ -121,6 +123,11 @@ const showModal = () => {
   form.modifystatus = 'insert';
 };
 
+const refreshData = () => 
+{
+  fetchNationData();
+};
+
 const editNation = (record) => {
   modalVisible.value = true;
   modalTitle.value = t('message.updateNation');
@@ -135,15 +142,15 @@ const handleModalOk = async () => {
     confirmLoading.value = true;
     if (form.modifystatus === 'update') {
       await updateNation({ ...form});
-      window.$notification('success', t('message.operationTitle') , t('message.updateSuccess'));
+      showNotification('success', t('message.operationTitle') , t('message.updateSuccess'));
     } else {
       await addNation({ ...form});
-      window.$notification('success', t('message.operationTitle') , t('message.addSuccess'));
+      showNotification('success', t('message.operationTitle') , t('message.addSuccess'));
     }
     modalVisible.value = false;
     fetchNationData();
   } catch (error) {
-    window.$notification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
   } finally {
     confirmLoading.value = false;
   }
@@ -157,11 +164,11 @@ const handleDelete = async (record) => {
   try {
     record.delete_mk = 1;
     await deleteNation(record);
-    window.$notification('success', t('message.operationTitle'), t('message.deleteSuccess'));
+    showNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
     fetchNationData();
   } catch (error) {
     console.error('Delete error:', error);
-    window.$notification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
   }
 };
 

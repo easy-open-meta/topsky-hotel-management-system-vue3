@@ -82,6 +82,7 @@
 <script setup>
 import { ref, onMounted, computed, watch, onBeforeMount } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { showNotification } from '@/utils/index';
 import { fetchMenusTree } from '../api/menuapi';
 import { useI18n } from 'vue-i18n';
 
@@ -134,7 +135,7 @@ onMounted(async () => {
     menuData.value = data;
   } catch (error) {
     console.error('Failed to fetch menu data:', error);
-     window.$notification('error', '获取菜单失败', '请稍后重试');
+     showNotification('error', '获取菜单失败', '请稍后重试');
   }
 });
 

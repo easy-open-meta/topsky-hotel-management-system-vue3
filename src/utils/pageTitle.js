@@ -18,8 +18,8 @@ export function getPageTitle(routePath) {
           return 'message.supervisionInfo';
       case '/roommap':
           return 'message.roomMapOverview';
-      case '/addroom':
-          return 'message.addRoom';
+      case '/roommanagement':
+          return 'message.roomManagement';
       case '/roomconfig':
           return 'message.roomConfig';
       case '/viplevel':

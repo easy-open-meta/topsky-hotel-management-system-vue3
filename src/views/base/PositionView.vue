@@ -1,6 +1,7 @@
 <template>
   <div>
     <h1 style="margin-bottom: 15px;">{{ translatedPageTitle }}</h1>
+    <a-button @click="refreshData" style="margin-bottom: 15px;margin-right: 15px;">{{ $t('message.refreshData') }}</a-button>
     <a-button type="primary" @click="showModal" style="margin-bottom: 15px;">{{ $t('message.insertPosition') }}</a-button>
     <a-table :columns="columns" :data-source="positions" :loading="loading" :pagiposition="pagiposition" @change="handleTableChange" @sorterChange="handleSorterChange" bordered>
       <template #bodyCell="{ column, record }">
@@ -31,6 +32,7 @@
 import { ref, onMounted, computed, reactive } from 'vue';
 import { useRoute } from 'vue-router';
 import { getPageTitle } from '@/utils/pageTitle';
+import { showNotification } from '@/utils/index';
 import { fetchPositions, addPosition, updatePosition, deletePosition } from '@/api/positionapi';
 import { useI18n } from 'vue-i18n';
 import generateSnowflakeId from '@/utils/snowflake';
@@ -101,7 +103,7 @@ const fetchPositionData = async () => {
     positions.value = result;
     pagiposition.total = result.length;
   } catch (error) {
-    window.$notification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
   } finally {
     loading.value = false;
   }
@@ -123,6 +125,11 @@ const showModal = () => {
   form.modifystatus = 'insert';
 };
 
+const refreshData = () => 
+{
+  fetchPositionData();
+};
+
 const editPosition = (record) => {
   modalVisible.value = true;
   modalTitle.value = t('message.updatePosition');
@@ -137,15 +144,15 @@ const handleModalOk = async () => {
     confirmLoading.value = true;
     if (form.modifystatus === 'update') {
       await updatePosition({ ...form});
-      window.$notification('success', t('message.operationTitle') , t('message.updateSuccess'));
+      showNotification('success', t('message.operationTitle') , t('message.updateSuccess'));
     } else {
       await addPosition({ ...form});
-      window.$notification('success', t('message.operationTitle') , t('message.addSuccess'));
+      showNotification('success', t('message.operationTitle') , t('message.addSuccess'));
     }
     modalVisible.value = false;
     fetchPositionData();
   } catch (error) {
-    window.$notification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
   } finally {
     confirmLoading.value = false;
   }
@@ -159,11 +166,11 @@ const handleDelete = async (record) => {
   try {
     record.delete_mk = 1;
     await deletePosition(record);
-    window.$notification('success', t('message.operationTitle'), t('message.deleteSuccess'));
+    showNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
     fetchPositionData();
   } catch (error) {
     console.error('Delete error:', error);
-    window.$notification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
   }
 };
 

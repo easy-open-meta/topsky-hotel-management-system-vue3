@@ -1,6 +1,7 @@
 <template>
   <div>
     <h1 style="margin-bottom: 15px;">{{ translatedPageTitle }}</h1>
+    <a-button @click="refreshData" style="margin-bottom: 15px;margin-right: 15px;">{{ $t('message.refreshData') }}</a-button>
     <a-button type="primary" @click="showModal" style="margin-bottom: 15px;">{{ $t('message.insertDepartment') }}</a-button>
     <a-table :columns="columns" :data-source="departments" :loading="loading" :pagination="pagination" @change="handleTableChange" @sorterChange="handleSorterChange" bordered>
       <template #bodyCell="{ column, record }">
@@ -56,7 +57,7 @@ import { useRoute } from 'vue-router';
 import { getPageTitle } from '@/utils/pageTitle';
 import { fetchDepartments, addDepartment, updateDepartment, deleteDepartment } from '@/api/departmentapi';
 import { fetchWorkers } from '@/api/workerapi';
-import { formatDate } from '@/utils/index';
+import { formatDate,showNotification } from '@/utils/index';
 import { useI18n } from 'vue-i18n';
 import generateSnowflakeId from '@/utils/snowflake';
 import moment from 'moment';
@@ -156,7 +157,7 @@ const fetchDepartmentData = async () => {
     departments.value = result;
     pagination.total = result.length;
   } catch (error) {
-    window.$notification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
   } finally {
     loading.value = false;
   }
@@ -170,7 +171,7 @@ const fetchSelectDepartments = async () => {
       value: item.dept_no,
     }));
   } catch (error) {
-    window.$notification('error', t('message.fetchDataFailed'), t('message.pleaseTryAgainLater'));
+    showNotification('error', t('message.fetchDataFailed'), t('message.pleaseTryAgainLater'));
   }
 };
 
@@ -182,7 +183,7 @@ const fetchSelectLeaders = async () => {
       value: item.WorkerId,
     }));
   } catch (error) {
-    window.$notification('error', t('message.fetchDataFailed'), t('message.pleaseTryAgainLater'));
+    showNotification('error', t('message.fetchDataFailed'), t('message.pleaseTryAgainLater'));
   }
 };
 
@@ -206,6 +207,11 @@ const showModal = () => {
   form.modifystatus = 'insert';
 };
 
+const refreshData = () => 
+{
+  fetchDepartmentData();
+};
+
 const editDepartment = (record) => {
   modalVisible.value = true;
   modalTitle.value = t('message.updateDepartment');
@@ -224,15 +230,15 @@ const handleModalOk = async () => {
     confirmLoading.value = true;
     if (form.modifystatus === 'update') {
       await updateDepartment({ ...form,dept_date:form.dept_date?form.dept_date.format('YYYY-MM-DD'):null});
-      window.$notification('success', t('message.operationTitle') , t('message.updateSuccess'));
+      showNotification('success', t('message.operationTitle') , t('message.updateSuccess'));
     } else {
       await addDepartment({ ...form,dept_date:form.dept_date?form.dept_date.format('YYYY-MM-DD'):null});
-      window.$notification('success', t('message.operationTitle') , t('message.addSuccess'));
+      showNotification('success', t('message.operationTitle') , t('message.addSuccess'));
     }
     modalVisible.value = false;
     fetchDepartmentData();
   } catch (error) {
-    window.$notification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
   } finally {
     confirmLoading.value = false;
   }
@@ -246,11 +252,11 @@ const handleDelete = async (record) => {
   try {
     record.delete_mk = 1;
     await deleteDepartment(record);
-    window.$notification('success', t('message.operationTitle'), t('message.deleteSuccess'));
+    showNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
     fetchDepartmentData();
   } catch (error) {
     console.error('Delete error:', error);
-    window.$notification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
   }
 };
 

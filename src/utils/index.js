@@ -25,8 +25,7 @@ export const formatDate = (dateString) => {
         const day = String(date.getDate()).padStart(2, '0');
         return `${year}-${month}-${day}`;
     } catch (error) {
-        console.error('Date format error:', error);
+        showNotification('error', t('message.operationTitle'), error);
         return '';
     }
 };
-

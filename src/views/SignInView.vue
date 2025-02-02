@@ -26,6 +26,7 @@
 <script setup>
 import { ref, reactive, onBeforeMount,computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { showNotification } from '@/utils/index';
 import { signIn } from '../api/basicapi';
 import { useI18n } from 'vue-i18n';
 
@@ -57,13 +58,13 @@ const onFinish = async () => {
       localStorage.setItem('username',response.AdminName);
       localStorage.setItem('account',response.AdminAccount);
       router.push('/');
-       window.$notification('success', '登录成功', '欢迎回来');
+       showNotification('success', '登录成功', '欢迎回来');
     } else {
-      window.$notification('error', '登录失败', '请检查用户名和密码');
+      showNotification('error', '登录失败', '请检查用户名和密码');
     }
   } catch (error) {
       console.error('SignIn error:', error);
-      window.$notification('error', '登录失败', '请稍后重试');
+      showNotification('error', '登录失败', '请稍后重试');
   } finally {
     loading.value = false;
   }

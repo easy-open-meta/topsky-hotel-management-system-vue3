@@ -3,15 +3,15 @@ import HomeView from '../views/HomeView.vue';
 import NotFound from '../views/responsepage/NotFound.vue';
 import MainLayout from '../layouts/MainLayout.vue';
 import SignIn from '../views/SignInView.vue';
-import Position from '../views/basic/PositionView.vue';
-import Nation from '../views/basic/NationView.vue';
-import Qualification from '../views/basic/QualificationView.vue';
-import Department from '../views/basic/DepartmentView.vue';
+import Position from '../views/base/PositionView.vue';
+import Nation from '../views/base/NationView.vue';
+import Qualification from '../views/base/QualificationView.vue';
+import Department from '../views/base/DepartmentView.vue';
 import InternalFinance from '../views/finance/InternalFinanceView.vue';
 import Hydroelectricity from '../views/hydroelectricity/HydroelectricityView.vue';
 import Supervision from '../views/supervision/SupervisionView.vue';
 import RoomMap from '../views/roominformation/RoomMapView.vue';
-import AddRoom from '../views/roominformation/AddRoomView.vue';
+import RoomManagement from '../views/roominformation/RoomManagementView.vue';
 import RoomConfig from '../views/roominformation/RoomConfigView.vue';
 import VipLevel from '../views/customermanagement/VipLevelView.vue';
 import Customer from '../views/customermanagement/CustomerView.vue';
@@ -79,9 +79,9 @@ const routes = [
         meta: { requiresAuth: true }
       },
       {
-        path: '/addroom',
-        name: 'addroom',
-        component: AddRoom,
+        path: '/roommanagement',
+        name: 'roommanagement',
+        component: RoomManagement,
         meta: { requiresAuth: true }
       },
       {

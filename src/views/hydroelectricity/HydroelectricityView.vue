@@ -1,6 +1,7 @@
 <template>
   <div>
     <h1 style="margin-bottom: 15px;">{{ translatedPageTitle }}</h1>
+    <a-button @click="refreshData" style="margin-bottom: 15px;margin-right: 15px;">{{ $t('message.refreshData') }}</a-button>
     <a-table :columns="columns" :data-source="hydroelectricitys" :loading="loading" :pagination="pagination" @change="handleTableChange" @sorterChange="handleSorterChange" bordered>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'operation'">
@@ -44,6 +45,7 @@
 import { ref, onMounted, computed, reactive } from 'vue';
 import { useRoute } from 'vue-router';
 import { getPageTitle } from '@/utils/pageTitle';
+import { showNotification } from '@/utils/index';
 import { fetchHydroelectricitys, updateHydroelectricity, deleteHydroelectricity } from '@/api/hydroelectricityapi';
 import { formatDate } from '@/utils/index';
 import { useI18n } from 'vue-i18n';
@@ -94,7 +96,7 @@ const columns = computed(() => [
   {
     title: t('message.wtiNo'),
     dataIndex: 'WtiNo',
-    key: 'WtiNo'
+    key: 'WtiNo',
   },
   {
     title: t('message.roomNo'),
@@ -151,7 +153,7 @@ const fetchHydroelectricityData = async () => {
     hydroelectricitys.value = result;
     pagination.total = result.length;
   } catch (error) {
-    window.$notification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
   } finally {
     loading.value = false;
   }
@@ -181,15 +183,20 @@ const handleModalOk = async () => {
     confirmLoading.value = true;
     if (form.modifystatus === 'update') {
       await updateHydroelectricity({ ...form,UseDate:form.UseDate?form.UseDate.format('YYYY-MM-DD HH:mm:ss'):null,EndDate:form.EndDate?form.EndDate.format('YYYY-MM-DD HH:mm:ss'):null});
-      window.$notification('success', t('message.operationTitle') , t('message.updateSuccess'));
+      showNotification('success', t('message.operationTitle') , t('message.updateSuccess'));
     }
     modalVisible.value = false;
     fetchHydroelectricityData();
   } catch (error) {
-    window.$notification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
   } finally {
     confirmLoading.value = false;
   }
+};
+
+const refreshData = () => 
+{
+  fetchHydroelectricityData();
 };
 
 const handleModalCancel = () => {
@@ -200,10 +207,10 @@ const handleDelete = async (record) => {
   try {
     record.delete_mk = 1;
     await deleteHydroelectricity(record);
-    window.$notification('success', t('message.operationTitle'), t('message.deleteSuccess'));
+    showNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
     fetchHydroelectricityData();
   } catch (error) {
-    window.$notification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
   }
 };
 
