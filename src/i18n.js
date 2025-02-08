@@ -162,6 +162,7 @@ const messages = {
             checkOutTime: "Check-out Time",
             roomRent: "Room Rent",
             roomDeposit: "Room Deposit",
+            custoName: "Customer Name",
         }
     },
     'zh-CN': {
@@ -323,6 +324,7 @@ const messages = {
             checkOutTime: "退房时间",
             roomRent: "房间租金",
             roomDeposit: "房间押金",
+            custoName: "客户姓名",
         }
     }
 };

@@ -17,8 +17,9 @@
                  <div v-html="getTooltipContent(room)"></div>
               </template>
               <a-card :title="room.RoomName" :bordered="false" class="room-card" hoverable>
+                <template #extra><a-tag :color="getTagColor(room.RoomState)" :bordered="false">{{ room.RoomState }}</a-tag></template>
                 <p class="room-info">{{ $t('message.roomNo') }}: {{ room.RoomNo }}</p>
-                <p class="room-info">{{ $t('message.custoNo') }}: {{ room.CustoName || '' }}</p>
+                <p class="room-info">{{ $t('message.custoName') }}: {{ room.CustoName || '' }}</p>
                 <p class="room-info" v-if="room.CheckTime">{{ $t('message.daysofStay') }}: {{ calculateDaysLived(room.CheckTime) }}</p>
                 <p class="room-info" v-else>{{ $t('message.daysofStay') }}: </p>
               </a-card>
@@ -75,32 +76,56 @@ const groupRoomsByPosition = () => {
 };
 
 const calculateDaysLived = (checkInTime) => {
-        if (!checkInTime) {
-            return '';
-        }
-        const checkInDate = dayjs(checkInTime);
-        const now = dayjs();
-        const daysLived = now.diff(checkInDate, 'day');
-        return `${daysLived} 天`;
-    };
+  if (!checkInTime) {
+    return null;
+  }
+  const checkInDate = dayjs(checkInTime);
+  const now = dayjs();
+  const daysLived = now.diff(checkInDate, 'day');
+  return `${daysLived} 天`;
+};
 
 const getTooltipContent = (room) => {
-    const formatMoney = (amount) => {
-        if (amount == null) {
-            return '';
-        }
-        const formattedAmount = parseFloat(amount).toFixed(2);
-        return `￥${formattedAmount}`;
-    };
+  const formatMoney = (amount) => {
+    if (amount == null) {
+      return '';
+    }
+    const formattedAmount = parseFloat(amount).toFixed(2);
+    return `￥${formattedAmount}`;
+  };
 
-    return `
+  return `
     <div>
-        <p>${t('message.checkInTime')}: ${room.CheckTime || ''}</p>
-        <p>${t('message.checkOutTime')}: ${room.CheckOutTime || ''}</p>
-        <p>${t('message.roomRent')}: ${formatMoney(room.RoomMoney)}</p>
-        <p>${t('message.roomDeposit')}: ${formatMoney(room.RoomDeposit)}</p>
+      <p>${t('message.checkInTime')}: ${room.CheckTime || ''}</p>
+      <p>${t('message.checkOutTime')}: ${room.CheckOutTime || ''}</p>
+      <p>${t('message.roomRent')}: ${formatMoney(room.RoomMoney)}</p>
+      <p>${t('message.roomDeposit')}: ${formatMoney(room.RoomDeposit)}</p>
     </div>
-    `;
+  `;
+};
+
+const getTagColor = (state) => {
+  let color = 'default';
+
+  switch (state) {
+    case '空房':
+      color = '#48a54b';
+      break;
+    case '已住':
+      color = '#1f8de5';
+      break;
+    case '维修中':
+      color = '#f0b607';
+      break;
+    case '脏房':
+      color = '#e63f33';
+      break;
+    case '预约':
+      color = '#ff9800';
+      break;
+  }
+
+  return color;
 };
 
 onMounted(() => {

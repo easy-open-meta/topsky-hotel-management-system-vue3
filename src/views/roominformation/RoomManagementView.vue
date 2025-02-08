@@ -11,6 +11,9 @@
             <a-button danger>{{ $t('message.delete') }}</a-button>
           </a-popconfirm>
         </template>
+        <template v-else-if="column.key === 'RoomState'">
+          <a-tag :color="getTagColor(record.RoomState)" :bordered="false">{{ record.RoomState }}</a-tag>
+        </template>
       </template>
     </a-table>
 
@@ -206,6 +209,30 @@ const fetchSelectRoomStates = async () => {
   } catch (error) {
     showNotification('error', t('message.fetchDataFailed'), t('message.pleaseTryAgainLater'));
   }
+};
+
+const getTagColor = (state) => {
+  let color = 'default';
+
+  switch (state) {
+    case '空房':
+      color = '#48a54b';
+      break;
+    case '已住':
+      color = '#1f8de5';
+      break;
+    case '维修中':
+      color = '#f0b607';
+      break;
+    case '脏房':
+      color = '#e63f33';
+      break;
+    case '预约':
+      color = '#ff9800';
+      break;
+  }
+
+  return color;
 };
 
 onMounted(() => {
