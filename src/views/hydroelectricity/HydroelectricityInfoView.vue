@@ -72,10 +72,10 @@ const form = reactive({
   WaterUse: 0,
   PowerUse: 0,
   Record: '',
-  datains_usr: '',
-  datains_date: null,
-  datachg_usr: '',
-  datachg_date: null,
+  DataInsUsr: '',
+  DataInsDate: null,
+  DataChgUsr: '',
+  DataChgDate: null,
   modifystatus: '',
 });
 
@@ -205,7 +205,7 @@ const handleModalCancel = () => {
 
 const handleDelete = async (record) => {
   try {
-    record.delete_mk = 1;
+    record.isDelete = 1;
     await deleteHydroelectricity(record);
     showNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
     fetchHydroelectricityData();

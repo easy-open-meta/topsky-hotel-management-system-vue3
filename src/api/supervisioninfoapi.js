@@ -6,7 +6,6 @@ export const fetchSupervisionInfos = async (params) => {
     const response = await api.get('/CheckInfo/SelectCheckInfoAll', { params });
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch SupervisionInfo:', error);
     throw error;
   }
 };
@@ -17,7 +16,6 @@ export const addSupervisionInfo = async (data) => {
     const response = await api.post('/CheckInfo/InsertCheckInfo', data);
     return response.data;
   } catch (error) {
-    console.error('Failed to add SupervisionInfo:', error);
     throw error;
   }
 };
@@ -28,7 +26,6 @@ export const updateSupervisionInfo = async (data) => {
     const response = await api.post(`/CheckInfo/UpdateCheckInfo`, data);
     return response.data;
   } catch (error) {
-    console.error('Failed to update SupervisionInfo:', error);
     throw error;
   }
 };
@@ -39,7 +36,6 @@ export const deleteSupervisionInfo = async (data) => {
     const response = await api.post(`/CheckInfo/DeleteCheckInfo`,data);
       return response.data;
   } catch (error) {
-    console.error('Failed to delete SupervisionInfo:', error);
     throw error;
   }
 };

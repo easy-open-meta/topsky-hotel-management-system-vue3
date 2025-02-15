@@ -6,7 +6,6 @@ export const fetchPositions = async (params) => {
     const response = await api.get('/Base/SelectPositionAll', { params });
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch Positions:', error);
     throw error;
   }
 };
@@ -17,7 +16,6 @@ export const addPosition = async (data) => {
     const response = await api.post('/Base/AddPosition', data);
     return response.data;
   } catch (error) {
-    console.error('Failed to add Position:', error);
     throw error;
   }
 };
@@ -28,7 +26,6 @@ export const updatePosition = async (data) => {
     const response = await api.post(`/Base/UpdPosition`, data);
     return response.data;
   } catch (error) {
-    console.error('Failed to update Position:', error);
     throw error;
   }
 };
@@ -39,7 +36,6 @@ export const deletePosition = async (data) => {
     const response = await api.post(`/Base/DelPosition`,data);
       return response.data;
   } catch (error) {
-    console.error('Failed to delete Position:', error);
     throw error;
   }
 };

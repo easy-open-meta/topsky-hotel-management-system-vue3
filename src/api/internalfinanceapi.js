@@ -6,7 +6,6 @@ export const fetchInternalFinances = async (params) => {
     const response = await api.get('/Cash/SelectCashInfoAll', { params });
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch Cashs:', error);
     throw error;
   }
 };
@@ -17,7 +16,6 @@ export const addInternalFinance = async (data) => {
     const response = await api.post('/Cash/AddCashInfo', data);
     return response.data;
   } catch (error) {
-    console.error('Failed to add Cash:', error);
     throw error;
   }
 };
@@ -28,7 +26,6 @@ export const updateInternalFinance = async (data) => {
     const response = await api.post(`/Cash/UpdCashInfo`, data);
     return response.data;
   } catch (error) {
-    console.error('Failed to update Cash:', error);
     throw error;
   }
 };
@@ -39,7 +36,6 @@ export const deleteInternalFinance = async (data) => {
     const response = await api.post(`/Cash/DelCashInfo`,data);
       return response.data;
   } catch (error) {
-    console.error('Failed to delete Cash:', error);
     throw error;
   }
 };

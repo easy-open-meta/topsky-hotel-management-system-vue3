@@ -33,14 +33,14 @@
           <a-select
             v-model:value="form.dept_leader"
             :options="leaderOptions"
-            placeholder="Please select department leader"
+            :placeholder="t('message.pleaseInputDepartmentLeader')"
           />
         </a-form-item>
         <a-form-item :label="departmentParentLabel" name="dept_parent">
           <a-select
             v-model:value="form.dept_parent"
             :options="departmentOptions"
-            placeholder="Please select department parent"
+            :placeholder="t('message.pleaseInputDepartmentParent')"
           />
         </a-form-item>
         <a-form-item :label="departmentDateLabel" name="dept_date">
@@ -83,10 +83,10 @@ const form = reactive({
   dept_leader: '',
   dept_parent: '',
   dept_date: null,
-  datains_usr: '',
-  datains_date: null,
-  datachg_usr: '',
-  datachg_date: null,
+  DataInsUsr: '',
+  DataInsDate: null,
+  DataChgUsr: '',
+  DataChgDate: null,
   modifystatus: '',
 });
 
@@ -152,7 +152,7 @@ const fetchDepartmentData = async () => {
     const result = await fetchDepartments({
       page: pagination.current,
       pageSize: pagination.pageSize,
-      delete_mk: 0
+      isDelete: 0
     });
     departments.value = result;
     pagination.total = result.length;
@@ -250,7 +250,7 @@ const handleModalCancel = () => {
 
 const handleDelete = async (record) => {
   try {
-    record.delete_mk = 1;
+    record.isDelete = 1;
     await deleteDepartment(record);
     showNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
     fetchDepartmentData();

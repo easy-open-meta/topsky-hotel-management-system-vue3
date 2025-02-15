@@ -53,8 +53,8 @@ const onFinish = async () => {
   loading.value = true;
   try {
     const response = await signIn(form);
-    if (response && response.user_token) {
-      localStorage.setItem('token', response.user_token);
+    if (response && response.UserToken) {
+      localStorage.setItem('token', response.UserToken);
       localStorage.setItem('username',response.AdminName);
       localStorage.setItem('account',response.AdminAccount);
       router.push('/');

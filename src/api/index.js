@@ -19,13 +19,12 @@ api.interceptors.request.use(
     if (account && config.data) {
       let url = config.url.toLowerCase();
       url = url.replace(config.baseURL.toLowerCase(), '');
-      console.log(config.data);
       if (url.includes('/add') || url.includes('/insert')) {
-        config.data.datains_usr = account;
-        config.data.datains_date = moment().format('YYYY-MM-DD');
+        config.data.DataInsUsr = account;
+        config.data.DataInsDate = moment().format('YYYY-MM-DD');
       } else if (url.includes('/upd') || url.includes('/update')) {
-        config.data.datachg_usr = account;
-        config.data.datachg_date = moment().format('YYYY-MM-DD');
+        config.data.DataChgUsr = account;
+        config.data.DataChgDate = moment().format('YYYY-MM-DD');
       }
     }
     return config;

@@ -52,11 +52,11 @@ const sortedInfo = ref({ order: null, columnKey: null });
 const form = reactive({
   position_no: null,
   position_name: '',
-  delete_mk: 0,
-  datains_usr: '',
-  datains_date: null,
-  datachg_usr: '',
-  datachg_date: null,
+  isDelete: 0,
+  DataInsUsr: '',
+  DataInsDate: null,
+  DataChgUsr: '',
+  DataChgDate: null,
   modifystatus: '',
 });
 
@@ -98,7 +98,7 @@ const fetchPositionData = async () => {
     const result = await fetchPositions({
       page: pagiposition.current,
       pageSize: pagiposition.pageSize,
-      delete_mk: 0
+      isDelete: 0
     });
     positions.value = result;
     pagiposition.total = result.length;
@@ -121,7 +121,7 @@ const showModal = () => {
       separator: null,
     });
   form.position_name = '';
-  form.delete_mk = 0;
+  form.isDelete = 0;
   form.modifystatus = 'insert';
 };
 
@@ -164,7 +164,7 @@ const handleModalCancel = () => {
 
 const handleDelete = async (record) => {
   try {
-    record.delete_mk = 1;
+    record.isDelete = 1;
     await deletePosition(record);
     showNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
     fetchPositionData();

@@ -52,11 +52,11 @@ const sortedInfo = ref({ order: null, columnKey: null });
 const form = reactive({
   education_no: null,
   education_name: '',
-  delete_mk: 0,
-  datains_usr: '',
-  datains_date: null,
-  datachg_usr: '',
-  datachg_date: null,
+  isDelete: 0,
+  DataInsUsr: '',
+  DataInsDate: null,
+  DataChgUsr: '',
+  DataChgDate: null,
   modifystatus: '',
 });
 
@@ -98,7 +98,7 @@ const fetchQualificationData = async () => {
     const result = await fetchQualifications({
       page: pagiqualification.current,
       pageSize: pagiqualification.pageSize,
-      delete_mk: 0
+      isDelete: 0
     });
     qualifications.value = result;
     pagiqualification.total = result.length;
@@ -121,7 +121,7 @@ const showModal = () => {
       separator: null,
     });
   form.education_name = '';
-  form.delete_mk = 0;
+  form.isDelete = 0;
   form.modifystatus = 'insert';
 };
 
@@ -164,7 +164,7 @@ const handleModalCancel = () => {
 
 const handleDelete = async (record) => {
   try {
-    record.delete_mk = 1;
+    record.isDelete = 1;
     await deleteQualification(record);
     showNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
     fetchQualificationData();

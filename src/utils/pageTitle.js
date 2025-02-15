@@ -1,7 +1,7 @@
 export function getPageTitle(routePath) {
   switch (routePath) {
       case '/':
-          return 'message.homePage';
+          return 'message.home';
       case '/position':
           return 'message.positionManage';
       case '/nation':
@@ -12,8 +12,8 @@ export function getPageTitle(routePath) {
           return 'message.departmentManage';
       case '/internalfinance':
           return 'message.internalFinanceBill';
-      case '/hydroelectricity':
-          return 'message.hydroelectricInfo';
+      case '/hydroelectricinformation':
+          return 'message.hydroelectricinformation';
       case '/supervisioninfo':
           return 'message.supervisionInfo';
       case '/roommap':
@@ -25,21 +25,21 @@ export function getPageTitle(routePath) {
       case '/viplevel':
           return 'message.vipLevelRules';
       case '/customer':
-          return 'message.customerInfoManage';
+          return 'message.customer';
       case '/customerspend':
-          return 'message.customerSpendBill';
+          return 'message.customerspend';
       case '/staffmanagement':
-          return 'message.staffManage';
+          return 'message.staffmanagement';
       case '/goodsmanagement':
-          return 'message.goodsManage';
+          return 'message.goodsmanagement';
       case '/operationlog':
-          return 'message.operationLog';
+          return 'message.operationlog';
       case '/addadmin':
-          return 'message.addAdmin';
+          return 'message.addadmin';
       case '/zeroconfig':
-          return 'message.zeroConfig';
+          return 'message.zeroconfig';
        case '/systemmodule':
-          return 'message.systemModule';
+          return 'message.systemmodule';
       default:
           return 'message.defaultTitle';
   }

@@ -6,7 +6,6 @@ export const fetchWorkers = async (params) => {
     const response = await api.get('/Worker/SelectWorkerAll', { params });
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch workers:', error);
     throw error;
   }
 };
@@ -17,7 +16,6 @@ export const addWorker = async (data) => {
     const response = await api.post('/Worker/AddWorker', data);
     return response.data;
   } catch (error) {
-    console.error('Failed to add worker:', error);
     throw error;
   }
 };
@@ -28,7 +26,6 @@ export const updateWorker = async (data) => {
     const response = await api.post(`/Worker/UpdateWorker`, data);
     return response.data;
   } catch (error) {
-    console.error('Failed to update worker:', error);
     throw error;
   }
 };

@@ -6,7 +6,6 @@ export const fetchRooms = async (params) => {
     const response = await api.get('/Room/SelectRoomAll', { params });
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch rooms:', error);
     throw error;
   }
 };
@@ -17,7 +16,6 @@ export const addRoom = async (data) => {
     const response = await api.post('/Room/InsertRoom', data);
     return response.data;
   } catch (error) {
-    console.error('Failed to add room:', error);
     throw error;
   }
 };
@@ -28,7 +26,6 @@ export const updateRoom = async (data) => {
     const response = await api.post(`/Room/UpdateRoom`, data);
     return response.data;
   } catch (error) {
-    console.error('Failed to update room:', error);
     throw error;
   }
 };
@@ -39,7 +36,6 @@ export const deleteRoom = async (data) => {
     const response = await api.post(`/Room/DeleteRoom`,data);
       return response.data;
   } catch (error) {
-    console.error('Failed to delete room:', error);
     throw error;
   }
 };

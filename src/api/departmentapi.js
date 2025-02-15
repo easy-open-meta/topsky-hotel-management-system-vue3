@@ -6,7 +6,6 @@ export const fetchDepartments = async (params) => {
     const response = await api.get('/Base/SelectDeptAll', { params });
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch departments:', error);
     throw error;
   }
 };
@@ -17,7 +16,6 @@ export const addDepartment = async (data) => {
     const response = await api.post('/Base/AddDept', data);
     return response.data;
   } catch (error) {
-    console.error('Failed to add department:', error);
     throw error;
   }
 };
@@ -28,7 +26,6 @@ export const updateDepartment = async (data) => {
     const response = await api.post(`/Base/UpdDept`, data);
     return response.data;
   } catch (error) {
-    console.error('Failed to update department:', error);
     throw error;
   }
 };
@@ -39,7 +36,6 @@ export const deleteDepartment = async (data) => {
     const response = await api.post(`/Base/DelDept`,data);
       return response.data;
   } catch (error) {
-    console.error('Failed to delete department:', error);
     throw error;
   }
 };

@@ -91,10 +91,10 @@ const form = reactive({
   RoomDeposit:0,
   RoomStateId:null,
   RoomPosition:'',
-  datains_usr: '',
-  datains_date: null,
-  datachg_usr: '',
-  datachg_date: null,
+  DataInsUsr: '',
+  DataInsDate: null,
+  DataChgUsr: '',
+  DataChgDate: null,
   modifystatus: '',
 });
 
@@ -175,7 +175,7 @@ const fetchRoomData = async () => {
     const result = await fetchRooms({
       page: pagination.current,
       pageSize: pagination.pageSize,
-      delete_mk: 0
+      isDelete: 0
     });
     rooms.value = result;
     pagination.total = result.length;
@@ -244,6 +244,12 @@ onMounted(() => {
 const showModal = () => {
   modalVisible.value = true;
   modalTitle.value = t('message.insertRoom');
+  form.RoomNo = null;
+  form.RoomType = null;
+  form.RoomMoney = 0;
+  form.RoomDeposit = 0;
+  form.RoomStateId = null;
+  form.RoomPosition = '';
 
   form.modifystatus = 'insert';
 };
@@ -292,7 +298,7 @@ const handleModalCancel = () => {
 
 const handleDelete = async (record) => {
   try {
-    record.delete_mk = 1;
+    record.isDelete = 1;
     await deleteRoom(record);
     showNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
     fetchRoomData();

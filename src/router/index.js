@@ -8,7 +8,7 @@ import Nation from '../views/base/NationView.vue';
 import Qualification from '../views/base/QualificationView.vue';
 import Department from '../views/base/DepartmentView.vue';
 import InternalFinance from '../views/finance/InternalFinanceView.vue';
-import Hydroelectricity from '../views/hydroelectricity/HydroelectricityView.vue';
+import Hydroelectricity from '../views/hydroelectricity/HydroelectricityInfoView.vue';
 import Supervision from '../views/supervision/SupervisionView.vue';
 import RoomMap from '../views/roominformation/RoomMapView.vue';
 import RoomManagement from '../views/roominformation/RoomManagementView.vue';
@@ -61,8 +61,8 @@ const routes = [
         meta: { requiresAuth: true }
       },
       {
-        path: '/hydroelectricity',
-        name: 'hydroelectricity',
+        path: '/hydroelectricinformation',
+        name: 'hydroelectricinformation',
         component: Hydroelectricity,
         meta: { requiresAuth: true }
       },

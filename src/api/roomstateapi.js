@@ -6,7 +6,6 @@ export const fetchRoomStates = async (params) => {
     const response = await api.get('/Room/SelectRoomStateAll', { params });
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch types:', error);
     throw error;
   }
 };

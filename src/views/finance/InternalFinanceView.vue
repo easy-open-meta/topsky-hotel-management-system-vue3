@@ -91,11 +91,11 @@ const form = reactive({
   CashPrice: 0,
   CashSource: '',
   CashTime: null,
-  delete_mk: 0,
-  datains_usr: '',
-  datains_date: null,
-  datachg_usr: '',
-  datachg_date: null,
+  isDelete: 0,
+  DataInsUsr: '',
+  DataInsDate: null,
+  DataChgUsr: '',
+  DataChgDate: null,
   modifystatus: '',
 });
 
@@ -188,7 +188,7 @@ const fetchInternalfinanceData = async () => {
     const result = await fetchInternalFinances({
       page: pagicash.current,
       pageSize: pagicash.pageSize,
-      delete_mk: 0
+      isDelete: 0
     });
     cashs.value = result;
     pagicash.total = result.length;
@@ -242,7 +242,7 @@ const showModal = () => {
   form.CashTime = null;
   form.CashSource = '';
   form.CashPerson = '';
-  form.delete_mk = 0;
+  form.isDelete = 0;
   form.modifystatus = 'insert';
 };
 
@@ -290,7 +290,7 @@ const handleModalCancel = () => {
 
 const handleDelete = async (record) => {
   try {
-    record.delete_mk = 1;
+    record.isDelete = 1;
     await deleteInternalFinance(record);
     showNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
     fetchInternalfinanceData();

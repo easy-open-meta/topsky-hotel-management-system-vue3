@@ -78,11 +78,10 @@ const form = reactive({
   CheckScore: 0,
   CheckPerson: '',
   CheckAdvice: '',
-  dept_date: null,
-  datains_usr: '',
-  datains_date: null,
-  datachg_usr: '',
-  datachg_date: null,
+  DataInsUsr: '',
+  DataInsDate: null,
+  DataChgUsr: '',
+  DataChgDate: null,
   modifystatus: '',
 });
 
@@ -167,7 +166,7 @@ const fetchSupervisionInfoData = async () => {
     const result = await fetchSupervisionInfos({
       page: pagination.current,
       pageSize: pagination.pageSize,
-      delete_mk: 0
+      isDelete: 0
     });
     supervisioninfos.value = result;
     pagination.total = result.length;
@@ -255,7 +254,7 @@ const handleModalCancel = () => {
 
 const handleDelete = async (record) => {
   try {
-    record.delete_mk = 1;
+    record.isDelete = 1;
     await deleteSupervisionInfo(record);
     window.$notification('success', t('message.operationTitle'), t('message.deleteSuccess'));
     fetchSupervisionInfoData();

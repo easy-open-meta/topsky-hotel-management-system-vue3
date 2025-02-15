@@ -10,7 +10,6 @@ export const signIn = async (data) => {
        throw new Error(`Login failed with status code: ${response.status}`);
     }
   } catch (error) {
-    console.error('SignIn error:', error);
     throw error;
   }
 };

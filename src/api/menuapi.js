@@ -6,7 +6,6 @@ export const fetchMenusTree = async () => {
     const response = await api.get('/Menu/BuildMenuAll');
     return response.data;
   } catch (error) {
-    console.error('Error fetching menus:', error);
     throw error;
   }
 };
@@ -17,7 +16,6 @@ export const createMenu = async (menu) => {
     const response = await api.post('/Menu/InsertMenu', menu);
     return response.data;
   } catch (error) {
-    console.error('Error creating menu:', error);
     throw error;
   }
 };
@@ -28,7 +26,6 @@ export const updateMenu = async (menu) => {
     const response = await api.put(`/Menu/UpdateMenu`, menu);
     return response.data;
   } catch (error) {
-    console.error(`Error updating menu with id ${id}:`, error);
     throw error;
   }
 };
@@ -39,7 +36,6 @@ export const deleteMenu = async (menu) => {
     const response = await api.delete(`/Menu/DeleteMenu`,menu);
     return response.data;
   } catch (error) {
-    console.error(`Error deleting menu with id ${id}:`, error);
     throw error;
   }
 };

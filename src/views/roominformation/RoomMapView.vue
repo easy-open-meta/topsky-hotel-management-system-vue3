@@ -54,7 +54,7 @@ const groupedRooms = ref({});
 const fetchRoomData = async () => {
   loading.value = true;
   try {
-    const result = await fetchRooms({ delete_mk: 0 });
+    const result = await fetchRooms({ isDelete: 0 });
     rooms.value = result;
     groupRoomsByPosition();
   } catch (error) {

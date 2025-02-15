@@ -37,7 +37,7 @@
     </a-layout-header>
     <a-layout>
       <a-layout-sider
-        width="200"
+        width="300"
         style="
           background: #fff;
           padding: 10px;
@@ -51,18 +51,18 @@
           style="border-right: 0"
         >
           <template v-for="item in menuData" :key="item.key">
-            <a-sub-menu v-if="item.children" :key="item.key" :title="item.title">
+            <a-sub-menu v-if="item.children" :key="item.key" :title="t(item.title)">
               <a-menu-item
                 v-for="child in item.children"
                 :key="child.path"
               >
                 <router-link :to="child.path">{{
-                  child.title
+                  t(child.title)
                 }}</router-link>
               </a-menu-item>
             </a-sub-menu>
             <a-menu-item v-else :key="item.path">
-              <router-link :to="item.path">{{ item.title }}</router-link>
+              <router-link :to="item.path">{{ t(item.title) }}</router-link>
             </a-menu-item>
           </template>
         </a-menu>
@@ -91,7 +91,7 @@ const router = useRouter();
 const menuData = ref([]);
 const username = ref('');
 const isLoggedIn = ref(false);
-const { locale } = useI18n();
+const { locale,t } = useI18n();
 const currentLocale = ref(locale.value);
 
 const handleLanguageChange = (value) =>{
@@ -133,8 +133,18 @@ onMounted(async () => {
   try {
     const data = await fetchMenusTree();
     menuData.value = data;
+    menuData.value = data.map(item => {
+      if (item.children) {
+        return {
+          ...item,
+          children: item.children.map(child => ({ ...child, title: `message.${child.key}` })),
+          title: `message.${item.key}`
+        };
+      } else {
+        return { ...item, title: `message.${item.key}` };
+      }
+    });
   } catch (error) {
-    console.error('Failed to fetch menu data:', error);
      showNotification('error', '获取菜单失败', '请稍后重试');
   }
 });

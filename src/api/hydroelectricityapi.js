@@ -6,7 +6,6 @@ export const fetchHydroelectricitys = async (params) => {
     const response = await api.get('/Hydroelectricity/SelectWtiInfo', { params });
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch Hydroelectricitys:', error);
     throw error;
   }
 };
@@ -17,7 +16,6 @@ export const addHydroelectricity = async (data) => {
     const response = await api.post('/Hydroelectricity/InsertWtiInfo', data);
     return response.data;
   } catch (error) {
-    console.error('Failed to add Hydroelectricity:', error);
     throw error;
   }
 };
@@ -28,7 +26,6 @@ export const updateHydroelectricity = async (data) => {
     const response = await api.post(`/Hydroelectricity/UpdateWtiInfo`, data);
     return response.data;
   } catch (error) {
-    console.error('Failed to update Hydroelectricity:', error);
     throw error;
   }
 };
@@ -39,7 +36,6 @@ export const deleteHydroelectricity = async (data) => {
     const response = await api.post(`/Hydroelectricity/DeleteWtiInfo`, data);
       return response.data;
   } catch (error) {
-    console.error('Failed to delete Hydroelectricity:', error);
     throw error;
   }
 };

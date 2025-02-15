@@ -6,7 +6,6 @@ export const fetchQualifications = async (params) => {
     const response = await api.get('/Base/SelectEducationAll', { params });
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch Qualifications:', error);
     throw error;
   }
 };
@@ -17,7 +16,6 @@ export const addQualification = async (data) => {
     const response = await api.post('/Base/AddEducation', data);
     return response.data;
   } catch (error) {
-    console.error('Failed to add Qualification:', error);
     throw error;
   }
 };
@@ -28,7 +26,6 @@ export const updateQualification = async (data) => {
     const response = await api.post(`/Base/UpdEducation`, data);
     return response.data;
   } catch (error) {
-    console.error('Failed to update Qualification:', error);
     throw error;
   }
 };
@@ -39,7 +36,6 @@ export const deleteQualification = async (data) => {
     const response = await api.post(`/Base/DelEducation`,data);
       return response.data;
   } catch (error) {
-    console.error('Failed to delete Qualification:', error);
     throw error;
   }
 };
