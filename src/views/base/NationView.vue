@@ -16,12 +16,12 @@
 
     <a-modal :open="modalVisible" :title="modalTitle" @ok="handleModalOk" @cancel="handleModalCancel" :confirm-loading="confirmLoading">
       <a-form :model="form" :rules="rules" ref="formRef">
-        <a-form-item :label="nationNoLabel" name="nation_no">
-          <a-input v-model:value="form.nation_no" type="hidden" />
-          <span>{{ form.nation_no }}</span>
+        <a-form-item :label="nationNoLabel" :name="NationFields.NUMBER">
+          <a-input v-model:value="form[NationFields.NUMBER]" type="hidden" />
+          <span>{{ form[NationFields.NUMBER] }}</span>
         </a-form-item>
-        <a-form-item :label="nationNameLabel" name="nation_name">
-          <a-input v-model:value="form.nation_name" />
+        <a-form-item :label="nationNameLabel" :name="NationFields.NAME">
+          <a-input v-model:value="form[NationFields.NAME]" />
         </a-form-item>
       </a-form>
     </a-modal>
@@ -34,6 +34,12 @@ import { useRoute } from 'vue-router';
 import { getPageTitle } from '@/utils/pageTitle';
 import { showNotification } from '@/utils/index';
 import { fetchNations, addNation, updateNation, deleteNation } from '@/api/nationapi';
+import { 
+  NationFields, 
+  initialFormValues, 
+  getColumns, 
+  getFormRules 
+} from '@/entities/nation.entity';
 import { useI18n } from 'vue-i18n';
 import generateSnowflakeId from '@/utils/snowflake';
 
@@ -49,46 +55,22 @@ const confirmLoading = ref(false);
 const formRef = ref(null);
 const sortedInfo = ref({ order: null, columnKey: null });
 
-const form = reactive({
-  nation_no: null,
-  nation_name: '',
-  DataInsUsr: '',
-  DataInsDate: null,
-  DataChgUsr: '',
-  DataChgDate: null,
-  modifystatus: '',
-});
+const form = reactive({ ...initialFormValues });
 
-const rules = {
-  nation_name: [{ required: true, message: t('message.pleaseInputNationName'), trigger: 'blur' }],
-};
+const rules = getFormRules(t);
 
 const nationNoLabel = computed(() => t('message.nationNo'));
 const nationNameLabel = computed(() => t('message.nationName'));
 
-const columns = computed(() => [
-  {
-    title: t('message.nationNo'),
-    dataIndex: 'nation_no',
-    key: 'nation_no',
-    sorter: (a, b) => a.nation_no.localeCompare(b.nation_no),
-    defaultSortOrder: 'ascend'
-  },
-  {
-    title: t('message.nationName'),
-    dataIndex: 'nation_name',
-    key: 'nation_name',
-  },
-  {
-    title: t('message.operation'),
-    key: 'operation',
-  },
-]);
+const columns = computed(() => getColumns(t));
 
 const pagination = reactive({
   current: 1,
-  pageSize: 10,
+  pageSize: 15,
   total: 0,
+  showSizeChanger: true,
+  pageSizeOptions: ['15', '20', '50'],
+  showTotal: (total) => `共 ${total} 条`
 });
 
 const fetchNationData = async () => {
@@ -96,11 +78,18 @@ const fetchNationData = async () => {
   try {
     const result = await fetchNations({
       page: pagination.current,
-      pageSize: pagination.pageSize,
-      isDelete: 0
+      pageSize: pagination.pageSize, 
+      [NationFields.IS_DELETE]: 0
     });
-    nations.value = result;
-    pagination.total = result.length;
+    if (result?.listSource) {
+      nations.value = result.listSource.map(item => ({
+      [NationFields.NUMBER]: item[NationFields.NUMBER],
+      [NationFields.NAME]: item[NationFields.NAME]
+    }));
+      pagination.total = result.total;
+    } else {
+      throw new Error('数据格式错误');
+    }
   } catch (error) {
     showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
   } finally {
@@ -115,11 +104,11 @@ onMounted(() => {
 const showModal = () => {
   modalVisible.value = true;
   modalTitle.value = t('message.insertNation');
-  form.nation_no = generateSnowflakeId({
+  form[NationFields.NUMBER] = generateSnowflakeId({
       prefix: 'N-',
       separator: null,
     });
-  form.nation_name = '';
+  form[NationFields.NAME] = '';
   form.modifystatus = 'insert';
 };
 
@@ -131,8 +120,8 @@ const refreshData = () =>
 const editNation = (record) => {
   modalVisible.value = true;
   modalTitle.value = t('message.updateNation');
-  form.nation_no = record.nation_no;
-  form.nation_name = record.nation_name;
+  form[NationFields.NUMBER] = record[NationFields.NUMBER];
+  form[NationFields.NAME] = record[NationFields.NAME];
   form.modifystatus = 'update';
 };
 
@@ -162,7 +151,7 @@ const handleModalCancel = () => {
 
 const handleDelete = async (record) => {
   try {
-    record.isDelete = 1;
+    record[NationFields.IS_DELETE] = 1;
     await deleteNation(record);
     showNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
     fetchNationData();

@@ -16,12 +16,12 @@
 
     <a-modal :open="modalVisible" :title="modalTitle" @ok="handleModalOk" @cancel="handleModalCancel" :confirm-loading="confirmLoading">
       <a-form :model="form" :rules="rules" ref="formRef">
-        <a-form-item :label="qualificationNoLabel" name="education_no">
-          <a-input v-model:value="form.education_no" type="hidden" />
-          <span>{{ form.education_no }}</span>
+        <a-form-item :label="qualificationNoLabel" :name="EducationFields.NUMBER">
+          <a-input v-model:value="form[EducationFields.NUMBER]" type="hidden" />
+          <span>{{ form[EducationFields.NUMBER] }}</span>
         </a-form-item>
-        <a-form-item :label="qualificationNameLabel" name="education_name">
-          <a-input v-model:value="form.education_name" />
+        <a-form-item :label="qualificationNameLabel" :name="EducationFields.NAME">
+          <a-input v-model:value="form[EducationFields.NAME]" />
         </a-form-item>
       </a-form>
     </a-modal>
@@ -34,6 +34,12 @@ import { useRoute } from 'vue-router';
 import { getPageTitle } from '@/utils/pageTitle';
 import { showNotification } from '@/utils/index';
 import { fetchQualifications, addQualification, updateQualification, deleteQualification } from '@/api/qualificationapi';
+import { 
+  EducationFields, 
+  initialFormValues, 
+  getColumns, 
+  getFormRules 
+} from '@/entities/qualification.entity';
 import { useI18n } from 'vue-i18n';
 import generateSnowflakeId from '@/utils/snowflake';
 
@@ -47,49 +53,22 @@ const modalVisible = ref(false);
 const modalTitle = ref('');
 const confirmLoading = ref(false);
 const formRef = ref(null);
+const form = reactive({ ...initialFormValues });
+const rules = getFormRules(t);
 const sortedInfo = ref({ order: null, columnKey: null });
-
-const form = reactive({
-  education_no: null,
-  education_name: '',
-  isDelete: 0,
-  DataInsUsr: '',
-  DataInsDate: null,
-  DataChgUsr: '',
-  DataChgDate: null,
-  modifystatus: '',
-});
-
-const rules = {
-  qualification_name: [{ required: true, message: t('message.pleaseInputQualificationName'), trigger: 'blur' }],
-};
 
 const qualificationNoLabel = computed(() => t('message.qualificationNo'));
 const qualificationNameLabel = computed(() => t('message.qualificationName'));
 
-const columns = computed(() => [
-  {
-    title: t('message.qualificationNo'),
-    dataIndex: 'education_no',
-    key: 'education_no',
-    sorter: (a, b) => a.education_no.localeCompare(b.education_no),
-    defaultSortOrder: 'ascend'
-  },
-  {
-    title: t('message.qualificationName'),
-    dataIndex: 'education_name',
-    key: 'education_name',
-  },
-  {
-    title: t('message.operation'),
-    key: 'operation',
-  },
-]);
+const columns = computed(() => getColumns(t));
 
 const pagiqualification = reactive({
   current: 1,
-  pageSize: 10,
+  pageSize: 15,
   total: 0,
+  showSizeChanger: true,
+  pageSizeOptions: ['15', '20', '50'],
+  showTotal: (total) => `共 ${total} 条`
 });
 
 const fetchQualificationData = async () => {
@@ -98,10 +77,17 @@ const fetchQualificationData = async () => {
     const result = await fetchQualifications({
       page: pagiqualification.current,
       pageSize: pagiqualification.pageSize,
-      isDelete: 0
+      [EducationFields.IS_DELETE]: 0
     });
-    qualifications.value = result;
-    pagiqualification.total = result.length;
+    if (result?.listSource) {
+      qualifications.value = result.listSource.map(item => ({
+      [EducationFields.NUMBER]: item[EducationFields.NUMBER],
+      [EducationFields.NAME]: item[EducationFields.NAME]
+    }));
+    pagiqualification.total = result.total;
+    } else {
+      throw new Error('数据格式错误');
+    }
   } catch (error) {
     showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
   } finally {
@@ -116,12 +102,12 @@ onMounted(() => {
 const showModal = () => {
   modalVisible.value = true;
   modalTitle.value = t('message.insertQualification');
-  form.education_no = generateSnowflakeId({
+  form[EducationFields.NUMBER] = generateSnowflakeId({
       prefix: 'E-',
       separator: null,
     });
-  form.education_name = '';
-  form.isDelete = 0;
+  form[EducationFields.NAME] = '';
+  form[EducationFields.IS_DELETE] = 0;
   form.modifystatus = 'insert';
 };
 
@@ -133,8 +119,8 @@ const refreshData = () =>
 const editQualification = (record) => {
   modalVisible.value = true;
   modalTitle.value = t('message.updateQualification');
-  form.education_no = record.education_no;
-  form.education_name = record.education_name;
+  form[EducationFields.NUMBER] = record.EducationNumber;
+  form[EducationFields.NAME] = record.EducationName;
   form.modifystatus = 'update';
 };
 
@@ -164,7 +150,7 @@ const handleModalCancel = () => {
 
 const handleDelete = async (record) => {
   try {
-    record.isDelete = 1;
+    record[EducationFields.IS_DELETE] = 1;
     await deleteQualification(record);
     showNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
     fetchQualificationData();

@@ -4,7 +4,7 @@ import api from '../api';
 export const signIn = async (data) => {
   try {
     const response = await api.post('/Admin/Login', data);
-    if (response.status === 200) {
+    if (response.data.StatusCode === 200) {
       return response.data;
     } else {
        throw new Error(`Login failed with status code: ${response.status}`);

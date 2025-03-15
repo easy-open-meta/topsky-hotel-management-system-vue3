@@ -2,11 +2,11 @@
   <div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
     <a-card :title="signInLabel" style="width: 400px">
       <a-form :model="form" @finish="onFinish" @finish-failed="onFinishFailed">
-        <a-form-item :label="usernameLabel" name="adminAccount" :rules="[{ required: true, message: 'Please input your username!' }]">
-          <a-input v-model:value="form.adminAccount" />
+        <a-form-item :label="usernameLabel" name="Account" :rules="[{ required: true, message: 'Please input your username!' }]">
+          <a-input v-model:value="form.Account" />
         </a-form-item>
-        <a-form-item :label="passwordLabel" name="adminPassword" :rules="[{ required: true, message: 'Please input your password!' }]">
-          <a-input-password v-model:value="form.adminPassword" />
+        <a-form-item :label="passwordLabel" name="Password" :rules="[{ required: true, message: 'Please input your password!' }]">
+          <a-input-password v-model:value="form.Password" />
         </a-form-item>
         <a-form-item>
           <a-button type="primary" html-type="submit" :loading="loading">{{ $t('message.signin') }}</a-button>
@@ -45,18 +45,20 @@ const passwordLabel = computed(() => t('message.password'));
 const router = useRouter();
 const loading = ref(false);
 const form = reactive({
-  adminAccount: '',
-  adminPassword: '',
+  Account: '',
+  Password: '',
 });
 
 const onFinish = async () => {
   loading.value = true;
   try {
     const response = await signIn(form);
-    if (response && response.UserToken) {
-      localStorage.setItem('token', response.UserToken);
-      localStorage.setItem('username',response.AdminName);
-      localStorage.setItem('account',response.AdminAccount);
+    console.log(response);
+    if (response && response.StatusCode === 200) {
+      const { Source } = response;
+      localStorage.setItem('token', Source.UserToken);
+      localStorage.setItem('username',Source.Name);
+      localStorage.setItem('account',Source.Account);
       router.push('/');
        showNotification('success', '登录成功', '欢迎回来');
     } else {

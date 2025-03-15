@@ -16,12 +16,12 @@
 
     <a-modal :open="modalVisible" :title="modalTitle" @ok="handleModalOk" @cancel="handleModalCancel" :confirm-loading="confirmLoading">
       <a-form :model="form" :rules="rules" ref="formRef">
-        <a-form-item :label="positionNoLabel" name="position_no">
-          <a-input v-model:value="form.position_no" type="hidden" />
-          <span>{{ form.position_no }}</span>
+        <a-form-item :label="positionNoLabel" :name="PositionFields.NUMBER">
+          <a-input v-model:value="form[PositionFields.NUMBER]" type="hidden" />
+          <span>{{ form[PositionFields.NUMBER] }}</span>
         </a-form-item>
-        <a-form-item :label="positionNameLabel" name="position_name">
-          <a-input v-model:value="form.position_name" />
+        <a-form-item :label="positionNameLabel" :name="PositionFields.NAME">
+          <a-input v-model:value="form[PositionFields.NAME]" />
         </a-form-item>
       </a-form>
     </a-modal>
@@ -34,6 +34,12 @@ import { useRoute } from 'vue-router';
 import { getPageTitle } from '@/utils/pageTitle';
 import { showNotification } from '@/utils/index';
 import { fetchPositions, addPosition, updatePosition, deletePosition } from '@/api/positionapi';
+import { 
+  PositionFields, 
+  initialFormValues, 
+  getColumns, 
+  getFormRules 
+} from '@/entities/position.entity';
 import { useI18n } from 'vue-i18n';
 import generateSnowflakeId from '@/utils/snowflake';
 
@@ -49,47 +55,22 @@ const confirmLoading = ref(false);
 const formRef = ref(null);
 const sortedInfo = ref({ order: null, columnKey: null });
 
-const form = reactive({
-  position_no: null,
-  position_name: '',
-  isDelete: 0,
-  DataInsUsr: '',
-  DataInsDate: null,
-  DataChgUsr: '',
-  DataChgDate: null,
-  modifystatus: '',
-});
+const form = reactive({ ...initialFormValues });
 
-const rules = {
-  position_name: [{ required: true, message: t('message.pleaseInputPositionName'), trigger: 'blur' }],
-};
+const rules = getFormRules(t);
 
 const positionNoLabel = computed(() => t('message.positionNo'));
 const positionNameLabel = computed(() => t('message.positionName'));
 
-const columns = computed(() => [
-  {
-    title: t('message.positionNo'),
-    dataIndex: 'position_no',
-    key: 'position_no',
-    sorter: (a, b) => a.position_no.localeCompare(b.position_no),
-    defaultSortOrder: 'ascend'
-  },
-  {
-    title: t('message.positionName'),
-    dataIndex: 'position_name',
-    key: 'position_name',
-  },
-  {
-    title: t('message.operation'),
-    key: 'operation',
-  },
-]);
+const columns = computed(() => getColumns(t));
 
 const pagiposition = reactive({
   current: 1,
-  pageSize: 10,
+  pageSize: 15,
   total: 0,
+  showSizeChanger: true,
+  pageSizeOptions: ['15', '20', '50'],
+  showTotal: (total) => `共 ${total} 条`
 });
 
 const fetchPositionData = async () => {
@@ -98,12 +79,19 @@ const fetchPositionData = async () => {
     const result = await fetchPositions({
       page: pagiposition.current,
       pageSize: pagiposition.pageSize,
-      isDelete: 0
+      [PositionFields.IS_DELETE]: 0
     });
-    positions.value = result;
-    pagiposition.total = result.length;
+    if (result?.listSource) {
+      positions.value = result.listSource.map(item => ({
+      [PositionFields.NUMBER]: item[PositionFields.NUMBER],
+      [PositionFields.NAME]: item[PositionFields.NAME]
+    }));
+      pagiposition.total = result.total;
+    } else {
+      throw new Error('数据格式错误');
+    }
   } catch (error) {
-    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showNotification('error', t('message.operationTitle'), error.message || t('message.pleaseTryAgainLater'));
   } finally {
     loading.value = false;
   }
@@ -116,11 +104,11 @@ onMounted(() => {
 const showModal = () => {
   modalVisible.value = true;
   modalTitle.value = t('message.insertPosition');
-  form.position_no = generateSnowflakeId({
+  form[PositionFields.NUMBER] = generateSnowflakeId({
       prefix: 'P-',
       separator: null,
     });
-  form.position_name = '';
+  form[PositionFields.NAME] = '';
   form.isDelete = 0;
   form.modifystatus = 'insert';
 };
@@ -131,10 +119,11 @@ const refreshData = () =>
 };
 
 const editPosition = (record) => {
+  console.log(record);
   modalVisible.value = true;
   modalTitle.value = t('message.updatePosition');
-  form.position_no = record.position_no;
-  form.position_name = record.position_name;
+  form[PositionFields.NUMBER] = record.PositionNumber;
+  form[PositionFields.NAME] = record.PositionName;
   form.modifystatus = 'update';
 };
 
@@ -164,7 +153,7 @@ const handleModalCancel = () => {
 
 const handleDelete = async (record) => {
   try {
-    record.isDelete = 1;
+    record[PositionFields.IS_DELETE] = 1;
     await deletePosition(record);
     showNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
     fetchPositionData();

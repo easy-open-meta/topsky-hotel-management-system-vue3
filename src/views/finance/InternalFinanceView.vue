@@ -63,7 +63,7 @@ import { useRoute } from 'vue-router';
 import { getPageTitle } from '@/utils/pageTitle';
 import { fetchInternalFinances, addInternalFinance, updateInternalFinance, deleteInternalFinance } from '@/api/internalfinanceapi';
 import { fetchDepartments } from '@/api/departmentapi';
-import { fetchWorkers } from '@/api/workerapi';
+import { fetchEmployees } from '@/api/employeeapi';
 import { formatDate,showNotification } from '@/utils/index';
 import { useI18n } from 'vue-i18n';
 import generateSnowflakeId from '@/utils/snowflake';
@@ -213,7 +213,7 @@ const fetchSelectDepartments = async () => {
 
 const fetchSelectPersons = async () => {
   try {
-    const result = await fetchWorkers();
+    const result = await fetchEmployees();
     personOptions.value = result.map((item) => ({
       label: item.WorkerName,
       value: item.WorkerId,

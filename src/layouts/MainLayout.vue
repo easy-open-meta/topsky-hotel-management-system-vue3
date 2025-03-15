@@ -36,37 +36,30 @@
       </div>
     </a-layout-header>
     <a-layout>
-      <a-layout-sider
-        width="300"
-        style="
-          background: #fff;
-          padding: 10px;
-          max-height: 100vh;
-          overflow-y: auto;
-        "
-      >
-        <a-menu
-          mode="inline"
-          :selected-keys="[$route.path]"
-          style="border-right: 0"
+        <a-layout-sider
+          width="280"
+          style="background: #fff; padding: 10px; max-height: 100vh; overflow-y: auto;"
         >
+        <a-menu mode="inline" :selected-keys="[$route.path]">
           <template v-for="item in menuData" :key="item.key">
             <a-sub-menu v-if="item.children" :key="item.key" :title="t(item.title)">
-              <a-menu-item
-                v-for="child in item.children"
+              <a-menu-item 
+                v-for="child in item.children" 
                 :key="child.path"
               >
-                <router-link :to="child.path">{{
-                  t(child.title)
-                }}</router-link>
+                <router-link :to="child.path">
+                  {{ t(child.title) }}
+                </router-link>
               </a-menu-item>
             </a-sub-menu>
             <a-menu-item v-else :key="item.path">
-              <router-link :to="item.path">{{ t(item.title) }}</router-link>
+              <router-link :to="item.path">
+                {{ t(item.title) }}
+              </router-link>
             </a-menu-item>
           </template>
         </a-menu>
-      </a-layout-sider>
+        </a-layout-sider>
       <a-layout-content
         style="padding: 24px; min-height: 280; background: #f0f2f5"
       >
@@ -132,20 +125,22 @@ onBeforeMount(() => {
 onMounted(async () => {
   try {
     const data = await fetchMenusTree();
-    menuData.value = data;
     menuData.value = data.map(item => {
-      if (item.children) {
-        return {
-          ...item,
-          children: item.children.map(child => ({ ...child, title: `message.${child.key}` })),
-          title: `message.${item.key}`
-        };
-      } else {
-        return { ...item, title: `message.${item.key}` };
-      }
+      const processedItem = {
+        key: item.Key,
+        title: `message.${item.Key}`,
+        path: item.Path,
+        children: item.Children ? item.Children.map(child => ({
+          key: child.Key,
+          title: `message.${child.Key}`,
+          path: child.Path,
+          children: child.Children
+        })) : null
+      };
+      return processedItem;
     });
   } catch (error) {
-     showNotification('error', '获取菜单失败', '请稍后重试');
+    showNotification('error', '获取菜单失败', '请稍后重试');
   }
 });
 

@@ -11,40 +11,40 @@
             <a-button danger>{{ $t('message.delete') }}</a-button>
           </a-popconfirm>
         </template>
-        <template v-else-if="column.key === 'dept_date'">
-          {{ formatDate(record.dept_date) }}
+        <template v-else-if="column.key === DepartmentFields.CREATIONDATE">
+          {{ formatDate(record[DepartmentFields.CREATIONDATE]) }}
         </template>
       </template>
     </a-table>
 
     <a-modal :open="modalVisible" :title="modalTitle" @ok="handleModalOk" @cancel="handleModalCancel" :confirm-loading="confirmLoading">
       <a-form :model="form" :rules="rules" ref="formRef">
-        <a-form-item :label="departmentNoLabel" name="dept_no">
-          <a-input v-model:value="form.dept_no" type="hidden" />
-          <span>{{ form.dept_no }}</span>
+        <a-form-item :label="departmentNoLabel" :name="DepartmentFields.NUMBER">
+          <a-input v-model:value="form[DepartmentFields.NUMBER]" type="hidden" />
+          <span>{{ form[DepartmentFields.NUMBER] }}</span>
         </a-form-item>
-        <a-form-item :label="departmentNameLabel" name="dept_name">
-          <a-input v-model:value="form.dept_name" />
+        <a-form-item :label="departmentNameLabel" :name="DepartmentFields.NAME">
+          <a-input v-model:value="form[DepartmentFields.NAME]" />
         </a-form-item>
-        <a-form-item :label="departmentDescLabel" name="dept_desc">
-          <a-textarea v-model:value="form.dept_desc" />
+        <a-form-item :label="departmentDescLabel" :name="DepartmentFields.DESCRIPTION">
+          <a-textarea v-model:value="form[DepartmentFields.DESCRIPTION]" />
         </a-form-item>
-        <a-form-item :label="departmentLeaderLabel" name="dept_leader">
+        <a-form-item :label="departmentLeaderLabel" :name="DepartmentFields.LEADER">
           <a-select
-            v-model:value="form.dept_leader"
+            v-model:value="form[DepartmentFields.LEADER]"
             :options="leaderOptions"
             :placeholder="t('message.pleaseInputDepartmentLeader')"
           />
         </a-form-item>
-        <a-form-item :label="departmentParentLabel" name="dept_parent">
+        <a-form-item :label="departmentParentLabel" :name="DepartmentFields.PARENT">
           <a-select
-            v-model:value="form.dept_parent"
+            v-model:value="form[DepartmentFields.PARENT]"
             :options="departmentOptions"
             :placeholder="t('message.pleaseInputDepartmentParent')"
           />
         </a-form-item>
-        <a-form-item :label="departmentDateLabel" name="dept_date">
-          <a-date-picker v-model:value="form.dept_date" />
+        <a-form-item :label="departmentDateLabel" :name="DepartmentFields.CREATIONDATE">
+          <a-date-picker v-model:value="form[DepartmentFields.CREATIONDATE]" />
         </a-form-item>
       </a-form>
     </a-modal>
@@ -56,7 +56,16 @@ import { ref, onMounted, computed, reactive } from 'vue';
 import { useRoute } from 'vue-router';
 import { getPageTitle } from '@/utils/pageTitle';
 import { fetchDepartments, addDepartment, updateDepartment, deleteDepartment } from '@/api/departmentapi';
-import { fetchWorkers } from '@/api/workerapi';
+import { 
+  DepartmentFields, 
+  initialFormValues, 
+  getColumns, 
+  getFormRules 
+} from '@/entities/department.entity';
+import { 
+  EmployeeFields
+} from '@/entities/employee.entity';
+import { fetchEmployees } from '@/api/employeeapi';
 import { formatDate,showNotification } from '@/utils/index';
 import { useI18n } from 'vue-i18n';
 import generateSnowflakeId from '@/utils/snowflake';
@@ -76,23 +85,9 @@ const sortedInfo = ref({ order: null, columnKey: null });
 const departmentOptions = ref([]);
 const leaderOptions = ref([]);
 
-const form = reactive({
-  dept_no: null,
-  dept_name: '',
-  dept_desc: '',
-  dept_leader: '',
-  dept_parent: '',
-  dept_date: null,
-  DataInsUsr: '',
-  DataInsDate: null,
-  DataChgUsr: '',
-  DataChgDate: null,
-  modifystatus: '',
-});
+const form = reactive({ ...initialFormValues });
 
-const rules = {
-  dept_name: [{ required: true, message: t('message.pleaseInputDepartmentName'), trigger: 'blur' }],
-};
+const rules = getFormRules(t);
 
 const departmentNoLabel = computed(() => t('message.departmentNo'));
 const departmentNameLabel = computed(() => t('message.departmentName'));
@@ -101,49 +96,15 @@ const departmentLeaderLabel = computed(() => t('message.departmentLeader'));
 const departmentParentLabel = computed(() => t('message.departmentParent'));
 const departmentDateLabel = computed(() => t('message.departmentDate'));
 
-const columns = computed(() => [
-  {
-    title: t('message.departmentNo'),
-    dataIndex: 'dept_no',
-    key: 'dept_no',
-    sorter: (a, b) => a.dept_no.localeCompare(b.dept_no),
-    defaultSortOrder: 'ascend'
-  },
-  {
-    title: t('message.departmentName'),
-    dataIndex: 'dept_name',
-    key: 'dept_name',
-  },
-  {
-    title: t('message.departmentDesc'),
-    dataIndex: 'dept_desc',
-    key: 'dept_desc',
-  },
-  {
-    title: t('message.departmentLeader'),
-    dataIndex: 'leader_name',
-    key: 'leader_name',
-  },
-  {
-    title: t('message.departmentParent'),
-    dataIndex: 'parent_name',
-    key: 'parent_name',
-  },
-  {
-    title: t('message.departmentDate'),
-    dataIndex: 'dept_date',
-    key: 'dept_date',
-  },
-  {
-    title: t('message.operation'),
-    key: 'operation',
-  },
-]);
+const columns = computed(() => getColumns(t));
 
 const pagination = reactive({
   current: 1,
-  pageSize: 10,
+  pageSize: 15,
   total: 0,
+  showSizeChanger: true,
+  pageSizeOptions: ['15', '20', '50'],
+  showTotal: (total) => `共 ${total} 条`
 });
 
 const fetchDepartmentData = async () => {
@@ -152,10 +113,26 @@ const fetchDepartmentData = async () => {
     const result = await fetchDepartments({
       page: pagination.current,
       pageSize: pagination.pageSize,
-      isDelete: 0
+      [DepartmentFields.IS_DELETE]: 0
     });
     departments.value = result;
     pagination.total = result.length;
+    if (result?.listSource) {
+      departments.value = result.listSource.map(item => ({
+      [DepartmentFields.NUMBER]: item[DepartmentFields.NUMBER],
+      [DepartmentFields.NAME]: item[DepartmentFields.NAME],
+      [DepartmentFields.DESCRIPTION]: item[DepartmentFields.DESCRIPTION],
+      [DepartmentFields.LEADER]: item[DepartmentFields.LEADER],
+      [DepartmentFields.LEADERNAME]: item[DepartmentFields.LEADERNAME],
+      [DepartmentFields.PARENT]: item[DepartmentFields.PARENT],
+      [DepartmentFields.PARENTNAME]: item[DepartmentFields.PARENTNAME],
+      [DepartmentFields.CREATIONDATE]: item[DepartmentFields.CREATIONDATE],
+      [DepartmentFields.IS_DELETE]: item[DepartmentFields.IS_DELETE]
+    }));
+    pagination.total = result.total;
+    } else {
+      throw new Error('数据格式错误');
+    }
   } catch (error) {
     showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
   } finally {
@@ -165,10 +142,12 @@ const fetchDepartmentData = async () => {
 
 const fetchSelectDepartments = async () => {
   try {
-    const result = await fetchDepartments();
-    departmentOptions.value = result.map((item) => ({
-      label: item.dept_name,
-      value: item.dept_no,
+    const result = await fetchDepartments({
+      [DepartmentFields.IS_DELETE]: 0
+    });
+    departmentOptions.value = result.listSource.map((item) => ({
+      label: item[DepartmentFields.NAME],
+      value: item[DepartmentFields.NUMBER],
     }));
   } catch (error) {
     showNotification('error', t('message.fetchDataFailed'), t('message.pleaseTryAgainLater'));
@@ -177,10 +156,14 @@ const fetchSelectDepartments = async () => {
 
 const fetchSelectLeaders = async () => {
   try {
-    const result = await fetchWorkers();
-    leaderOptions.value = result.map((item) => ({
-      label: item.WorkerName,
-      value: item.WorkerId,
+    const result = await fetchEmployees({
+      [EmployeeFields.IS_DELETE]: 0,
+      page: 1,
+      pageSize: 9999
+    });
+    leaderOptions.value = result.listSource.map((item) => ({
+      label: item[EmployeeFields.NAME],
+      value: item[EmployeeFields.NUMBER],
     }));
   } catch (error) {
     showNotification('error', t('message.fetchDataFailed'), t('message.pleaseTryAgainLater'));
@@ -196,14 +179,15 @@ onMounted(() => {
 const showModal = () => {
   modalVisible.value = true;
   modalTitle.value = t('message.insertDepartment');
-  form.dept_no = generateSnowflakeId({
+  form[DepartmentFields.NUMBER] = generateSnowflakeId({
       prefix: 'D-',
       separator: null,
     });
-  form.dept_name = '';
-  form.dept_desc = '';
-  form.dept_leader = '';
-  form.dept_parent = '';
+  form[DepartmentFields.NAME] = '';
+  form[DepartmentFields.DESCRIPTION] = '';
+  form[DepartmentFields.LEADER] = '';
+  form[DepartmentFields.PARENT] = '';
+  form[DepartmentFields.CREATIONDATE] = null;
   form.modifystatus = 'insert';
 };
 
@@ -215,12 +199,12 @@ const refreshData = () =>
 const editDepartment = (record) => {
   modalVisible.value = true;
   modalTitle.value = t('message.updateDepartment');
-  form.dept_no = record.dept_no;
-  form.dept_name = record.dept_name;
-  form.dept_desc = record.dept_desc;
-  form.dept_leader = record.dept_leader;
-  form.dept_parent = record.dept_parent;
-  form.dept_date = record.dept_date ? moment(record.dept_date) : null;
+  form[DepartmentFields.NUMBER] = record[DepartmentFields.NUMBER];
+  form[DepartmentFields.NAME] = record[DepartmentFields.NAME];
+  form[DepartmentFields.DESCRIPTION] = record[DepartmentFields.DESCRIPTION];
+  form[DepartmentFields.LEADER] = record[DepartmentFields.LEADER];
+  form[DepartmentFields.PARENT] = record[DepartmentFields.PARENT];
+  form[DepartmentFields.CREATIONDATE] = record[DepartmentFields.CREATIONDATE] ? moment(record[DepartmentFields.CREATIONDATE]) : null;
   form.modifystatus = 'update';
 };
 
@@ -229,10 +213,10 @@ const handleModalOk = async () => {
     await formRef.value.validate();
     confirmLoading.value = true;
     if (form.modifystatus === 'update') {
-      await updateDepartment({ ...form,dept_date:form.dept_date?form.dept_date.format('YYYY-MM-DD'):null});
+      await updateDepartment({ ...form,[DepartmentFields.CREATIONDATE]:form[DepartmentFields.CREATIONDATE]?form[DepartmentFields.CREATIONDATE].format('YYYY-MM-DD'):null});
       showNotification('success', t('message.operationTitle') , t('message.updateSuccess'));
     } else {
-      await addDepartment({ ...form,dept_date:form.dept_date?form.dept_date.format('YYYY-MM-DD'):null});
+      await addDepartment({ ...form,[DepartmentFields.CREATIONDATE]:form[DepartmentFields.CREATIONDATE]?form[DepartmentFields.CREATIONDATE].format('YYYY-MM-DD'):null});
       showNotification('success', t('message.operationTitle') , t('message.addSuccess'));
     }
     modalVisible.value = false;
@@ -250,7 +234,7 @@ const handleModalCancel = () => {
 
 const handleDelete = async (record) => {
   try {
-    record.isDelete = 1;
+    [DepartmentFields.IS_DELETE] = 1;
     await deleteDepartment(record);
     showNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
     fetchDepartmentData();
