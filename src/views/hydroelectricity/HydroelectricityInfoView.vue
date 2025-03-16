@@ -10,31 +10,37 @@
             <a-button danger>{{ $t('message.delete') }}</a-button>
           </a-popconfirm>
         </template>
+        <template v-else-if="column.key === EnergyManagementFields.STARTDATE">
+          {{ formatDate(record[EnergyManagementFields.STARTDATE]) }}
+        </template>
+        <template v-else-if="column.key === EnergyManagementFields.ENDDATE">
+          {{ formatDate(record[EnergyManagementFields.ENDDATE]) }}
+        </template>
       </template>
     </a-table>
 
     <a-modal :open="modalVisible" :title="modalTitle" @ok="handleModalOk" @cancel="handleModalCancel" :confirm-loading="confirmLoading">
       <a-form :model="form" :rules="rules" ref="formRef">
-        <a-form-item :label="wtiNoLabel" name="WtiNo">
-          <span>{{ form.WtiNo }}</span>
+        <a-form-item :label="wtiNoLabel" :name="EnergyManagementFields.NUMBER">
+          <span>{{ form[EnergyManagementFields.NUMBER] }}</span>
         </a-form-item>
-        <a-form-item :label="roomNoLabel" name="RoomNo">
-          <span>{{ form.RoomNo }}</span>
+        <a-form-item :label="roomNoLabel" :name="EnergyManagementFields.ROOMNUMBER">
+          <span>{{ form[EnergyManagementFields.ROOMNUMBER] }}</span>
         </a-form-item>
-        <a-form-item :label="custoNoLabel" name="CustoNo">
-          <span>{{ form.CustoNo }}</span>
+        <a-form-item :label="custoNoLabel" :name="EnergyManagementFields.CUSTOMERNUMBER">
+          <span>{{ form[EnergyManagementFields.CUSTOMERNUMBER] }}</span>
         </a-form-item>
-        <a-form-item :label="useDateLabel" name="UseDate">
-          <span>{{ formatDate(form.UseDate) }}</span>
+        <a-form-item :label="useDateLabel" :name="EnergyManagementFields.STARTDATE">
+          <span>{{ formatDate(form[EnergyManagementFields.STARTDATE]) }}</span>
         </a-form-item>
-        <a-form-item :label="endDateLabel" name="EndDate">
-          <span>{{ formatDate(form.EndDate) }}</span>
+        <a-form-item :label="endDateLabel" :name="EnergyManagementFields.ENDDATE">
+          <span>{{ formatDate(form[EnergyManagementFields.ENDDATE]) }}</span>
         </a-form-item>
-        <a-form-item :label="waterUseLabel" name="WaterUse">
-          <a-input v-model:value="form.WaterUse" />
+        <a-form-item :label="waterUseLabel" :name="EnergyManagementFields.WATERUSAGE">
+          <a-input v-model:value="form[EnergyManagementFields.WATERUSAGE]" />
         </a-form-item>
-        <a-form-item :label="powerUseLabel" name="PowerUse">
-          <a-input v-model:value="form.PowerUse" />
+        <a-form-item :label="powerUseLabel" :name="EnergyManagementFields.POWERUSAGE">
+          <a-input v-model:value="form[EnergyManagementFields.POWERUSAGE]" />
         </a-form-item>
       </a-form>
     </a-modal>
@@ -47,6 +53,12 @@ import { useRoute } from 'vue-router';
 import { getPageTitle } from '@/utils/pageTitle';
 import { showNotification } from '@/utils/index';
 import { fetchHydroelectricitys, updateHydroelectricity, deleteHydroelectricity } from '@/api/hydroelectricityapi';
+import { 
+  EnergyManagementFields, 
+  initialFormValues, 
+  getColumns, 
+  getFormRules 
+} from '@/entities/energymanagement.entity';
 import { formatDate } from '@/utils/index';
 import { useI18n } from 'vue-i18n';
 import moment from 'moment';
@@ -63,26 +75,9 @@ const confirmLoading = ref(false);
 const formRef = ref(null);
 const sortedInfo = ref({ order: null, columnKey: null });
 
-const form = reactive({
-  WtiNo: '',
-  RoomNo: '',
-  CustoNo: '',
-  UseDate: null,
-  EndDate: null,
-  WaterUse: 0,
-  PowerUse: 0,
-  Record: '',
-  DataInsUsr: '',
-  DataInsDate: null,
-  DataChgUsr: '',
-  DataChgDate: null,
-  modifystatus: '',
-});
+const form = reactive({ ...initialFormValues });
 
-const rules = {
-  WaterUse: [{ required: true, message: t('message.pleaseInputWaterUse'), trigger: 'blur' }],
-  PowerUse: [{ required: true, message: t('message.pleaseInputPowerUse'), trigger: 'blur' }],
-};
+const rules = getFormRules(t);
 
 const wtiNoLabel = computed(() => t('message.wtiNo'));
 const roomNoLabel = computed(() => t('message.roomNo'));
@@ -92,66 +87,41 @@ const endDateLabel = computed(() => t('message.endDate'));
 const waterUseLabel = computed(() => t('message.waterUse'));
 const powerUseLabel = computed(() => t('message.powerUse'));
 
-const columns = computed(() => [
-  {
-    title: t('message.wtiNo'),
-    dataIndex: 'WtiNo',
-    key: 'WtiNo',
-  },
-  {
-    title: t('message.roomNo'),
-    dataIndex: 'RoomNo',
-    key: 'RoomNo',
-  },
-  {
-    title: t('message.custoNo'),
-    dataIndex: 'CustoNo',
-    key: 'CustoNo',
-  },
-  {
-    title: t('message.useDate'),
-    dataIndex: 'UseDate',
-    key: 'UseDate',
-  },
-  {
-    title: t('message.endDate'),
-    dataIndex: 'EndDate',
-    key: 'EndDate',
-  },
-  {
-    title: t('message.waterUse'),
-    dataIndex: 'WaterUse',
-    key: 'WaterUse',
-  },
-  {
-    title: t('message.powerUse'),
-    dataIndex: 'PowerUse',
-    key: 'PowerUse',
-  },
-  {
-    title: t('message.recorder'),
-    dataIndex: 'Record',
-    key: 'Record',
-  },
-  {
-    title: t('message.operation'),
-    key: 'operation',
-  },
-]);
+const columns = computed(() => getColumns(t));
 
 const pagination = reactive({
   current: 1,
-  pageSize: 10,
+  pageSize: 15,
   total: 0,
+  showSizeChanger: true,
+  pageSizeOptions: ['15', '20', '50'],
+  showTotal: (total) => `共 ${total} 条`
 });
 
 const fetchHydroelectricityData = async () => {
   loading.value = true;
   try {
     const result = await fetchHydroelectricitys({
+      page: pagination.current,
+      pageSize: pagination.pageSize,
+      [EnergyManagementFields.IS_DELETE]: 0
     });
-    hydroelectricitys.value = result;
-    pagination.total = result.length;
+    if (result?.listSource) {
+      hydroelectricitys.value = result.listSource.map(item => ({
+      [EnergyManagementFields.NUMBER]: item[EnergyManagementFields.NUMBER],
+      [EnergyManagementFields.ROOMNUMBER]: item[EnergyManagementFields.ROOMNUMBER],
+      [EnergyManagementFields.CUSTOMERNUMBER]: item[EnergyManagementFields.CUSTOMERNUMBER],
+      [EnergyManagementFields.STARTDATE]: item[EnergyManagementFields.STARTDATE],
+      [EnergyManagementFields.ENDDATE]: item[EnergyManagementFields.ENDDATE],
+      [EnergyManagementFields.WATERUSAGE]: item[EnergyManagementFields.WATERUSAGE],
+      [EnergyManagementFields.POWERUSAGE]: item[EnergyManagementFields.POWERUSAGE],
+      [EnergyManagementFields.RECORDER]: item[EnergyManagementFields.RECORDER],
+      [EnergyManagementFields.IS_DELETE]: item[EnergyManagementFields.IS_DELETE]
+    }));
+    pagination.total = result.total;
+    } else {
+      throw new Error('数据格式错误');
+    }
   } catch (error) {
     showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
   } finally {
@@ -166,14 +136,14 @@ onMounted(() => {
 const editHydroelectricity = (record) => {
   modalVisible.value = true;
   modalTitle.value = t('message.updateHydroelectricity');
-  form.WtiNo = record.WtiNo;
-  form.RoomNo = record.RoomNo;
-  form.CustoNo = record.CustoNo;
-  form.UseDate = record.UseDate ? moment(record.UseDate) : null;
-  form.EndDate = record.EndDate ? moment(record.EndDate) : null;
-  form.WaterUse = record.WaterUse;
-  form.PowerUse = record.PowerUse;
-  form.Record = record.Record;
+  form[EnergyManagementFields.NUMBER] = record[EnergyManagementFields.NUMBER];
+  form[EnergyManagementFields.ROOMNUMBER] = record[EnergyManagementFields.ROOMNUMBER];
+  form[EnergyManagementFields.CUSTOMERNUMBER] = record[EnergyManagementFields.CUSTOMERNUMBER];
+  form[EnergyManagementFields.STARTDATE] = record[EnergyManagementFields.STARTDATE] ? moment(record[EnergyManagementFields.STARTDATE]) : null;
+  form[EnergyManagementFields.ENDDATE] = record[EnergyManagementFields.ENDDATE] ? moment(record[EnergyManagementFields.ENDDATE]) : null;
+  form[EnergyManagementFields.WATERUSAGE] = record[EnergyManagementFields.WATERUSAGE];
+  form[EnergyManagementFields.POWERUSAGE] = record[EnergyManagementFields.POWERUSAGE];
+  form[EnergyManagementFields.RECORDER] = record[EnergyManagementFields.RECORDER];
   form.modifystatus = 'update';
 };
 
@@ -182,7 +152,7 @@ const handleModalOk = async () => {
     await formRef.value.validate();
     confirmLoading.value = true;
     if (form.modifystatus === 'update') {
-      await updateHydroelectricity({ ...form,UseDate:form.UseDate?form.UseDate.format('YYYY-MM-DD HH:mm:ss'):null,EndDate:form.EndDate?form.EndDate.format('YYYY-MM-DD HH:mm:ss'):null});
+      await updateHydroelectricity({ ...form,[EnergyManagementFields.STARTDATE]:form[EnergyManagementFields.STARTDATE]?form[EnergyManagementFields.STARTDATE].format('YYYY-MM-DD HH:mm:ss'):null,[EnergyManagementFields.ENDDATE]:form[EnergyManagementFields.ENDDATE]?form[EnergyManagementFields.ENDDATE].format('YYYY-MM-DD HH:mm:ss'):null});
       showNotification('success', t('message.operationTitle') , t('message.updateSuccess'));
     }
     modalVisible.value = false;
@@ -205,7 +175,7 @@ const handleModalCancel = () => {
 
 const handleDelete = async (record) => {
   try {
-    record.isDelete = 1;
+    record[EnergyManagementFields.IS_DELETE] = 1;
     await deleteHydroelectricity(record);
     showNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
     fetchHydroelectricityData();

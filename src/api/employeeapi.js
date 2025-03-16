@@ -1,4 +1,4 @@
-import api from '.';
+import api from '../api';
 
 // 获取员工列表
 export const fetchEmployees = async (params) => {

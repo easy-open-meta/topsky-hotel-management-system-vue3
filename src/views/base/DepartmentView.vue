@@ -115,8 +115,6 @@ const fetchDepartmentData = async () => {
       pageSize: pagination.pageSize,
       [DepartmentFields.IS_DELETE]: 0
     });
-    departments.value = result;
-    pagination.total = result.length;
     if (result?.listSource) {
       departments.value = result.listSource.map(item => ({
       [DepartmentFields.NUMBER]: item[DepartmentFields.NUMBER],
@@ -234,7 +232,7 @@ const handleModalCancel = () => {
 
 const handleDelete = async (record) => {
   try {
-    [DepartmentFields.IS_DELETE] = 1;
+    record[DepartmentFields.IS_DELETE] = 1;
     await deleteDepartment(record);
     showNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
     fetchDepartmentData();
