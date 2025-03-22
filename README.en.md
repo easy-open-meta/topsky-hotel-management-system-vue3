@@ -91,3 +91,19 @@ topsky-hotel-manager-system-vue3
 **1. Download and install nodejs.**
 
 **2.download and install Microsoft Visual Studio Code, and unzip the Zip package by downloading it, in VS Code's [File]-->[Open Folder], select the folder just after the Zip package is unzipped in the pop-up dialog box, and click the [Open] button.** 
+
+# Project Review Image：
+
+![Home Page](Review-Images/home.png)
+
+![Employee List Page](Review-Images/staff-list-page.png)
+
+![Employee Detail Page](Review-Images/staff-detail-page.png)
+
+![Employee Detail Page(English ver.)](Review-Images/staff-detail-page-english-verison.png)
+
+![Login Page](Review-Images/login.png)
+
+![Employee Check Records Page](Review-Images/staff-check-page.png)
+
+![java-and-net/ TopskyHotelManagerSystem-Vue3](https://gitee.com/java-and-net/topsky-hotel-manager-system-vue3/widgets/widget_card.svg?colors=4183c4,ffffff,ffffff,e3e9ed,666666,9b9b9b)

@@ -92,4 +92,18 @@ topsky-hotel-manager-system-vue3
 
 **2、下载并安装Microsoft Visual Studio Code，并通过下载Zip包解压，在VS Code的【文件】——>【打开文件夹】，在弹出的对话框里选择刚刚Zip包解压后的文件夹，点击【打开】按钮即可。**
 
+# 项目效果图：
+
+![主页](Review-Images/home.png)
+
+![员工列表页](Review-Images/staff-list-page.png)
+
+![员工详情页](Review-Images/staff-detail-page.png)
+
+![员工详情页(英文版)](Review-Images/staff-detail-page-english-verison.png)
+
+![登录页](Review-Images/login.png)
+
+![员工打卡记录页](Review-Images/staff-check-page.png)
+
 ![java-and-net/ TopskyHotelManagerSystem-Vue3](https://gitee.com/java-and-net/topsky-hotel-manager-system-vue3/widgets/widget_card.svg?colors=4183c4,ffffff,ffffff,e3e9ed,666666,9b9b9b)
