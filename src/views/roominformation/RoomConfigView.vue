@@ -1,42 +1,60 @@
 <template>
   <div>
     <h1 style="margin-bottom: 15px;">{{ translatedPageTitle }}</h1>
-    <a-button @click="refreshData" style="margin-bottom: 15px;margin-right: 15px;">{{ $t('message.refreshData') }}</a-button>
-    <a-button type="primary" @click="showModal" style="margin-bottom: 15px;">{{ $t('message.insertRoomConfig') }}</a-button>
+    <a-button @click="refreshData" style="margin-bottom: 15px;margin-right: 15px;"><sync-outlined /> {{ $t('message.refreshData') }}</a-button>
+    <a-button type="primary" @click="showModal" style="margin-bottom: 15px;"><plus-outlined /> {{ $t('message.insertRoomConfig') }}</a-button>
     <a-table :columns="columns" :data-source="roomconfigs" :loading="loading" :pagination="pagination" @change="handleTableChange" @sorterChange="handleSorterChange" bordered>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'operation'">
-          <a-button @click="editRoomConfig(record)" style="margin-right: 15px;">{{ $t('message.edit') }}</a-button>
+          <a-button @click="editRoomConfig(record)" style="margin-right: 15px;"><edit-outlined /> {{ $t('message.edit') }}</a-button>
             <a-popconfirm :title="t('message.areYouSureToDeleteRecord')" @confirm="handleDelete(record)">
-            <a-button danger>{{ $t('message.delete') }}</a-button>
+            <a-button danger><delete-outlined /> {{ $t('message.delete') }}</a-button>
           </a-popconfirm>
+        </template>
+        <template v-if="column.key === RoomConfigFields.RENT">
+          {{ formatCurrency(record[RoomConfigFields.RENT]) }}
+        </template>
+        <template v-else-if="column.key === RoomConfigFields.DEPOSIT">
+          {{ formatCurrency(record[RoomConfigFields.DEPOSIT]) }}
         </template>
       </template>
     </a-table>
 
-    <a-modal :open="modalVisible" :title="modalTitle" @ok="handleModalOk" @cancel="handleModalCancel" :confirm-loading="confirmLoading">
+    <a-modal 
+      :open="modalVisible" 
+      :title="modalTitle"
+      @ok="handleModalOk"
+      @cancel="handleModalCancel"
+      :confirm-loading="confirmLoading"
+    >
       <a-form :model="form" :rules="rules" ref="formRef">
-        <a-form-item :label="roomTypeCodeLabel" name="Roomtype">
-          <a-input-number
-            v-model:value="form.Roomtype"
-            :min="0"
+        <a-form-item :label="roomTypeCodeLabel" :name="RoomConfigFields.NO">
+          <a-input-number 
+            v-model:value="form[RoomConfigFields.NO]"
+            :min="1"
+            :precision="0"
           />
         </a-form-item>
-        <a-form-item :label="roomTypeNameLabel" name="RoomName">
-          <a-input v-model:value="form.RoomName"/>
+        
+        <a-form-item :label="roomTypeNameLabel" :name="RoomConfigFields.NAME">
+          <a-input v-model:value="form[RoomConfigFields.NAME]" />
         </a-form-item>
-        <a-form-item :label="roomRentLabel" name="RoomRent">
+        
+        <a-form-item :label="roomRentLabel" :name="RoomConfigFields.RENT">
           <a-input-number
-            v-model:value="form.RoomRent"
+            v-model:value="form[RoomConfigFields.RENT]"
             :min="0"
-            prefix="￥"
+            :precision="2"
+            :formatter="value => `￥ ${value}`"
           />
         </a-form-item>
-        <a-form-item :label="roomDepositLabel" name="RoomDeposit">
+        
+        <a-form-item :label="roomDepositLabel" :name="RoomConfigFields.DEPOSIT">
           <a-input-number
-            v-model:value="form.RoomDeposit"
+            v-model:value="form[RoomConfigFields.DEPOSIT]"
             :min="0"
-            prefix="￥"
+            :precision="2"
+            :formatter="value => `￥ ${value}`"
           />
         </a-form-item>
       </a-form>
@@ -50,7 +68,14 @@ import { useRoute } from 'vue-router';
 import { getPageTitle } from '@/utils/pageTitle';
 import { showNotification } from '@/utils/index';
 import { fetchRoomTypes, addRoomType, updateRoomType, deleteRoomType } from '@/api/roomtypeapi.js';
+import { 
+  RoomConfigFields,
+  initialFormValues,
+  getColumns,
+  getFormRules
+} from '@/entities/roomconfig.entity';
 import { useI18n } from 'vue-i18n';
+import { formatCurrency } from '@/utils/index';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -64,62 +89,25 @@ const confirmLoading = ref(false);
 const formRef = ref([]);
 const sortedInfo = ref({ order: null, columnKey: null });
 
-const form = reactive({
-  Roomtype: null,
-  RoomName: null,
-  RoomDeposit:null,
-  RoomRent:null,
-  DataInsUsr: '',
-  DataInsDate: null,
-  DataChgUsr: '',
-  DataChgDate: null,
-  modifystatus: '',
-});
+const form = reactive({ ...initialFormValues });
 
-const rules = {
-  Roomtype: [{ required: true, message: t('message.pleaseInputRoomTypeCode'), trigger: 'blur' }],
-  RoomName: [{ required: true, message: t('message.pleaseInputRoomTypeName'), trigger: 'blur' }],
-  RoomDeposit: [{ required: true, message: t('message.pleaseInputRoomDeposit'), trigger: 'blur' }],
-  RoomRent: [{ required: true, message: t('message.pleaseInputRoomRent'), trigger: 'blur' }],
-};
+const rules = getFormRules(t);
 
 const roomTypeCodeLabel = computed(() => t('message.roomTypeCode'));
 const roomTypeNameLabel = computed(() => t('message.roomTypeName'));
 const roomRentLabel = computed(() => t('message.roomRent'));
 const roomDepositLabel = computed(() => t('message.roomDeposit'));
 
-const columns = computed(() => [
-  {
-    title: t('message.roomTypeCode'),
-    dataIndex: 'Roomtype',
-    key: 'Roomtype'
-  },
-  {
-    title: t('message.roomTypeName'),
-    dataIndex: 'RoomName',
-    key: 'RoomName'
-  },
-  {
-    title: t('message.roomRent'),
-    dataIndex: 'RoomRent',
-    key: 'RoomRent'
-  },
-  {
-    title: t('message.roomDeposit'),
-    dataIndex: 'RoomDeposit',
-    key: 'RoomDeposit'
-  },
-  {
-    title: t('message.operation'),
-    key: 'operation',
-  },
-]);
+const columns = computed(() => getColumns(t));
 
 const pagination = reactive({
-  current: 1,
-  pageSize: 10,
-  total: 0,
-});
+    current: 1,
+    pageSize: 15,
+    total: 0,
+    showSizeChanger: true,
+    pageSizeOptions: ['15', '30', '50'],
+    showTotal: total => t('message.totalRecords', { total })
+  });
 
 const fetchRoomConfigData = async () => {
   loading.value = true;
@@ -127,10 +115,17 @@ const fetchRoomConfigData = async () => {
     const result = await fetchRoomTypes({
       page: pagination.current,
       pageSize: pagination.pageSize,
-      isDelete: 0
+      [RoomConfigFields.IS_DELETED]: 0
     });
-    roomconfigs.value = result;
-    pagination.total = result.length;
+    if (result?.listSource) {
+      roomconfigs.value = result.listSource.map(item => ({
+        [RoomConfigFields.NO]: item[RoomConfigFields.NO],
+        [RoomConfigFields.NAME]: item[RoomConfigFields.NAME],
+        [RoomConfigFields.RENT]: item[RoomConfigFields.RENT],
+        [RoomConfigFields.DEPOSIT]: item[RoomConfigFields.DEPOSIT]
+      }));
+      pagination.total = result.total;
+    }
   } catch (error) {
     showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
   } finally {
@@ -145,10 +140,10 @@ onMounted(() => {
 const showModal = () => {
   modalVisible.value = true;
   modalTitle.value = t('message.insertRoomConfig');
-  form.Roomtype = null;
-  form.RoomName = '';
-  form.RoomRent = '';
-  form.RoomDeposit = '';
+  form[RoomConfigFields.NO] = null;
+  form[RoomConfigFields.NAME] = '';
+  form[RoomConfigFields.RENT] = 0;
+  form[RoomConfigFields.DEPOSIT] = 0;
 
   form.modifystatus = 'insert';
 };
@@ -161,10 +156,10 @@ const refreshData = () =>
 const editRoomConfig = (record) => {
   modalVisible.value = true;
   modalTitle.value = t('message.updateRoomConfig');
-  form.Roomtype = record.Roomtype;
-  form.RoomName = record.RoomName;
-  form.RoomRent = record.RoomRent;
-  form.RoomDeposit = record.RoomDeposit;
+  form[RoomConfigFields.NO] = record[RoomConfigFields.NO];
+  form[RoomConfigFields.NAME] = record[RoomConfigFields.NAME];
+  form[RoomConfigFields.RENT] = record[RoomConfigFields.RENT];
+  form[RoomConfigFields.DEPOSIT] = record[RoomConfigFields.DEPOSIT];
 
   form.modifystatus = 'update';
 };
@@ -195,7 +190,7 @@ const handleModalCancel = () => {
 
 const handleDelete = async (record) => {
   try {
-    record.isDelete = 1;
+    record[RoomConfigFields.IS_DELETED] = 1;
     await deleteRoomType(record);
     showNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
     fetchRoomConfigData();

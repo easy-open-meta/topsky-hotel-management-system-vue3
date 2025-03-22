@@ -16,7 +16,9 @@ import RoomConfig from '../views/roominformation/RoomConfigView.vue';
 import VipLevel from '../views/customermanagement/VipLevelView.vue';
 import Customer from '../views/customermanagement/CustomerView.vue';
 import CustomerSpend from '../views/customermanagement/CustomerSpendView.vue';
+import CustomerType from '../views/customermanagement/CustomerTypeView.vue';
 import StaffManagement from '../views/humanresourcemanagement/StaffManagementView.vue';
+import EmployeeDetail from '../views/humanresourcemanagement/EmployeeDetailView.vue';
 import GoodsManagement from '../views/materialmanagement/GoodsmanagementView.vue';
 import OperationLog from '../views/operationmanagement/OperationLogView.vue';
 import AddAdmin from '../views/systemmanagement/AddAdminiView.vue';
@@ -109,9 +111,21 @@ const routes = [
         meta: { requiresAuth: true }
       },
       {
+        path: '/customertype',
+        name: 'customertype',
+        component: CustomerType,
+        meta: { requiresAuth: true }
+      },
+      {
         path: '/staffmanagement',
         name: 'staffmanagement',
         component: StaffManagement,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: '/employeedetail/:employeeId',
+        name: 'employeedetail',
+        component: EmployeeDetail,
         meta: { requiresAuth: true }
       },
       {
@@ -143,7 +157,7 @@ const routes = [
         name: 'systemmodule',
         component: SystemModule,
         meta: { requiresAuth: true }
-      }
+      },
     ]
   },
   {

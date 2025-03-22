@@ -1,14 +1,14 @@
 <template>
   <div>
     <h1 style="margin-bottom: 15px;">{{ translatedPageTitle }}</h1>
-    <a-button @click="refreshData" style="margin-bottom: 15px;margin-right: 15px;">{{ $t('message.refreshData') }}</a-button>
-    <a-button type="primary" @click="showModal" style="margin-bottom: 15px;">{{ $t('message.insertQualification') }}</a-button>
-    <a-table :columns="columns" :data-source="qualifications" :loading="loading" :pagiqualification="pagiqualification" @change="handleTableChange" @sorterChange="handleSorterChange" bordered>
+    <a-button @click="refreshData" style="margin-bottom: 15px;margin-right: 15px;"><sync-outlined /> {{ $t('message.refreshData') }}</a-button>
+    <a-button type="primary" @click="showModal" style="margin-bottom: 15px;"><plus-outlined /> {{ $t('message.insertQualification') }}</a-button>
+    <a-table :columns="columns" :data-source="qualifications" :loading="loading" :pagination="pagination" @change="handleTableChange" @sorterChange="handleSorterChange" bordered>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'operation'">
-          <a-button @click="editQualification(record)" style="margin-right: 15px;">{{ $t('message.edit') }}</a-button>
+          <a-button @click="editQualification(record)" style="margin-right: 15px;"><edit-outlined /> {{ $t('message.edit') }}</a-button>
             <a-popconfirm :title="t('message.areYouSureToDeleteRecord')" @confirm="handleDelete(record)">
-            <a-button danger>{{ $t('message.delete') }}</a-button>
+              <a-button danger><delete-outlined /> {{ $t('message.delete') }}</a-button>
           </a-popconfirm>
         </template>
       </template>
@@ -62,29 +62,29 @@ const qualificationNameLabel = computed(() => t('message.qualificationName'));
 
 const columns = computed(() => getColumns(t));
 
-const pagiqualification = reactive({
-  current: 1,
-  pageSize: 15,
-  total: 0,
-  showSizeChanger: true,
-  pageSizeOptions: ['15', '20', '50'],
-  showTotal: (total) => `共 ${total} 条`
-});
+const pagination = reactive({
+    current: 1,
+    pageSize: 15,
+    total: 0,
+    showSizeChanger: true,
+    pageSizeOptions: ['15', '30', '50'],
+    showTotal: total => t('message.totalRecords', { total })
+  });
 
 const fetchQualificationData = async () => {
   loading.value = true;
   try {
     const result = await fetchQualifications({
-      page: pagiqualification.current,
-      pageSize: pagiqualification.pageSize,
-      [EducationFields.IS_DELETE]: 0
+      page: pagination.current,
+      pageSize: pagination.pageSize,
+      [EducationFields.IS_DELETED]: 0
     });
     if (result?.listSource) {
       qualifications.value = result.listSource.map(item => ({
       [EducationFields.NUMBER]: item[EducationFields.NUMBER],
       [EducationFields.NAME]: item[EducationFields.NAME]
     }));
-    pagiqualification.total = result.total;
+    pagination.total = result.total;
     } else {
       throw new Error('数据格式错误');
     }
@@ -107,7 +107,7 @@ const showModal = () => {
       separator: null,
     });
   form[EducationFields.NAME] = '';
-  form[EducationFields.IS_DELETE] = 0;
+  form[EducationFields.IS_DELETED] = 0;
   form.modifystatus = 'insert';
 };
 
@@ -150,7 +150,7 @@ const handleModalCancel = () => {
 
 const handleDelete = async (record) => {
   try {
-    record[EducationFields.IS_DELETE] = 1;
+    record[EducationFields.IS_DELETED] = 1;
     await deleteQualification(record);
     showNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
     fetchQualificationData();
@@ -161,12 +161,12 @@ const handleDelete = async (record) => {
 };
 
 const handleTableChange = (newPagiqualification) => {
-  pagiqualification.current = newPagiqualification.current;
-  pagiqualification.pageSize = newPagiqualification.pageSize;
+  pagination.current = newPagiqualification.current;
+  pagination.pageSize = newPagiqualification.pageSize;
   fetchQualificationData();
 };
 
-const handleSorterChange = (pagiqualification, filters, sorter) => {
+const handleSorterChange = (pagination, filters, sorter) => {
   sortedInfo.value = sorter;
 };
 </script>

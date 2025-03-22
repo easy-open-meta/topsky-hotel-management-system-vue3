@@ -28,6 +28,8 @@ export function getPageTitle(routePath) {
           return 'message.customer';
       case '/customerspend':
           return 'message.customerspend';
+      case '/customertype':
+          return 'message.customertype';
       case '/staffmanagement':
           return 'message.staffmanagement';
       case '/goodsmanagement':

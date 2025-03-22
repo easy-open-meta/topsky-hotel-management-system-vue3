@@ -1,13 +1,13 @@
 <template>
   <div>
     <h1 style="margin-bottom: 15px;">{{ translatedPageTitle }}</h1>
-    <a-button @click="refreshData" style="margin-bottom: 15px;margin-right: 15px;">{{ $t('message.refreshData') }}</a-button>
+    <a-button @click="refreshData" style="margin-bottom: 15px;margin-right: 15px;"><sync-outlined /> {{ $t('message.refreshData') }}</a-button>
     <a-table :columns="columns" :data-source="hydroelectricitys" :loading="loading" :pagination="pagination" @change="handleTableChange" @sorterChange="handleSorterChange" bordered>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'operation'">
-          <a-button @click="editHydroelectricity(record)" style="margin-right: 15px;">{{ $t('message.edit') }}</a-button>
+          <a-button @click="editHydroelectricity(record)" style="margin-right: 15px;"><edit-outlined /> {{ $t('message.edit') }}</a-button>
             <a-popconfirm :title="t('message.areYouSureToDeleteRecord')" @confirm="handleDelete(record)">
-            <a-button danger>{{ $t('message.delete') }}</a-button>
+            <a-button danger><delete-outlined /> {{ $t('message.delete') }}</a-button>
           </a-popconfirm>
         </template>
         <template v-else-if="column.key === EnergyManagementFields.STARTDATE">
@@ -95,7 +95,7 @@ const pagination = reactive({
   total: 0,
   showSizeChanger: true,
   pageSizeOptions: ['15', '20', '50'],
-  showTotal: (total) => `共 ${total} 条`
+  showTotal: total => t('message.totalRecords', { total })
 });
 
 const fetchHydroelectricityData = async () => {
@@ -104,7 +104,7 @@ const fetchHydroelectricityData = async () => {
     const result = await fetchHydroelectricitys({
       page: pagination.current,
       pageSize: pagination.pageSize,
-      [EnergyManagementFields.IS_DELETE]: 0
+      [EnergyManagementFields.IS_DELETED]: 0
     });
     if (result?.listSource) {
       hydroelectricitys.value = result.listSource.map(item => ({
@@ -116,7 +116,7 @@ const fetchHydroelectricityData = async () => {
       [EnergyManagementFields.WATERUSAGE]: item[EnergyManagementFields.WATERUSAGE],
       [EnergyManagementFields.POWERUSAGE]: item[EnergyManagementFields.POWERUSAGE],
       [EnergyManagementFields.RECORDER]: item[EnergyManagementFields.RECORDER],
-      [EnergyManagementFields.IS_DELETE]: item[EnergyManagementFields.IS_DELETE]
+      [EnergyManagementFields.IS_DELETED]: item[EnergyManagementFields.IS_DELETED]
     }));
     pagination.total = result.total;
     } else {
@@ -175,7 +175,7 @@ const handleModalCancel = () => {
 
 const handleDelete = async (record) => {
   try {
-    record[EnergyManagementFields.IS_DELETE] = 1;
+    record[EnergyManagementFields.IS_DELETED] = 1;
     await deleteHydroelectricity(record);
     showNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
     fetchHydroelectricityData();

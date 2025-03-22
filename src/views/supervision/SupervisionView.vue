@@ -1,45 +1,52 @@
 <template>
   <div>
     <h1 style="margin-bottom: 15px;">{{ translatedPageTitle }}</h1>
-    <a-button @click="refreshData" style="margin-bottom: 15px;margin-right: 15px;">{{ $t('message.refreshData') }}</a-button>
-    <a-button type="primary" @click="showModal" style="margin-bottom: 15px;">{{ $t('message.insertSupervisionInfo') }}</a-button>
+    <a-button @click="refreshData" style="margin-bottom: 15px;margin-right: 15px;"><sync-outlined /> {{ $t('message.refreshData') }}</a-button>
+    <a-button type="primary" @click="showModal" style="margin-bottom: 15px;"><plus-outlined /> {{ $t('message.insertSupervisionInfo') }}</a-button>
     <a-table :columns="filteredColumns" :data-source="supervisioninfos" :loading="loading" :pagination="pagination" @change="handleTableChange" @sorterChange="handleSorterChange" bordered>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'operation'">
-          <a-button @click="editSupervisionInfo(record)" style="margin-right: 15px;">{{ $t('message.edit') }}</a-button>
+          <a-button @click="editSupervisionInfo(record)" style="margin-right: 15px;"><edit-outlined /> {{ $t('message.edit') }}</a-button>
             <a-popconfirm :title="t('message.areYouSureToDeleteRecord')" @confirm="handleDelete(record)">
-            <a-button danger>{{ $t('message.delete') }}</a-button>
+            <a-button danger><delete-outlined /> {{ $t('message.delete') }}</a-button>
           </a-popconfirm>
+        </template>
+        <template v-else-if="column.key === SupervisionFields.DATA_INS_DATE">
+          {{ formatDate(record[SupervisionFields.DATA_INS_DATE]) }}
         </template>
       </template>
     </a-table>
 
     <a-modal :open="modalVisible" :title="modalTitle" @ok="handleModalOk" @cancel="handleModalCancel" :confirm-loading="confirmLoading">
       <a-form :model="form" :rules="rules" ref="formRef">
-        <a-form-item :label="checkNoLabel" name="CheckNo">
-          <span>{{ form.CheckNo }}</span>
+        <a-form-item :label="checkNoLabel" :name="SupervisionFields.CHECK_NO">
+          <span>{{ form[SupervisionFields.CHECK_NO] }}</span>
         </a-form-item>
-        <a-form-item :label="checkDepartmentLabel" name="CheckClub">
+        <a-form-item :label="checkDepartmentLabel" :name="SupervisionFields.CHECK_CLUB">
           <a-select
-            v-model:value="form.CheckClub"
+            v-model:value="form[SupervisionFields.CHECK_CLUB]"
             :options="departmentOptions"
-            placeholder="Please select department"
+            :placeholder="t('message.pleaseInputCheckDepartment')"
           />
         </a-form-item>
-        <a-form-item :label="checkProgresLabel" name="CheckProgres">
-          <a-textarea v-model:value="form.CheckProgres" />
+        <a-form-item :label="checkProgresLabel" :name="SupervisionFields.CHECK_PROGRES">
+          <a-textarea v-model:value="form[SupervisionFields.CHECK_PROGRES]" />
         </a-form-item>
-        <a-form-item :label="checkCashLabel" name="CheckCash">
-          <a-textarea v-model:value="form.CheckCash" />
+        <a-form-item :label="checkCashLabel" :name="SupervisionFields.CHECK_CASH">
+          <a-textarea v-model:value="form[SupervisionFields.CHECK_CASH]" />
         </a-form-item>
-        <a-form-item :label="checkScoreLabel" name="CheckScore">
-          <a-input-number id="checkScore" v-model:value="form.CheckScore" :min="0" :max="100" />
+        <a-form-item :label="checkScoreLabel" :name="SupervisionFields.CHECK_SCORE">
+          <a-input-number 
+            v-model:value="form[SupervisionFields.CHECK_SCORE]" 
+            :min="0" 
+            :max="100" 
+          />
         </a-form-item>
-        <a-form-item :label="checkPersonLabel" name="CheckPerson">
-          <a-input v-model:value="form.CheckPerson" />
+        <a-form-item :label="checkPersonLabel" :name="SupervisionFields.CHECK_PERSON">
+          <a-input v-model:value="form[SupervisionFields.CHECK_PERSON]" />
         </a-form-item>
-        <a-form-item :label="checkAdviceLabel" name="CheckAdvice">
-          <a-textarea v-model:value="form.CheckAdvice" />
+        <a-form-item :label="checkAdviceLabel" :name="SupervisionFields.CHECK_ADVICE">
+          <a-textarea v-model:value="form[SupervisionFields.CHECK_ADVICE]" />
         </a-form-item>
       </a-form>
     </a-modal>
@@ -50,9 +57,15 @@
 import { ref, onMounted, computed, reactive } from 'vue';
 import { useRoute } from 'vue-router';
 import { getPageTitle } from '@/utils/pageTitle';
+import { 
+  SupervisionFields, 
+  initialFormValues, 
+  getColumns, 
+  getFormRules 
+} from '@/entities/supervision.entity';
 import { fetchSupervisionInfos, addSupervisionInfo, updateSupervisionInfo, deleteSupervisionInfo } from '@/api/supervisioninfoapi';
 import { fetchDepartments } from '@/api/departmentapi';
-import { formatDate } from '@/utils/index';
+import { formatDate, showNotification } from '@/utils/index';
 import { useI18n } from 'vue-i18n';
 import generateSnowflakeId from '@/utils/snowflake';
 import moment from 'moment';
@@ -70,29 +83,9 @@ const formRef = ref(null);
 const sortedInfo = ref({ order: null, columnKey: null });
 const departmentOptions = ref([]);
 
-const form = reactive({
-  CheckNo: null,
-  CheckClub: '',
-  CheckProgres: '',
-  CheckCash: '',
-  CheckScore: 0,
-  CheckPerson: '',
-  CheckAdvice: '',
-  DataInsUsr: '',
-  DataInsDate: null,
-  DataChgUsr: '',
-  DataChgDate: null,
-  modifystatus: '',
-});
+const form = reactive({ ...initialFormValues });
 
-const rules = {
-  CheckClub: [{ required: true, message: t('message.pleaseInputCheckDepartment'), trigger: 'blur' }],
-  CheckProgres: [{ required: true, message: t('message.pleaseInputCheckProgres'), trigger: 'blur' }],
-  CheckCash: [{ required: true, message: t('message.pleaseInputCheckCash'), trigger: 'blur' }],
-  CheckScore: [{ required: true, message: t('message.pleaseInputCheckScore'), trigger: 'blur' }],
-  CheckPerson: [{ required: true, message: t('message.pleaseInputCheckPerson'), trigger: 'blur' }],
-  CheckAdvice: [{ required: true, message: t('message.pleaseInputCheckAdvice'), trigger: 'blur' }],
-};
+const rules = getFormRules(t);
 
 const checkNoLabel = computed(() => t('message.checkNo'));
 const checkDepartmentLabel = computed(() => t('message.checkDepartment'));
@@ -102,62 +95,16 @@ const checkScoreLabel = computed(() => t('message.checkScore'));
 const checkPersonLabel = computed(() => t('message.checkPerson'));
 const checkAdviceLabel = computed(() => t('message.checkAdvice'));
 
-const columns = computed(() => [
-  {
-    title: t('message.checkNo'),
-    dataIndex: 'CheckNo',
-    key: 'CheckNo',
-    sorter: (a, b) => a.CheckNo.localeCompare(b.CheckNo),
-    defaultSortOrder: 'ascend'
-  },
-  {
-    title: t('message.checkDepartment'),
-    dataIndex: 'CheckClub',
-    key: 'CheckClub',
-    hidden: true
-  },
-  {
-    title: t('message.checkDepartment'),
-    dataIndex: 'CheckClubName',
-    key: 'CheckClubName',
-  },
-  {
-    title: t('message.checkProgres'),
-    dataIndex: 'CheckProgres',
-    key: 'CheckProgres',
-  },
-  {
-    title: t('message.checkCash'),
-    dataIndex: 'CheckCash',
-    key: 'CheckCash',
-  },
-  {
-    title: t('message.checkScore'),
-    dataIndex: 'CheckScore',
-    key: 'CheckScore',
-  },
-  {
-    title: t('message.checkPerson'),
-    dataIndex: 'CheckPerson',
-    key: 'CheckPerson',
-  },
-  {
-    title: t('message.checkAdvice'),
-    dataIndex: 'CheckAdvice',
-    key: 'CheckAdvice',
-  },
-  {
-    title: t('message.operation'),
-    key: 'operation',
-  },
-]);
-
+const columns = computed(() => getColumns(t));
 const filteredColumns = computed(() => columns.value.filter(column => !column.hidden));
 
 const pagination = reactive({
   current: 1,
-  pageSize: 10,
+  pageSize: 15,
   total: 0,
+  showSizeChanger: true,
+  pageSizeOptions: ['15', '20', '50'],
+  showTotal: total => t('message.totalRecords', { total })
 });
 
 const fetchSupervisionInfoData = async () => {
@@ -166,12 +113,29 @@ const fetchSupervisionInfoData = async () => {
     const result = await fetchSupervisionInfos({
       page: pagination.current,
       pageSize: pagination.pageSize,
-      isDelete: 0
+      [SupervisionFields.IS_DELETED]: 0
     });
-    supervisioninfos.value = result;
-    pagination.total = result.length;
+    if (result?.listSource) {
+      supervisioninfos.value = result.listSource.map(item => ({
+        [SupervisionFields.CHECK_NO]: item[SupervisionFields.CHECK_NO],
+        [SupervisionFields.CHECK_CLUB]: item[SupervisionFields.CHECK_CLUB],
+        [SupervisionFields.CHECK_CLUB_NAME]: item[SupervisionFields.CHECK_CLUB_NAME],
+        [SupervisionFields.CHECK_PROGRES]: item[SupervisionFields.CHECK_PROGRES],
+        [SupervisionFields.CHECK_CASH]: item[SupervisionFields.CHECK_CASH],
+        [SupervisionFields.CHECK_SCORE]: item[SupervisionFields.CHECK_SCORE],
+        [SupervisionFields.CHECK_PERSON]: item[SupervisionFields.CHECK_PERSON],
+        [SupervisionFields.CHECK_ADVICE]: item[SupervisionFields.CHECK_ADVICE],
+        [SupervisionFields.DATA_INS_USR]: item[SupervisionFields.DATA_INS_USR],
+        [SupervisionFields.DATA_INS_DATE]: item[SupervisionFields.DATA_INS_DATE],
+        [SupervisionFields.DATA_CHG_USR]: item[SupervisionFields.DATA_CHG_USR],
+        [SupervisionFields.DATA_CHG_DATE]: item[SupervisionFields.DATA_CHG_DATE],
+      }));
+      pagination.total = result.total;
+    } else {
+      throw new Error('数据格式错误');
+    }
   } catch (error) {
-    window.$notification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
   } finally {
     loading.value = false;
   }
@@ -179,13 +143,15 @@ const fetchSupervisionInfoData = async () => {
 
 const fetchSelectDepartments = async () => {
   try {
-    const result = await fetchDepartments();
-    departmentOptions.value = result.map((item) => ({
-      label: item.dept_name,
-      value: item.dept_no,
+    const result = await fetchDepartments({
+      [SupervisionFields.IS_DELETED]: 0
+    });
+    departmentOptions.value = result.listSource.map((item) => ({
+      label: item[SupervisionFields.CHECK_CLUB_NAME],
+      value: item[SupervisionFields.CHECK_CLUB],
     }));
   } catch (error) {
-    window.$notification('error', t('message.fetchDataFailed'), t('message.pleaseTryAgainLater'));
+    showNotification('error', t('message.fetchDataFailed'), t('message.pleaseTryAgainLater'));
   }
 };
 
@@ -197,34 +163,24 @@ onMounted(() => {
 const showModal = () => {
   modalVisible.value = true;
   modalTitle.value = t('message.insertSupervisionInfo');
-  form.CheckNo = generateSnowflakeId({
-      prefix: 'SI-',
-      separator: null,
-    });
-  form.CheckClub = '';
-  form.CheckProgres = '';
-  form.CheckCash = '';
-  form.CheckScore = 0;
-  form.CheckPerson = '';
-  form.CheckAdvice = '';
+  Object.assign(form, initialFormValues);
+  form[SupervisionFields.CHECK_NO] = generateSnowflakeId({
+    prefix: 'SI-',
+    separator: null,
+  });
   form.modifystatus = 'insert';
 };
 
-const refreshData = () => 
-{
+const refreshData = () => {
   fetchSupervisionInfoData();
 };
 
 const editSupervisionInfo = (record) => {
   modalVisible.value = true;
   modalTitle.value = t('message.updateSupervisionInfo');
-  form.CheckNo = record.CheckNo;
-  form.CheckClub = record.CheckClub;
-  form.CheckProgres = record.CheckProgres;
-  form.CheckCash = record.CheckCash;
-  form.CheckScore = record.CheckScore;
-  form.CheckPerson = record.CheckPerson;
-  form.CheckAdvice = record.CheckAdvice;
+  Object.keys(SupervisionFields).forEach(field => {
+    form[field] = record[field] || initialFormValues[field];
+  });
   form.modifystatus = 'update';
 };
 
@@ -232,17 +188,23 @@ const handleModalOk = async () => {
   try {
     await formRef.value.validate();
     confirmLoading.value = true;
+    const payload = { 
+      ...form,
+      [SupervisionFields.DATA_INS_DATE]: form[SupervisionFields.DATA_INS_DATE]?.format('YYYY-MM-DD'),
+      [SupervisionFields.DATA_CHG_DATE]: moment().format('YYYY-MM-DD')
+    };
+
     if (form.modifystatus === 'update') {
-      await updateSupervisionInfo({ ...form });
-      window.$notification('success', t('message.operationTitle') , t('message.updateSuccess'));
+      await updateSupervisionInfo(payload);
+      showNotification('success', t('message.operationTitle'), t('message.updateSuccess'));
     } else {
-      await addSupervisionInfo({ ...form });
-      window.$notification('success', t('message.operationTitle') , t('message.addSuccess'));
+      await addSupervisionInfo(payload);
+      showNotification('success', t('message.operationTitle'), t('message.addSuccess'));
     }
     modalVisible.value = false;
     fetchSupervisionInfoData();
   } catch (error) {
-    window.$notification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
   } finally {
     confirmLoading.value = false;
   }
@@ -254,13 +216,13 @@ const handleModalCancel = () => {
 
 const handleDelete = async (record) => {
   try {
-    record.isDelete = 1;
+    record[SupervisionFields.IS_DELETED] = 1;
     await deleteSupervisionInfo(record);
-    window.$notification('success', t('message.operationTitle'), t('message.deleteSuccess'));
+    showNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
     fetchSupervisionInfoData();
   } catch (error) {
     console.error('Delete error:', error);
-    window.$notification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
   }
 };
 

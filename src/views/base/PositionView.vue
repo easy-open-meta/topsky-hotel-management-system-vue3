@@ -1,14 +1,14 @@
 <template>
   <div>
     <h1 style="margin-bottom: 15px;">{{ translatedPageTitle }}</h1>
-    <a-button @click="refreshData" style="margin-bottom: 15px;margin-right: 15px;">{{ $t('message.refreshData') }}</a-button>
-    <a-button type="primary" @click="showModal" style="margin-bottom: 15px;">{{ $t('message.insertPosition') }}</a-button>
-    <a-table :columns="columns" :data-source="positions" :loading="loading" :pagiposition="pagiposition" @change="handleTableChange" @sorterChange="handleSorterChange" bordered>
+    <a-button @click="refreshData" style="margin-bottom: 15px;margin-right: 15px;"><sync-outlined /> {{ $t('message.refreshData') }}</a-button>
+    <a-button type="primary" @click="showModal" style="margin-bottom: 15px;"><plus-outlined /> {{ $t('message.insertPosition') }}</a-button>
+    <a-table :columns="columns" :data-source="positions" :loading="loading" :pagination="pagination" @change="handleTableChange" @sorterChange="handleSorterChange" bordered>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'operation'">
-          <a-button @click="editPosition(record)" style="margin-right: 15px;">{{ $t('message.edit') }}</a-button>
+          <a-button @click="editPosition(record)" style="margin-right: 15px;"><edit-outlined /> {{ $t('message.edit') }}</a-button>
             <a-popconfirm :title="t('message.areYouSureToDeleteRecord')" @confirm="handleDelete(record)">
-            <a-button danger>{{ $t('message.delete') }}</a-button>
+            <a-button danger><delete-outlined /> {{ $t('message.delete') }}</a-button>
           </a-popconfirm>
         </template>
       </template>
@@ -64,29 +64,29 @@ const positionNameLabel = computed(() => t('message.positionName'));
 
 const columns = computed(() => getColumns(t));
 
-const pagiposition = reactive({
-  current: 1,
-  pageSize: 15,
-  total: 0,
-  showSizeChanger: true,
-  pageSizeOptions: ['15', '20', '50'],
-  showTotal: (total) => `共 ${total} 条`
-});
+const pagination = reactive({
+    current: 1,
+    pageSize: 15,
+    total: 0,
+    showSizeChanger: true,
+    pageSizeOptions: ['15', '30', '50'],
+    showTotal: total => t('message.totalRecords', { total })
+  });
 
 const fetchPositionData = async () => {
   loading.value = true;
   try {
     const result = await fetchPositions({
-      page: pagiposition.current,
-      pageSize: pagiposition.pageSize,
-      [PositionFields.IS_DELETE]: 0
+      page: pagination.current,
+      pageSize: pagination.pageSize,
+      [PositionFields.IS_DELETED]: 0
     });
     if (result?.listSource) {
       positions.value = result.listSource.map(item => ({
       [PositionFields.NUMBER]: item[PositionFields.NUMBER],
       [PositionFields.NAME]: item[PositionFields.NAME]
     }));
-      pagiposition.total = result.total;
+    pagination.total = result.total;
     } else {
       throw new Error('数据格式错误');
     }
@@ -119,7 +119,6 @@ const refreshData = () =>
 };
 
 const editPosition = (record) => {
-  console.log(record);
   modalVisible.value = true;
   modalTitle.value = t('message.updatePosition');
   form[PositionFields.NUMBER] = record.PositionNumber;
@@ -153,7 +152,7 @@ const handleModalCancel = () => {
 
 const handleDelete = async (record) => {
   try {
-    record[PositionFields.IS_DELETE] = 1;
+    record[PositionFields.IS_DELETED] = 1;
     await deletePosition(record);
     showNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
     fetchPositionData();
@@ -164,12 +163,12 @@ const handleDelete = async (record) => {
 };
 
 const handleTableChange = (newPagiposition) => {
-  pagiposition.current = newPagiposition.current;
-  pagiposition.pageSize = newPagiposition.pageSize;
+  pagination.current = newPagiposition.current;
+  pagination.pageSize = newPagiposition.pageSize;
   fetchPositionData();
 };
 
-const handleSorterChange = (pagiposition, filters, sorter) => {
+const handleSorterChange = (pagination, filters, sorter) => {
   sortedInfo.value = sorter;
 };
 </script>

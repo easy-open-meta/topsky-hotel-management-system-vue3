@@ -1,89 +1,163 @@
 <template>
   <div>
     <h1 style="margin-bottom: 15px;">{{ translatedPageTitle }}</h1>
-    <a-button @click="refreshData" style="margin-bottom: 15px;margin-right: 15px;">{{ $t('message.refreshData') }}</a-button>
-    <a-button type="primary" @click="showModal" style="margin-bottom: 15px;">{{ $t('message.insertStaff') }}</a-button>
+    <a-button @click="refreshData" style="margin-bottom: 15px;margin-right: 15px;"><sync-outlined /> {{ $t('message.refreshData') }}</a-button>
+    <a-button type="primary" @click="showModal" style="margin-bottom: 15px;"><plus-outlined /> {{ $t('message.insertStaff') }}</a-button>
     <a-table :columns="filteredColumns" :data-source="staffs" :loading="loading" :pagination="pagination" @change="handleTableChange" @sorterChange="handleSorterChange" bordered>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'operation'">
-          <a-button @click="editStaff(record)" style="margin-right: 15px;">{{ $t('message.edit') }}</a-button>
+          <a-button style="margin-right: 15px;" @click="viewDetail(record)"><EyeOutlined /> {{ $t('message.view') }}</a-button>
+          <a-button @click="editStaff(record)" style="margin-right: 15px;"><edit-outlined /> {{ $t('message.edit') }}</a-button>
+          <a-button @click="disabledStaff(record)" style="margin-right: 15px;" :danger="record[EmployeeFields.ISENABLE] !== 1"><StopOutlined />{{ record[EmployeeFields.ISENABLE] === 0 ? $t('message.disabled') : $t('message.enabled') }}</a-button>
+          <a-button @click="resetPassword(record)" style="margin-right: 15px;"><RetweetOutlined /> {{ $t('message.resetPassword') }}</a-button>
             <a-popconfirm :title="t('message.areYouSureToDeleteRecord')" @confirm="handleDelete(record)">
-            <a-button danger>{{ $t('message.delete') }}</a-button>
+            <a-button danger><delete-outlined /> {{ $t('message.delete') }}</a-button>
           </a-popconfirm>
         </template>
-        <template v-else-if="column.key === 'WorkerBirthday'">
-          {{ formatDate(record.WorkerBirthday) }}
+        <template v-if="column.key === EmployeeFields.DATEOFBIRTH">
+          {{ formatDate(record[EmployeeFields.DATEOFBIRTH]) }}
         </template>
-        <template v-else-if="column.key === 'WorkerTime'">
-          {{ formatDate(record.WorkerTime) }}
+        <template v-else-if="column.key === EmployeeFields.HIREDATE">
+          {{ formatDate(record[EmployeeFields.HIREDATE]) }}
+        </template>
+        <template v-else-if="column.key === EmployeeFields.ISENABLE">
+          <a-tag 
+            :color="record[EmployeeFields.ISENABLE] === 0 ? 'success' : 'error'"
+            class="status-tag"
+          >
+            {{ record[EmployeeFields.ISENABLE] === 0 ? t('message.enabled') : t('message.disabled') }}
+          </a-tag>
         </template>
       </template>
     </a-table>
 
     <a-modal :open="modalVisible" :title="modalTitle" @ok="handleModalOk" @cancel="handleModalCancel" :confirm-loading="confirmLoading">
-      <a-form :model="form" :rules="rules" ref="formRef">
-        <a-form-item :label="staffNoLabel" name="WorkerId">
-          <a-input v-model:value="form.WorkerId" type="hidden" />
-          <span>{{ form.WorkerId }}</span>
-        </a-form-item>
-        <a-form-item :label="staffNameLabel" name="WorkerName">
-          <a-input v-model:value="form.WorkerName" />
-        </a-form-item>
-        <a-form-item :label="staffSexLabel" name="WorkerSex">
-          <a-radio-group v-model:value="form.WorkerSex">
-            <a-radio-button :value=0>女</a-radio-button>
-            <a-radio-button :value=1>男</a-radio-button>
-          </a-radio-group>
-        </a-form-item>
-        <a-form-item :label="staffBirthdayLabel" name="WorkerBirthday">
-          <a-date-picker v-model:value="form.WorkerBirthday" />
-        </a-form-item>
-        <a-form-item :label="staffTimeLabel" name="WorkerTime">
-          <a-date-picker v-model:value="form.WorkerTime" />
-        </a-form-item>
-        <a-form-item :label="staffNationLabel" name="WorkerNation">
-          <a-select
-            v-model:value="form.WorkerNation"
-            :options="staffNationOptions"
-            :placeholder="t('message.pleaseInputStaffNation')"
+      <a-form :model="form" :rules="rules" ref="formRef" layout="vertical">
+        <a-row :gutter="24">
+          <a-col :span="8">
+            <a-form-item :label="staffNoLabel" :name="EmployeeFields.NUMBER">
+              <span class="form-value">{{ form[EmployeeFields.NUMBER] }}</span>
+            </a-form-item>
+          </a-col>
+          <a-col :span="16">
+            <a-form-item :label="staffNameLabel" :name="EmployeeFields.NAME">
+              <a-input
+                v-model:value="form[EmployeeFields.NAME]"
+                :placeholder="t('message.pleaseInputStaffName')"
+              />
+            </a-form-item>
+          </a-col>
+        </a-row>
+
+        <a-row :gutter="24">
+          <a-col :span="8">
+            <a-form-item :label="staffSexLabel" :name="EmployeeFields.GENDER">
+              <a-radio-group v-model:value="form[EmployeeFields.GENDER]">
+                <a-radio-button :value="Gender.FEMALE">{{ $t('message.female') }}</a-radio-button>
+                <a-radio-button :value="Gender.MALE">{{ $t('message.male') }}</a-radio-button>
+              </a-radio-group>
+            </a-form-item>
+          </a-col>
+          <a-col :span="8">
+            <a-form-item :label="staffBirthdayLabel" :name="EmployeeFields.DATEOFBIRTH">
+              <a-date-picker
+                v-model:value="form[EmployeeFields.DATEOFBIRTH]"
+                :format="DATE_FORMAT"
+                class="full-width"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="8">
+            <a-form-item :label="staffTimeLabel" :name="EmployeeFields.HIREDATE">
+              <a-date-picker
+                v-model:value="form[EmployeeFields.HIREDATE]"
+                :format="DATE_FORMAT"
+                class="full-width"
+              />
+            </a-form-item>
+          </a-col>
+        </a-row>
+
+        <a-row :gutter="24">
+          <a-col :span="8">
+            <a-form-item :label="staffNationLabel" :name="EmployeeFields.ETHNICITY">
+              <a-select
+                v-model:value="form[EmployeeFields.ETHNICITY]"
+                :options="staffNationOptions"
+                :placeholder="t('message.pleaseInputStaffNation')"
+                show-search
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="8">
+            <a-form-item :label="staffFaceLabel" :name="EmployeeFields.POLITICALAFFILIATION">
+              <a-select
+                v-model:value="form[EmployeeFields.POLITICALAFFILIATION]"
+                :options="staffFeaturesOptions"
+                :placeholder="t('message.pleaseInputStaffFace')"
+                show-search
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="8">
+            <a-form-item :label="staffEducationLabel" :name="EmployeeFields.EDUCATIONLEVEL">
+              <a-select
+                v-model:value="form[EmployeeFields.EDUCATIONLEVEL]"
+                :options="staffQualificationOptions"
+                :placeholder="t('message.pleaseInputStaffEducation')"
+                show-search
+              />
+            </a-form-item>
+          </a-col>
+        </a-row>
+
+        <a-row :gutter="24">
+          <a-col :span="12">
+            <a-form-item :label="staffDepartmentLabel" :name="EmployeeFields.DEPARTMENT">
+              <a-select
+                v-model:value="form[EmployeeFields.DEPARTMENT]"
+                :options="staffDepartmentOptions"
+                :placeholder="t('message.pleaseInputStaffDepartment')"
+                show-search
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item :label="staffPositionLabel" :name="EmployeeFields.POSITION">
+              <a-select
+                v-model:value="form[EmployeeFields.POSITION]"
+                :options="staffPositionOptions"
+                :placeholder="t('message.pleaseInputStaffPosition')"
+                show-search
+              />
+            </a-form-item>
+          </a-col>
+        </a-row>
+
+        <a-row :gutter="24">
+          <a-col :span="12">
+            <a-form-item :label="staffCardIDLabel" :name="EmployeeFields.IDCARDNUMBER">
+              <a-input
+                v-model:value="form[EmployeeFields.IDCARDNUMBER]"
+                :placeholder="t('message.pleaseInputStaffCardID')"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item :label="staffTelLabel" :name="EmployeeFields.PHONENUMBER">
+              <a-input
+                v-model:value="form[EmployeeFields.PHONENUMBER]"
+                :placeholder="t('message.pleaseInputStaffTel')"
+              />
+            </a-form-item>
+          </a-col>
+        </a-row>
+
+        <a-form-item :label="staffAddressLabel" :name="EmployeeFields.ADDRESS">
+          <a-input
+            v-model:value="form[EmployeeFields.ADDRESS]"
+            :placeholder="t('message.pleaseInputStaffAddress')"
           />
-        </a-form-item>
-        <a-form-item :label="staffFaceLabel" name="WorkerFace">
-          <a-select
-            v-model:value="form.WorkerFace"
-            :options="staffFeaturesOptions"
-            :placeholder="t('message.pleaseInputStaffFace')"
-          />
-        </a-form-item>
-        <a-form-item :label="staffEducationLabel" name="WorkerEducation">
-          <a-select
-            v-model:value="form.WorkerEducation"
-            :options="staffQualificationOptions"
-            :placeholder="t('message.pleaseInputStaffEducation')"
-          />
-        </a-form-item>
-        <a-form-item :label="staffDepartmentLabel" name="WorkerClub">
-          <a-select
-            v-model:value="form.WorkerClub"
-            :options="staffDepartmentOptions"
-            :placeholder="t('message.pleaseInputStaffDepartment')"
-          />
-        </a-form-item>
-        <a-form-item :label="staffPositionLabel" name="WorkerPosition">
-          <a-select
-            v-model:value="form.WorkerPosition"
-            :options="staffPositionOptions"
-            :placeholder="t('message.pleaseInputStaffPosition')"
-          />
-        </a-form-item>
-        <a-form-item :label="staffCardIDLabel" name="CardId">
-          <a-input v-model:value="form.CardId" />
-        </a-form-item>
-        <a-form-item :label="staffTelLabel" name="WorkerTel">
-          <a-input v-model:value="form.WorkerTel" />
-        </a-form-item>
-        <a-form-item :label="staffAddressLabel" name="WorkerAddress">
-          <a-input v-model:value="form.WorkerAddress" />
         </a-form-item>
       </a-form>
     </a-modal>
@@ -93,13 +167,33 @@
 <script setup>
 import { ref, onMounted, computed, reactive } from 'vue';
 import { Select } from 'ant-design-vue';
-import { useRoute } from 'vue-router';
+import { useRoute,useRouter } from 'vue-router';
 import { getPageTitle } from '@/utils/pageTitle';
-import { fetchEmployees, addEmployee, updateEmployee } from '@/api/employeeapi';
+import { fetchEmployees, addEmployee, updateEmployee, managerEmployeeAccount } from '@/api/employeeapi';
+import { 
+  EmployeeFields,
+  Gender,
+  DATE_FORMAT,
+  initialFormValues,
+  getColumns,
+  getFormRules
+} from '@/entities/employee.entity';
 import { fetchPositions } from '@/api/positionapi';
+import { 
+  PositionFields
+} from '@/entities/position.entity';
 import { fetchQualifications } from '@/api/qualificationapi';
+import { 
+  EducationFields
+} from '@/entities/qualification.entity';
 import { fetchDepartments } from '@/api/departmentapi';
+import { 
+  DepartmentFields
+} from '@/entities/department.entity';
 import { fetchNations } from '@/api/nationapi';
+import { 
+  NationFields
+} from '@/entities/nation.entity';
 import { fetchWorkerFeatures } from '@/api/workerfeatureapi';
 import { formatDate,showNotification } from '@/utils/index';
 import { useI18n } from 'vue-i18n';
@@ -108,6 +202,7 @@ import moment from 'moment';
 
 const { t } = useI18n();
 const route = useRoute();
+const router = useRouter();
 const pageTitleKey = computed(() => getPageTitle(route.path));
 const translatedPageTitle = computed(() => t(pageTitleKey.value));
 const loading = ref(false);
@@ -123,41 +218,15 @@ const staffQualificationOptions = ref([]);
 const staffDepartmentOptions = ref([]);
 const staffPositionOptions = ref([]);
 
-const form = reactive({
-  WorkerId: null,
-  WorkerName: '',
-  WorkerSex: null,
-  WorkerBirthday: '',
-  WorkerNation: null,
-  WorkerFace: null,
-  WorkerEducation: null,
-  WorkerClub: null,
-  WorkerPosition: null,
-  WorkerPwd:'',
-  CardId: '',
-  WorkerTel: '',
-  WorkerAddress: '',
-  DataInsUsr: '',
-  DataInsDate: null,
-  DataChgUsr: '',
-  DataChgDate: null,
-  modifystatus: '',
-});
-
-const rules = {
-  WorkerName: [{ required: true, message: t('message.pleaseInputStaffName'), trigger: 'blur' }],
-  WorkerSex: [{ required: true, message: t('message.pleaseInputStaffSex'), trigger: 'blur' }],
-  WorkerTel: [{ required: true, message: t('message.pleaseInputStaffTel'), trigger: 'blur' }],
-  WorkerEducation: [{ required: true, message: t('message.pleaseInputStaffEducation'), trigger: 'blur' }],
-  WorkerFace: [{ required: true, message: t('message.pleaseInputStaffFace'), trigger: 'blur' }],
-  WorkerNation: [{ required: true, message: t('message.pleaseInputStaffNation'), trigger: 'blur' }],
-  WorkerClub: [{ required: true, message: t('message.pleaseInputStaffDepartment'), trigger: 'blur' }],
-  WorkerPosition: [{ required: true, message: t('message.pleaseInputStaffPosition'), trigger: 'blur' }],
-  CardId: [{ required: true, message: t('message.pleaseInputStaffCardID'), trigger: 'blur' }],
-  WorkerAddress: [{ required: true, message: t('message.pleaseInputStaffAddress'), trigger: 'blur' }],
-  WorkerBirthday: [{ required: true, message: t('message.pleaseInputStaffBirthday'), trigger: 'blur' }],
-  WorkerTime: [{ required: true, message: t('message.pleaseInputStaffTime'), trigger: 'blur' }],
+const viewDetail = (record) => {
+  router.push({
+    path: `/employeedetail/${record[EmployeeFields.NUMBER]}`
+  });
 };
+
+const form = reactive({ ...initialFormValues });
+
+const rules = getFormRules(t);
 
 const staffNoLabel = computed(() => t('message.staffId'));
 const staffNameLabel = computed(() => t('message.staffName'));
@@ -173,107 +242,26 @@ const staffFaceLabel = computed(() => t('message.staffFace'));
 const staffTimeLabel = computed(() => t('message.staffTime'));
 const staffCardIDLabel = computed(() => t('message.staffCardID'));
 
-const columns = computed(() => [
-  {
-    title: t('message.staffId'),
-    dataIndex: 'WorkerId',
-    key: 'WorkerId',
-    sorter: (a, b) => a.WorkerId.localeCompare(b.WorkerId),
-    defaultSortOrder: 'ascend'
-  },
-  {
-    title: t('message.staffName'),
-    dataIndex: 'WorkerName',
-    key: 'WorkerName',
-  },
-  {
-    title: t('message.staffSex'),
-    dataIndex: 'WorkerSex',
-    key: 'WorkerSex',
-    hidden: true,
-  },
-  {
-    title: t('message.staffSex'),
-    dataIndex: 'WorkerSexName',
-    key: 'WorkerSexName',
-  },
-  {
-    title: t('message.staffBirthday'),
-    dataIndex: 'WorkerBirthday',
-    key: 'WorkerBirthday',
-  },
-  {
-    title: t('message.staffEducation'),
-    dataIndex: 'WorkerEducation',
-    key: 'WorkerEducation',
-    hidden: true,
-  },
-  {
-    title: t('message.staffEducation'),
-    dataIndex: 'EducationName',
-    key: 'EducationName',
-  },
-  {
-    title: t('message.staffNation'),
-    dataIndex: 'WorkerNation',
-    key: 'WorkerNation',
-    hidden: true
-  },
-  {
-    title: t('message.staffNation'),
-    dataIndex: 'NationName',
-    key: 'NationName'
-  },
-  {
-    title: t('message.staffDepartment'),
-    dataIndex: 'WorkerClub',
-    key: 'WorkerClub',
-    hidden: true
-  },
-  {
-    title: t('message.staffDepartment'),
-    dataIndex: 'ClubName',
-    key: 'ClubName'
-  },
-  {
-    title: t('message.staffPosition'),
-    dataIndex: 'WorkerPosition',
-    key: 'WorkerPosition',
-    hidden: true
-  },
-  {
-    title: t('message.staffPosition'),
-    dataIndex: 'PositionName',
-    key: 'PositionName'
-  },
-  {
-    title: t('message.staffCardID'),
-    dataIndex: 'CardId',
-    key: 'CardId'
-  },
-  {
-    title: t('message.staffTel'),
-    dataIndex: 'WorkerTel',
-    key: 'WorkerTel'
-  },
-  {
-    title: t('message.staffAddress'),
-    dataIndex: 'WorkerAddress',
-    key: 'WorkerAddress'
-  },
-  {
-    title: t('message.operation'),
-    key: 'operation',
-  },
-]);
+const columns = computed(() => getColumns(t));
 
 const filteredColumns = computed(() => columns.value.filter(column => !column.hidden));
 
 const pagination = reactive({
   current: 1,
-  pageSize: 10,
+  pageSize: 15,
   total: 0,
+  showSizeChanger: true,
+  pageSizeOptions: ['15', '30', '50'],
+  showTotal: total => t('message.totalRecords', { total })
 });
+
+const EnableStatus = {
+  DISABLED: 0,
+  ENABLED: 1
+}
+const isEnabled = (record) => {
+  return record[EmployeeFields.ISENABLE] === EnableStatus.ENABLED
+}
 
 const fetchStaffData = async () => {
   loading.value = true;
@@ -281,10 +269,36 @@ const fetchStaffData = async () => {
     const result = await fetchEmployees({
       page: pagination.current,
       pageSize: pagination.pageSize,
-      isDelete: 0
+      [EmployeeFields.IS_DELETED]: 0,
     });
-    staffs.value = result;
-    pagination.total = result.total;
+    if(result?.listSource){
+      staffs.value = result.listSource.map(item => ({
+        [EmployeeFields.NUMBER]: item[EmployeeFields.NUMBER],
+        [EmployeeFields.NAME]: item[EmployeeFields.NAME],
+        [EmployeeFields.GENDER]: item[EmployeeFields.GENDER],
+        [EmployeeFields.GENDERNAME]: item[EmployeeFields.GENDERNAME] === Gender.MALE 
+          ? t('message.male') 
+          : t('message.female'),
+        [EmployeeFields.DATEOFBIRTH]: item[EmployeeFields.DATEOFBIRTH],
+        [EmployeeFields.HIREDATE]: item[EmployeeFields.HIREDATE],
+        [EmployeeFields.ETHNICITY]: item[EmployeeFields.ETHNICITY],
+        [EmployeeFields.ETHNICITYNAME]: item[EmployeeFields.ETHNICITYNAME],
+        [EmployeeFields.EDUCATIONLEVEL]: item[EmployeeFields.EDUCATIONLEVEL],
+        [EmployeeFields.EDUCATIONLEVELNAME]: item[EmployeeFields.EDUCATIONLEVELNAME],
+        [EmployeeFields.DEPARTMENT]: item[EmployeeFields.DEPARTMENT],
+        [EmployeeFields.DEPARTMENTNAME]: item[EmployeeFields.DEPARTMENTNAME],
+        [EmployeeFields.POSITION]: item[EmployeeFields.POSITION],
+        [EmployeeFields.POSITIONNAME]: item[EmployeeFields.POSITIONNAME],
+        [EmployeeFields.IDCARDNUMBER]: item[EmployeeFields.IDCARDNUMBER],
+        [EmployeeFields.PHONENUMBER]: item[EmployeeFields.PHONENUMBER],
+        [EmployeeFields.ADDRESS]: item[EmployeeFields.ADDRESS],
+        [EmployeeFields.IS_DELETED]: item[EmployeeFields.IS_DELETED],
+        [EmployeeFields.POLITICALAFFILIATION]: item[EmployeeFields.POLITICALAFFILIATION],
+        [EmployeeFields.POLITICALAFFILIATIONNAME]: item[EmployeeFields.POLITICALAFFILIATIONNAME],
+        [EmployeeFields.ISENABLE]: item[EmployeeFields.ISENABLE]
+      }));
+      pagination.total = result.total;
+    }
   } catch (error) {
     showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
   } finally {
@@ -295,11 +309,12 @@ const fetchStaffData = async () => {
 const fetchSelectNations = async () => {
   try {
     const result = await fetchNations({
-      isDelete: 0
+      [NationFields.IS_DELETED]: 0,
+      [NationFields.IGNOREPAGING]: true
     });
-    staffNationOptions.value = result.map((item) => ({
-      label: item.nation_name,
-      value: item.nation_no,
+    staffNationOptions.value = result.listSource.map((item) => ({
+      label: item[NationFields.NAME],
+      value: item[NationFields.NUMBER],
     }));
   } catch (error) {
     showNotification('error', t('message.fetchDataFailed'), t('message.pleaseTryAgainLater'));
@@ -309,11 +324,12 @@ const fetchSelectNations = async () => {
 const fetchSelectQualifications = async () => {
   try {
     const result = await fetchQualifications({
-      isDelete: 0
+      [EducationFields.IS_DELETED]: 0,
+      [EducationFields.IGNOREPAGING]: true
     });
-    staffQualificationOptions.value = result.map((item) => ({
-      label: item.education_name,
-      value: item.education_no,
+    staffQualificationOptions.value = result.listSource.map((item) => ({
+      label: item[EducationFields.NAME],
+      value: item[EducationFields.NUMBER],
     }));
   } catch (error) {
     showNotification('error', t('message.fetchDataFailed'), t('message.pleaseTryAgainLater'));
@@ -323,11 +339,12 @@ const fetchSelectQualifications = async () => {
 const fetchSelectDepartments = async () => {
   try {
     const result = await fetchDepartments({
-      isDelete: 0
+      [DepartmentFields.IS_DELETED]: 0,
+      [DepartmentFields.IGNOREPAGING]: true
     });
-    staffDepartmentOptions.value = result.map((item) => ({
-      label: item.dept_name,
-      value: item.dept_no,
+    staffDepartmentOptions.value = result.listSource.map((item) => ({
+      label: item[DepartmentFields.NAME],
+      value: item[DepartmentFields.NUMBER],
     }));
   } catch (error) {
     showNotification('error', t('message.fetchDataFailed'), t('message.pleaseTryAgainLater'));
@@ -337,11 +354,12 @@ const fetchSelectDepartments = async () => {
 const fetchSelectPositions = async () => {
   try {
     const result = await fetchPositions({
-      isDelete: 0
+      [PositionFields.IS_DELETED]: 0,
+      [PositionFields.IGNOREPAGING]: true
     });
-    staffPositionOptions.value = result.map((item) => ({
-      label: item.position_name,
-      value: item.position_no,
+    staffPositionOptions.value = result.listSource.map((item) => ({
+      label: item[PositionFields.NAME],
+      value: item[PositionFields.NUMBER],
     }));
   } catch (error) {
     showNotification('error', t('message.fetchDataFailed'), t('message.pleaseTryAgainLater'));
@@ -351,11 +369,10 @@ const fetchSelectPositions = async () => {
 const fetchSelectWorkerFeatures = async () => {
   try {
     const result = await fetchWorkerFeatures({
-      isDelete: 0
     });
     staffFeaturesOptions.value = result.map((item) => ({
-      label: item.description,
-      value: item.code,
+      label: item.Description,
+      value: item.Name,
     }));
   } catch (error) {
     showNotification('error', t('message.fetchDataFailed'), t('message.pleaseTryAgainLater'));
@@ -374,22 +391,21 @@ onMounted(() => {
 const showModal = () => {
   modalVisible.value = true;
   modalTitle.value = t('message.insertStaff');
-  form.WorkerId = generateSnowflakeId({
+  form[EmployeeFields.NUMBER] = generateSnowflakeId({
       prefix: 'W',
       separator: null,
     });
-  form.WorkerName = '';
-  form.WorkerSex = null;
-  form.WorkerBirthday = null;
-  form.WorkerEducation = null;
-  form.WorkerNation = null;
-  form.WorkerTime = null;
-  form.WorkerFace = null;
-  form.WorkerClub = null;
-  form.WorkerPosition = null;
-  form.CardId = '';
-  form.WorkerTel = '';
-  form.WorkerAddress = '';
+  form[EmployeeFields.NAME] = '';
+  form[EmployeeFields.GENDER] = null;
+  form[EmployeeFields.DATEOFBIRTH] = null;
+  form[EmployeeFields.EDUCATIONLEVEL] = null;
+  form[EmployeeFields.HIREDATE] = null;
+  form[EmployeeFields.ETHNICITY] = null;
+  form[EmployeeFields.DEPARTMENT] = null;
+  form[EmployeeFields.POSITION] = null;
+  form[EmployeeFields.IDCARDNUMBER] = '';
+  form[EmployeeFields.PHONENUMBER] = '';
+  form[EmployeeFields.ADDRESS] = '';
 
   form.modifystatus = 'insert';
 };
@@ -402,32 +418,41 @@ const refreshData = () =>
 const editStaff = (record) => {
   modalVisible.value = true;
   modalTitle.value = t('message.updateStaff');
-  form.WorkerId = record.WorkerId;
-  form.WorkerName = record.WorkerName;
-  form.WorkerSex = record.WorkerSex;
-  form.WorkerBirthday = record.WorkerBirthday ? moment(record.WorkerBirthday) : null;
-  form.WorkerTime = record.WorkerTime ? moment(record.WorkerTime) : null;
-  form.WorkerEducation = record.WorkerEducation;
-  form.WorkerNation = record.WorkerNation;
-  form.WorkerFace = record.WorkerFace;
-  form.WorkerClub = record.WorkerClub;
-  form.WorkerPosition = record.WorkerPosition;
-  form.CardId = record.CardId;
-  form.WorkerTel = record.WorkerTel;
-  form.WorkerAddress = record.WorkerAddress;
+  form[EmployeeFields.NUMBER] = record[EmployeeFields.NUMBER];
+  form[EmployeeFields.NAME] = record[EmployeeFields.NAME];
+  form[EmployeeFields.GENDER] = record[EmployeeFields.GENDER];
+  form[EmployeeFields.DATEOFBIRTH] = record[EmployeeFields.DATEOFBIRTH] ? moment(record[EmployeeFields.DATEOFBIRTH]) : null;
+  form[EmployeeFields.HIREDATE] = record[EmployeeFields.HIREDATE] ? moment(record[EmployeeFields.HIREDATE]) : null;
+  form[EmployeeFields.EDUCATIONLEVEL] = record[EmployeeFields.EDUCATIONLEVEL];
+  form[EmployeeFields.ETHNICITY] = record[EmployeeFields.ETHNICITY];
+  form[EmployeeFields.DEPARTMENT] = record[EmployeeFields.DEPARTMENT];
+  form[EmployeeFields.POSITION] = record[EmployeeFields.POSITION];
+  form[EmployeeFields.IDCARDNUMBER] = record[EmployeeFields.IDCARDNUMBER];
+  form[EmployeeFields.PHONENUMBER] = record[EmployeeFields.PHONENUMBER];
+  form[EmployeeFields.ADDRESS] = record[EmployeeFields.ADDRESS];
 
   form.modifystatus = 'update';
 };
+
+const disabledStaff = async (record) => {
+  await managerEmployeeAccount({ [EmployeeFields.NUMBER]: record[EmployeeFields.NUMBER], [EmployeeFields.ISENABLE]: record[EmployeeFields.ISENABLE] === 0 ? 1 : 0 });
+  fetchStaffData();
+}
+
+const resetPassword = async (record) => {
+  await managerEmployeeAccount({ [EmployeeFields.NUMBER]: record[EmployeeFields.NUMBER], [EmployeeFields.ISENABLE]: record[EmployeeFields.ISENABLE] === 0 ? 1 : 0 });
+  fetchStaffData();
+}
 
 const handleModalOk = async () => {
   try {
     await formRef.value.validate();
     confirmLoading.value = true;
     if (form.modifystatus === 'update') {
-      await updateEmployee({ ...form,WorkerBirthday:form.WorkerBirthday?form.WorkerBirthday.format('YYYY-MM-DD'):null,WorkerTime:form.WorkerTime?form.WorkerTime.format('YYYY-MM-DD'):null});
+      await updateEmployee({ ...form,[EmployeeFields.DATEOFBIRTH]:form[EmployeeFields.DATEOFBIRTH]?form[EmployeeFields.DATEOFBIRTH].format('YYYY-MM-DD'):null,[EmployeeFields.HIREDATE]:form[EmployeeFields.HIREDATE]?form[EmployeeFields.HIREDATE].format('YYYY-MM-DD'):null});
       showNotification('success', t('message.operationTitle') , t('message.updateSuccess'));
     } else {
-      await addEmployee({ ...form,WorkerBirthday:form.WorkerBirthday?form.WorkerBirthday.format('YYYY-MM-DD'):null,WorkerTime:form.WorkerTime?form.WorkerTime.format('YYYY-MM-DD'):null});
+      await addEmployee({ ...form,[EmployeeFields.DATEOFBIRTH]:form[EmployeeFields.DATEOFBIRTH]?form[EmployeeFields.DATEOFBIRTH].format('YYYY-MM-DD'):null,[EmployeeFields.HIREDATE]:form[EmployeeFields.HIREDATE]?form[EmployeeFields.HIREDATE].format('YYYY-MM-DD'):null});
       showNotification('success', t('message.operationTitle') , t('message.addSuccess'));
     }
     modalVisible.value = false;
@@ -445,7 +470,7 @@ const handleModalCancel = () => {
 
 const handleDelete = async (record) => {
   try {
-    record.isDelete = 1;
+    record[EmployeeFields.IS_DELETED] = 1;
     await updateEmployee(record);
     showNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
     fetchStaffData();
@@ -464,4 +489,11 @@ const handleTableChange = (newPagination) => {
 const handleSorterChange = (pagination, filters, sorter) => {
   sortedInfo.value = sorter;
 };
+
 </script>
+
+<style scoped>
+.status-tag {
+  transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+</style>

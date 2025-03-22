@@ -3,7 +3,7 @@ import api from '../api';
 // 获取客户列表
 export const fetchCustomers = async (params) => {
   try {
-    const response = await api.get('/Custo/SelectCustomers', { params });
+    const response = await api.get('/Customer/SelectCustomers', { params });
     return response.data;
   } catch (error) {
     throw error;
@@ -13,7 +13,7 @@ export const fetchCustomers = async (params) => {
 // 添加客户
 export const addCustomer = async (data) => {
   try {
-    const response = await api.post('/Custo/InsertCustomerInfo', data);
+    const response = await api.post('/Customer/InsertCustomerInfo', data);
     return response.data;
   } catch (error) {
     throw error;
@@ -23,7 +23,7 @@ export const addCustomer = async (data) => {
 // 更新客户
 export const updateCustomer = async (data) => {
   try {
-    const response = await api.post(`/Custo/UpdCustomerInfo`, data);
+    const response = await api.post(`/Customer/UpdCustomerInfo`, data);
     return response.data;
   } catch (error) {
     throw error;
@@ -33,7 +33,7 @@ export const updateCustomer = async (data) => {
 // 删除客户
 export const deleteCustomer = async (data) => {
   try {
-    const response = await api.post(`/Custo/DelCustomerInfo`,data);
+    const response = await api.post(`/Customer/DelCustomerInfo`,data);
       return response.data;
   } catch (error) {
     throw error;

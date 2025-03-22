@@ -1,12 +1,25 @@
 import { defineConfig, loadEnv } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import path from 'path';
+import Components from 'unplugin-vue-components/vite'
+import { AntDesignVueResolver } from 'unplugin-vue-components/resolvers'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd());
 
   return {
-    plugins: [vue()],
+    plugins: [
+      vue(),
+     Components({
+       resolvers: [
+         AntDesignVueResolver({
+           resolveIcons: true,
+           importStyle: 'less',
+         })
+       ],
+       dts: true,
+     })
+    ],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, 'src'),
@@ -21,5 +34,15 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
+   css: {
+     preprocessorOptions: {
+       less: {
+         modifyVars: {
+           'primary-color': '#1890ff',
+         },
+         javascriptEnabled: true,
+       }
+     }
+   }
   };
 });

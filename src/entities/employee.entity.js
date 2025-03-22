@@ -1,7 +1,6 @@
 import { BaseFields, BaseInitialValues } from './common.entity';
 
 export const EmployeeSpecificFields  = {
-    ID: 'Id',
     NUMBER: 'EmployeeId',
     NAME: 'EmployeeName',
     GENDER: 'Gender',
@@ -21,6 +20,7 @@ export const EmployeeSpecificFields  = {
     POLITICALAFFILIATIONNAME: 'PoliticalAffiliationName',
     EDUCATIONLEVEL: 'EducationLevel',
     EDUCATIONLEVELNAME: 'EducationLevelName',
+    ISENABLE: 'IsEnable',
   };
 
   export const EmployeeFields = {
@@ -28,6 +28,13 @@ export const EmployeeSpecificFields  = {
     ...BaseFields
   };
   
+  export const Gender = {
+    MALE: 1,
+    FEMALE: 0
+  };
+
+  export const DATE_FORMAT = 'YYYY-MM-DD';
+
   export const initialFormValues = {
     ...BaseInitialValues,
     [EmployeeFields.NUMBER]: null,
@@ -45,10 +52,11 @@ export const EmployeeSpecificFields  = {
     [EmployeeFields.POSITIONNAME]: '',
     [EmployeeFields.IDCARDNUMBER]: '',
     [EmployeeFields.HIREDATE]: null,
-    [EmployeeFields.POLITICALAFFILIATION]: '',
+    [EmployeeFields.POLITICALAFFILIATION]: null,
     [EmployeeFields.POLITICALAFFILIATIONNAME]: '',
     [EmployeeFields.EDUCATIONLEVEL]: '',
     [EmployeeFields.EDUCATIONLEVELNAME]: '',
+    [EmployeeFields.ISENABLE]: 0,
     modifystatus: ''
   };
   
@@ -90,7 +98,7 @@ export const EmployeeSpecificFields  = {
       {
         title: t('message.staffEducation'),
         dataIndex: EmployeeFields.EDUCATIONLEVELNAME,
-        key: EmployeeFields.EDUCATIONLEVELNAME,
+        key: EmployeeFields.EDUCATIONLEVELNAME
       },
       {
         title: t('message.staffNation'),
@@ -126,6 +134,17 @@ export const EmployeeSpecificFields  = {
         key: EmployeeFields.POSITIONNAME
       },
       {
+        title: t('message.staffFace'),
+        dataIndex: EmployeeFields.POLITICALAFFILIATION,
+        key: EmployeeFields.POLITICALAFFILIATION,
+        hidden: true
+      },
+      {
+        title: t('message.staffFace'),
+        dataIndex: EmployeeFields.POLITICALAFFILIATIONNAME,
+        key: EmployeeFields.POLITICALAFFILIATIONNAME
+      },
+      {
         title: t('message.staffCardID'),
         dataIndex: EmployeeFields.IDCARDNUMBER,
         key: EmployeeFields.IDCARDNUMBER
@@ -139,6 +158,11 @@ export const EmployeeSpecificFields  = {
         title: t('message.staffAddress'),
         dataIndex: EmployeeFields.ADDRESS,
         key: EmployeeFields.ADDRESS
+      },
+      {
+        title: t('message.staffEnable'),
+        dataIndex: EmployeeFields.ISENABLE,
+        key: EmployeeFields.ISENABLE
       },
     {
       title: t('message.operation'),

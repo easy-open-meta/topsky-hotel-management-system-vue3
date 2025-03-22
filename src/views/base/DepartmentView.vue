@@ -1,14 +1,14 @@
 <template>
   <div>
     <h1 style="margin-bottom: 15px;">{{ translatedPageTitle }}</h1>
-    <a-button @click="refreshData" style="margin-bottom: 15px;margin-right: 15px;">{{ $t('message.refreshData') }}</a-button>
-    <a-button type="primary" @click="showModal" style="margin-bottom: 15px;">{{ $t('message.insertDepartment') }}</a-button>
+    <a-button @click="refreshData" style="margin-bottom: 15px;margin-right: 15px;"><sync-outlined /> {{ $t('message.refreshData') }}</a-button>
+    <a-button type="primary" @click="showModal" style="margin-bottom: 15px;"><plus-outlined /> {{ $t('message.insertDepartment') }}</a-button>
     <a-table :columns="columns" :data-source="departments" :loading="loading" :pagination="pagination" @change="handleTableChange" @sorterChange="handleSorterChange" bordered>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'operation'">
-          <a-button @click="editDepartment(record)" style="margin-right: 15px;">{{ $t('message.edit') }}</a-button>
+          <a-button @click="editDepartment(record)" style="margin-right: 15px;"><edit-outlined /> {{ $t('message.edit') }}</a-button>
             <a-popconfirm :title="t('message.areYouSureToDeleteRecord')" @confirm="handleDelete(record)">
-            <a-button danger>{{ $t('message.delete') }}</a-button>
+            <a-button danger><delete-outlined /> {{ $t('message.delete') }}</a-button>
           </a-popconfirm>
         </template>
         <template v-else-if="column.key === DepartmentFields.CREATIONDATE">
@@ -44,7 +44,7 @@
           />
         </a-form-item>
         <a-form-item :label="departmentDateLabel" :name="DepartmentFields.CREATIONDATE">
-          <a-date-picker v-model:value="form[DepartmentFields.CREATIONDATE]" />
+          <a-date-picker v-model:value="form[DepartmentFields.CREATIONDATE]" show-time/>
         </a-form-item>
       </a-form>
     </a-modal>
@@ -70,6 +70,7 @@ import { formatDate,showNotification } from '@/utils/index';
 import { useI18n } from 'vue-i18n';
 import generateSnowflakeId from '@/utils/snowflake';
 import moment from 'moment';
+import { SyncOutlined,EditOutlined } from '@ant-design/icons-vue';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -99,13 +100,13 @@ const departmentDateLabel = computed(() => t('message.departmentDate'));
 const columns = computed(() => getColumns(t));
 
 const pagination = reactive({
-  current: 1,
-  pageSize: 15,
-  total: 0,
-  showSizeChanger: true,
-  pageSizeOptions: ['15', '20', '50'],
-  showTotal: (total) => `共 ${total} 条`
-});
+    current: 1,
+    pageSize: 15,
+    total: 0,
+    showSizeChanger: true,
+    pageSizeOptions: ['15', '30', '50'],
+    showTotal: total => t('message.totalRecords', { total })
+  });
 
 const fetchDepartmentData = async () => {
   loading.value = true;
@@ -113,7 +114,7 @@ const fetchDepartmentData = async () => {
     const result = await fetchDepartments({
       page: pagination.current,
       pageSize: pagination.pageSize,
-      [DepartmentFields.IS_DELETE]: 0
+      [DepartmentFields.IS_DELETED]: 0
     });
     if (result?.listSource) {
       departments.value = result.listSource.map(item => ({
@@ -125,7 +126,7 @@ const fetchDepartmentData = async () => {
       [DepartmentFields.PARENT]: item[DepartmentFields.PARENT],
       [DepartmentFields.PARENTNAME]: item[DepartmentFields.PARENTNAME],
       [DepartmentFields.CREATIONDATE]: item[DepartmentFields.CREATIONDATE],
-      [DepartmentFields.IS_DELETE]: item[DepartmentFields.IS_DELETE]
+      [DepartmentFields.IS_DELETED]: item[DepartmentFields.IS_DELETED]
     }));
     pagination.total = result.total;
     } else {
@@ -141,7 +142,7 @@ const fetchDepartmentData = async () => {
 const fetchSelectDepartments = async () => {
   try {
     const result = await fetchDepartments({
-      [DepartmentFields.IS_DELETE]: 0
+      [DepartmentFields.IS_DELETED]: 0
     });
     departmentOptions.value = result.listSource.map((item) => ({
       label: item[DepartmentFields.NAME],
@@ -155,7 +156,7 @@ const fetchSelectDepartments = async () => {
 const fetchSelectLeaders = async () => {
   try {
     const result = await fetchEmployees({
-      [EmployeeFields.IS_DELETE]: 0,
+      [EmployeeFields.IS_DELETED]: 0,
       page: 1,
       pageSize: 9999
     });
@@ -232,7 +233,7 @@ const handleModalCancel = () => {
 
 const handleDelete = async (record) => {
   try {
-    record[DepartmentFields.IS_DELETE] = 1;
+    record[DepartmentFields.IS_DELETED] = 1;
     await deleteDepartment(record);
     showNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
     fetchDepartmentData();

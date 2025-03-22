@@ -1,62 +1,87 @@
 <template>
   <div>
     <h1 style="margin-bottom: 15px;">{{ translatedPageTitle }}</h1>
-    <a-button @click="refreshData" style="margin-bottom: 15px;">{{ $t('message.refreshData') }}</a-button>
+    <a-button @click="refreshData" style="margin-bottom: 15px;"><sync-outlined /> {{ $t('message.refreshData') }}</a-button>
 
     <div v-if="!loading">
       <div v-for="(levelRooms, level) in groupedRooms" :key="level">
         <h2>{{ level }}</h2>
-        <a-row :gutter="[20, 20]" style="display:flex; flex-wrap:wrap; justify-content: flex-start;">
+        <a-row :gutter="[20, 20]" class="room-grid">
           <a-col
             v-for="room in levelRooms"
-            :key="room.RoomNo"
-            :style="{ width: '250px', marginBottom: '20px' }"
+            :key="room[RoomFields.NO]"
+            class="room-col"
           >
             <a-tooltip placement="right">
               <template #title>
                  <div v-html="getTooltipContent(room)"></div>
               </template>
-              <a-card :title="room.RoomName" :bordered="false" class="room-card" hoverable>
-                <template #extra><a-tag :color="getTagColor(room.RoomState)" :bordered="false">{{ room.RoomState }}</a-tag></template>
-                <p class="room-info">{{ $t('message.roomNo') }}: {{ room.RoomNo }}</p>
-                <p class="room-info">{{ $t('message.custoName') }}: {{ room.CustoName || '' }}</p>
-                <p class="room-info" v-if="room.CheckTime">{{ $t('message.daysofStay') }}: {{ calculateDaysLived(room.CheckTime) }}</p>
-                <p class="room-info" v-else>{{ $t('message.daysofStay') }}: </p>
+              <a-card :title="room[RoomFields.NAME]" class="room-card" hoverable>
+                <template #extra>
+                  <a-tag :color="getTagColor(room[RoomFields.STATE])" :bordered="false">
+                    {{ room[RoomFields.STATE] }}
+                  </a-tag>
+                </template>
+                <p class="room-info">{{ $t('message.roomNo') }}: {{ room[RoomFields.NO] }}</p>
+                <p class="room-info">{{ $t('message.custoName') }}: {{ room[RoomFields.CUSTOMER_NAME] || '' }}</p>
+                <p class="room-info">
+                  {{ $t('message.daysofStay') }}: {{ calculateDaysLived(room[RoomFields.CHECK_IN_TIME]) }}
+                </p>
               </a-card>
             </a-tooltip>
           </a-col>
         </a-row>
       </div>
     </div>
-    <div v-else>
-      <a-spin size="large" />
-    </div>
+    <a-spin v-else size="large" />
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
+import { 
+  RoomFields,
+  RoomStateColors,
+  RoomStateMap 
+} from '@/entities/room.entity';
 import { getPageTitle } from '@/utils/pageTitle';
-import { showNotification } from '@/utils/index';
 import { fetchRooms } from '@/api/roomapi';
+import { formatDate, showNotification, formatCurrency } from '@/utils/index';
 import { useI18n } from 'vue-i18n';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
 const route = useRoute();
-const pageTitleKey = computed(() => getPageTitle(route.path));
-const translatedPageTitle = computed(() => t(pageTitleKey.value));
 const loading = ref(false);
 const rooms = ref([]);
-const groupedRooms = ref({});
+
+// 计算属性
+const pageTitleKey = computed(() => getPageTitle(route.path));
+const translatedPageTitle = computed(() => t(pageTitleKey.value));
+const groupedRooms = computed(() => groupRoomsByPosition());
 
 const fetchRoomData = async () => {
   loading.value = true;
   try {
-    const result = await fetchRooms({ isDelete: 0 });
-    rooms.value = result;
-    groupRoomsByPosition();
+    const response = await fetchRooms({ 
+      [RoomFields.IS_DELETED]: 0,
+      [RoomFields.IGNOREPAGING]: true
+    });
+    
+    if (response?.listSource) {
+      rooms.value = response.listSource.map(item => ({
+        [RoomFields.NO]: item[RoomFields.NO],
+        [RoomFields.NAME]: item[RoomFields.NAME],
+        [RoomFields.STATE]: RoomStateMap[item[RoomFields.STATE]] || item[RoomFields.STATE],
+        [RoomFields.POSITION]: item[RoomFields.POSITION],
+        [RoomFields.CUSTOMER_NAME]: item[RoomFields.CUSTOMER_NAME],
+        [RoomFields.CHECK_IN_TIME]: item[RoomFields.CHECK_IN_TIME],
+        [RoomFields.CHECK_OUT_TIME]: item[RoomFields.CHECK_OUT_TIME],
+        [RoomFields.RENT]: item[RoomFields.RENT],
+        [RoomFields.DEPOSIT]: item[RoomFields.DEPOSIT]
+      }));
+    }
   } catch (error) {
     showNotification('error', t('message.fetchDataFailed'), t('message.pleaseTryAgainLater'));
   } finally {
@@ -65,85 +90,55 @@ const fetchRoomData = async () => {
 };
 
 const groupRoomsByPosition = () => {
-  const grouped = {};
-  rooms.value.forEach(room => {
-    if (!grouped[room.RoomPosition]) {
-      grouped[room.RoomPosition] = [];
-    }
-    grouped[room.RoomPosition].push(room);
-  });
-  groupedRooms.value = grouped;
+  return rooms.value.reduce((acc, room) => {
+    const position = room[RoomFields.POSITION];
+    if (!acc[position]) acc[position] = [];
+    acc[position].push(room);
+    return acc;
+  }, {});
 };
 
 const calculateDaysLived = (checkInTime) => {
-  if (!checkInTime) {
-    return null;
-  }
-  const checkInDate = dayjs(checkInTime);
-  const now = dayjs();
-  const daysLived = now.diff(checkInDate, 'day');
-  return `${daysLived} 天`;
+  if (!checkInTime) return '';
+  return dayjs().diff(dayjs(checkInTime), 'day') + t('message.dayUnit');
 };
 
-const getTooltipContent = (room) => {
-  const formatMoney = (amount) => {
-    if (amount == null) {
-      return '';
-    }
-    const formattedAmount = parseFloat(amount).toFixed(2);
-    return `￥${formattedAmount}`;
-  };
+const getTooltipContent = (room) => `
+  <div class="tooltip-content">
+    <p>${t('message.checkInTime')}: ${formatDate(room[RoomFields.CHECK_IN_TIME])}</p>
+    <p>${t('message.checkOutTime')}: ${formatDate(room[RoomFields.CHECK_OUT_TIME])}</p>
+    <p>${t('message.roomRent')}: ${formatCurrency(room[RoomFields.RENT])}</p>
+    <p>${t('message.roomDeposit')}: ${formatCurrency(room[RoomFields.DEPOSIT])}</p>
+  </div>
+`;
 
-  return `
-    <div>
-      <p>${t('message.checkInTime')}: ${room.CheckTime || ''}</p>
-      <p>${t('message.checkOutTime')}: ${room.CheckOutTime || ''}</p>
-      <p>${t('message.roomRent')}: ${formatMoney(room.RoomMoney)}</p>
-      <p>${t('message.roomDeposit')}: ${formatMoney(room.RoomDeposit)}</p>
-    </div>
-  `;
-};
+const getTagColor = (state) => RoomStateColors[state] || '#888';
 
-const getTagColor = (state) => {
-  let color = 'default';
-
-  switch (state) {
-    case '空房':
-      color = '#48a54b';
-      break;
-    case '已住':
-      color = '#1f8de5';
-      break;
-    case '维修中':
-      color = '#f0b607';
-      break;
-    case '脏房':
-      color = '#e63f33';
-      break;
-    case '预约':
-      color = '#ff9800';
-      break;
-  }
-
-  return color;
-};
-
-onMounted(() => {
-  fetchRoomData();
-});
+onMounted(fetchRoomData);
 
 const refreshData = () => {
+  rooms.value = [];
   fetchRoomData();
 };
 </script>
 
 <style scoped>
-.room-card {
-  padding: 10px;
-  width: 100%;
+.room-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
 }
 
-.room-card .ant-card-head-title {
+.room-col {
+  width: 250px;
+  margin-bottom: 20px;
+}
+
+.room-card {
+  padding: 10px;
+}
+
+.room-card :deep(.ant-card-head-title) {
   font-size: 1em;
   white-space: nowrap;
   overflow: hidden;
@@ -154,5 +149,9 @@ const refreshData = () => {
   font-size: 0.9em;
   margin-bottom: 5px;
   line-height: 1.2;
+}
+
+.tooltip-content p {
+  margin: 3px 0;
 }
 </style>

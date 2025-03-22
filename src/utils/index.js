@@ -29,3 +29,23 @@ export const formatDate = (dateString) => {
         return '';
     }
 };
+
+/**
+ * 货币格式化函数
+ * @param {number|string} value - 需要格式化的数值
+ * @returns {string} 格式化后的货币字符串
+ */
+export const formatCurrency = (value) => {
+    if (value === null || value === undefined || value === '') return ''
+    
+    const numericValue = Number(value)
+    
+    if (isNaN(numericValue)) return ''
+  
+    return new Intl.NumberFormat('zh-CN', {
+      style: 'currency',
+      currency: 'CNY',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(numericValue)
+  }

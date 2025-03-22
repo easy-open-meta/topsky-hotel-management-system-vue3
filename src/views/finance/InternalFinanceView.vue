@@ -1,14 +1,14 @@
 <template>
   <div>
     <h1 style="margin-bottom: 15px;">{{ translatedPageTitle }}</h1>
-    <a-button @click="refreshData" style="margin-bottom: 15px;margin-right: 15px;">{{ $t('message.refreshData') }}</a-button>
-    <a-button type="primary" @click="showModal" style="margin-bottom: 15px;">{{ $t('message.insertInternalFinance') }}</a-button>
-    <a-table :columns="filteredColumns" :data-source="cashs" :loading="loading" :pagicash="pagicash" @change="handleTableChange" @sorterChange="handleSorterChange" bordered>
+    <a-button @click="refreshData" style="margin-bottom: 15px;margin-right: 15px;"><sync-outlined /> {{ $t('message.refreshData') }}</a-button>
+    <a-button type="primary" @click="showModal" style="margin-bottom: 15px;"><plus-outlined /> {{ $t('message.insertInternalFinance') }}</a-button>
+    <a-table :columns="filteredColumns" :data-source="cashs" :loading="loading" :pagination="pagination" @change="handleTableChange" @sorterChange="handleSorterChange" bordered>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'operation'">
-          <a-button @click="editInternalfinance(record)" style="margin-right: 15px;">{{ $t('message.edit') }}</a-button>
+          <a-button @click="editInternalfinance(record)" style="margin-right: 15px;"><edit-outlined /> {{ $t('message.edit') }}</a-button>
             <a-popconfirm :title="t('message.areYouSureToDeleteRecord')" @confirm="handleDelete(record)">
-            <a-button danger>{{ $t('message.delete') }}</a-button>
+            <a-button danger><delete-outlined /> {{ $t('message.delete') }}</a-button>
           </a-popconfirm>
         </template>
         <template v-else-if="column.key === InternalFinanceFields.ACQUISITIONDATE">
@@ -111,22 +111,22 @@ const columns = computed(() => getColumns(t));
 
 const filteredColumns = computed(() => columns.value.filter(column => !column.hidden));
 
-const pagicash = reactive({
+const pagination = reactive({
   current: 1,
   pageSize: 15,
   total: 0,
   showSizeChanger: true,
   pageSizeOptions: ['15', '20', '50'],
-  showTotal: (total) => `共 ${total} 条`
+  showTotal: total => t('message.totalRecords', { total })
 });
 
 const fetchInternalfinanceData = async () => {
   loading.value = true;
   try {
     const result = await fetchInternalFinances({
-      page: pagicash.current,
-      pageSize: pagicash.pageSize,
-      [InternalFinanceFields.IS_DELETE]: 0
+      page: pagination.current,
+      pageSize: pagination.pageSize,
+      [InternalFinanceFields.IS_DELETED]: 0
     });
     if (result?.listSource) {
       cashs.value = result.listSource.map(item => ({
@@ -140,9 +140,9 @@ const fetchInternalfinanceData = async () => {
       [InternalFinanceFields.ASSETSOURCE]: item[InternalFinanceFields.ASSETSOURCE],
       [InternalFinanceFields.ACQUIREDBYEMPLOYEE]: item[InternalFinanceFields.ACQUIREDBYEMPLOYEE],
       [InternalFinanceFields.ACQUIREDBYEMPLOYEENAME]: item[InternalFinanceFields.ACQUIREDBYEMPLOYEENAME],
-      [InternalFinanceFields.IS_DELETE]: item[InternalFinanceFields.IS_DELETE]
+      [InternalFinanceFields.IS_DELETED]: item[InternalFinanceFields.IS_DELETED]
     }));
-    pagicash.total = result.total;
+    pagination.total = result.total;
     } else {
       throw new Error('数据格式错误');
     }
@@ -156,11 +156,10 @@ const fetchInternalfinanceData = async () => {
 const fetchSelectDepartments = async () => {
   try {
     const result = await fetchDepartments({
-      [DepartmentFields.IS_DELETE]: 0,
+      [DepartmentFields.IS_DELETED]: 0,
       page: 1,
       pageSize: 9999
     });
-    console.log(result);
     departmentOptions.value = result.listSource.map((item) => ({
       label: item[DepartmentFields.NAME],
       value: item[DepartmentFields.NUMBER],
@@ -173,7 +172,7 @@ const fetchSelectDepartments = async () => {
 const fetchSelectPersons = async () => {
   try {
     const result = await fetchEmployees({
-      [EmployeeFields.IS_DELETE]: 0,
+      [EmployeeFields.IS_DELETED]: 0,
       page: 1,
       pageSize: 9999
     });
@@ -205,7 +204,7 @@ const showModal = () => {
   form[InternalFinanceFields.ACQUISITIONDATE] = null;
   form[InternalFinanceFields.ASSETSOURCE] = '';
   form[InternalFinanceFields.ACQUIREDBYEMPLOYEE] = null;
-  form[InternalFinanceFields.IS_DELETE] = 0;
+  form[InternalFinanceFields.IS_DELETED] = 0;
   form.modifystatus = 'insert';
 };
 
@@ -253,7 +252,7 @@ const handleModalCancel = () => {
 
 const handleDelete = async (record) => {
   try {
-    record[InternalFinanceFields.IS_DELETE] = 1;
+    record[InternalFinanceFields.IS_DELETED] = 1;
     await deleteInternalFinance(record);
     showNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
     fetchInternalfinanceData();
@@ -264,12 +263,12 @@ const handleDelete = async (record) => {
 };
 
 const handleTableChange = (newPagicash) => {
-  pagicash.current = newPagicash.current;
-  pagicash.pageSize = newPagicash.pageSize;
+  pagination.current = newPagicash.current;
+  pagination.pageSize = newPagicash.pageSize;
   fetchInternalfinanceData();
 };
 
-const handleSorterChange = (pagicash, filters, sorter) => {
+const handleSorterChange = (pagination, filters, sorter) => {
   sortedInfo.value = sorter;
 };
 </script>
