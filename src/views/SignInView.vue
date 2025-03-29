@@ -1,6 +1,26 @@
 <template>
-  <div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
-    <a-card :title="signInLabel" style="width: 400px">
+  <div 
+    :style="{ 
+      display: 'flex', 
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      minHeight: '100vh',
+      background: `url(${bgImage}) center/cover no-repeat`,
+      position: 'relative'
+    }"
+  >
+    <div 
+      style="
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.6);
+        z-index: 1;
+      "
+    ></div>
+    <a-card :title="signInLabel" style="width: 400px; z-index: 2; box-shadow: 0 2px 8px rgba(0,0,0,0.1)">
       <a-form :model="form" @finish="onFinish" @finish-failed="onFinishFailed">
         <a-form-item :label="usernameLabel" name="Account" :rules="[{ required: true, message: 'Please input your username!' }]">
           <a-input v-model:value="form.Account" />
@@ -24,6 +44,8 @@
 </template>
 
 <script setup>
+import bgImage from '@/assets/login_bg.png';
+
 import { ref, reactive, onBeforeMount,computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { showNotification } from '@/utils/index';
