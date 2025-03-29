@@ -80,14 +80,14 @@
           </template>
           <a-table 
             :data-source="workRewardPunishment" 
-            :columns="rewardPunishmentColumns" 
+            :columns="rewardPunishmentFilterColumns" 
             :rowKey="record => record.Id"
             :pagination="false"
           >
           <template #bodyCell="{ column, record }">
-              <template v-if="column.dataIndex === 'RewardPunishmentType'">
+              <template v-if="column.dataIndex === EmployeeRewardPunishmentFields.TYPE">
                 <div class="tag">
-                  <a-tag :color="record.RewardPunishmentType == 1 ? 'green' : 'red'">{{ record.RewardPunishmentType == 1 ? "奖励" : "惩罚" }}</a-tag>
+                  <a-tag :color="record[EmployeeRewardPunishmentFields.TYPE] === 1 ? 'green' : 'red'">{{ record[EmployeeRewardPunishmentFields.TYPENAME] }}</a-tag>
                 </div>
               </template>
             </template>
@@ -100,14 +100,14 @@
           </template>
           <a-table 
             :data-source="workCheckInfo" 
-            :columns="checkColumns" 
+            :columns="checkFilterColumns" 
             :rowKey="record => record.Id"
             :pagination="false"
           >
             <template #bodyCell="{ column, record }">
-              <template v-if="column.dataIndex === 'CheckStatus'">
+              <template v-if="column.dataIndex === EmployeeCheckFields.CHECKSTATUS">
                 <div class="tag">
-                  <a-tag :color="record.CheckStatus == 0 ? 'green' : 'red'">{{ record.CheckStatus == 0 ? "成功" : "失败" }}</a-tag>
+                  <a-tag :color="record[EmployeeCheckFields.CHECKSTATUS] == 0 ? 'green' : 'red'">{{ record[EmployeeCheckFields.CHECKSTATUS] == 0 ? "成功" : "失败" }}</a-tag>
                 </div>
               </template>
             </template>
@@ -117,14 +117,14 @@
         <a-card :title="$t('message.workHistory')" class="info-card">
           <a-table 
             :data-source="workHistory" 
-            :columns="historyColumns" 
+            :columns="historyFilterColumns" 
             :rowKey="record => record.Id"
             :pagination="false"
           >
             <template #bodyCell="{ column, record }">
-              <template v-if="column.dataIndex === EmployeeFields.POSITION">
+              <template v-if="column.dataIndex === EmployeeHistoryFields.POSITION">
                 <div class="tag">
-                  <a-tag color="blue">{{ record[EmployeeFields.POSITION] }}</a-tag>
+                  <a-tag color="blue">{{ record[EmployeeHistoryFields.POSITION] }}</a-tag>
                 </div>
               </template>
             </template>
@@ -152,15 +152,15 @@
             @change="handleTableChange"
           >
             <template #bodyCell="{ column, record }">
-              <template v-if="currentDataType === 'reward' && column.dataIndex === 'RewardPunishmentType'">
-                <a-tag :color="record.RewardPunishmentType == 1 ? 'green' : 'red'">
-                  {{ record.RewardPunishmentType == 1 ? "奖励" : "惩罚" }}
+              <template v-if="currentDataType === 'reward' && column.key === EmployeeRewardPunishmentFields.TYPE">
+                <a-tag :color="record[EmployeeRewardPunishmentFields.TYPE] == 1 ? 'green' : 'red'">
+                  {{ record[EmployeeRewardPunishmentFields.TYPE] == 1 ? "奖励" : "惩罚" }}
                 </a-tag>
               </template>
               
-              <template v-if="currentDataType === 'check' && column.dataIndex === 'CheckStatus'">
-                <a-tag :color="record.CheckStatus == 0 ? 'green' : 'red'">
-                  {{ record.CheckStatus == 0 ? "成功" : "失败" }}
+              <template v-if="currentDataType === 'check' && column.dataIndex === EmployeeCheckFields.CHECKSTATUS">
+                <a-tag :color="record[EmployeeCheckFields.CHECKSTATUS] == 0 ? 'green' : 'red'">
+                  {{ record[EmployeeCheckFields.CHECKSTATUS] == 0 ? "成功" : "失败" }}
                 </a-tag>
               </template>
             </template>
@@ -180,6 +180,9 @@ import { fetchEmployeeDetail, fetchEmployeeResume, fetchEmployeeRewardPunishment
 import { 
   EmployeeFields
 } from '@/entities/employee.entity';
+import { EmployeeHistoryFields, getHistoryColumns } from '@/entities/employeehistory.entity';
+import { EmployeeRewardPunishmentFields, getRewardPunishmentColumns } from '@/entities/rewardpunishment.entity';
+import { EmployeeCheckFields, getCheckColumns } from '@/entities/employeecheck.entity';
 import { useI18n } from 'vue-i18n';
 import { formatDate } from '@/utils';
 
@@ -264,34 +267,18 @@ const handleTableChange = (pag) => {
 
 const modalColumns = computed(() => {
   return currentDataType.value === 'reward' 
-    ? rewardPunishmentColumns
-    : checkColumns;
+    ? rewardPunishmentFilterColumns.value
+    : checkFilterColumns.value;
 });
 
-const historyColumns = [
-  { 
-    title: t('message.timeline'), 
-    dataIndex: 'DateRange', 
-    customRender: ({ record }) => 
-      `${formatDate(record.StartDate)} - ${formatDate(record.EndDate)}`
-  },
-  { title: t('message.position'), dataIndex: 'Position' },
-  { title: t('message.company'), dataIndex: 'Company' }
-];
+const historyColumns = computed(() => getHistoryColumns(t));
+const historyFilterColumns = computed(() => historyColumns.value.filter(column => !column.hidden));
 
-const rewardPunishmentColumns = [
-  
-  { title: t('message.rewardPunishment'), dataIndex: 'RewardPunishmentType' },
-  { title: t('message.timeline'), dataIndex: 'RewardPunishmentTime', customRender: ({ record }) => formatDate(record.RewardPunishmentTime) },
-  { title: t('message.description'), dataIndex: 'RewardPunishmentInformation' },
-  { title: t('message.operator'), dataIndex: 'OperatorName' }
-];
+const rewardPunishmentColumns = computed(() => getRewardPunishmentColumns(t));
+const rewardPunishmentFilterColumns = computed(() => rewardPunishmentColumns.value.filter(column => !column.hidden));
 
-const checkColumns = [
-  { title: t('message.checkTime'), dataIndex: 'CheckTime', customRender: ({ record }) => formatDate(record.CheckTime) },
-  { title: t('message.checkStatus'), dataIndex: 'CheckStatus' },
-  { title: t('message.checkMethod'), dataIndex: 'CheckMethod' },
-]
+const checkColumns = computed(() => getCheckColumns(t));
+const checkFilterColumns = computed(() => checkColumns.value.filter(column => !column.hidden));
 
 const loadData = async () => {
   try {
@@ -420,10 +407,6 @@ onMounted(loadData);
 
 .info-card :deep(.ant-card-extra) a {
   color: #1890ff;
-}
-
-.accessible-modal :deep(.ant-modal-wrap:not(.ant-modal-wrap-open)) {
-  inert: true;
 }
 
 .accessible-modal :deep(.ant-modal-wrap[aria-hidden="true"]) {

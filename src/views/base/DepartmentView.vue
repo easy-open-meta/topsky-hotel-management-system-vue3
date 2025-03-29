@@ -44,7 +44,7 @@
           />
         </a-form-item>
         <a-form-item :label="departmentDateLabel" :name="DepartmentFields.CREATIONDATE">
-          <a-date-picker v-model:value="form[DepartmentFields.CREATIONDATE]" show-time/>
+          <a-date-picker v-model:value="form[DepartmentFields.CREATIONDATE]" />
         </a-form-item>
       </a-form>
     </a-modal>
@@ -69,8 +69,8 @@ import { fetchEmployees } from '@/api/employeeapi';
 import { formatDate,showNotification } from '@/utils/index';
 import { useI18n } from 'vue-i18n';
 import generateSnowflakeId from '@/utils/snowflake';
-import moment from 'moment';
 import { SyncOutlined,EditOutlined } from '@ant-design/icons-vue';
+import dayjs from 'dayjs';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -203,7 +203,7 @@ const editDepartment = (record) => {
   form[DepartmentFields.DESCRIPTION] = record[DepartmentFields.DESCRIPTION];
   form[DepartmentFields.LEADER] = record[DepartmentFields.LEADER];
   form[DepartmentFields.PARENT] = record[DepartmentFields.PARENT];
-  form[DepartmentFields.CREATIONDATE] = record[DepartmentFields.CREATIONDATE] ? moment(record[DepartmentFields.CREATIONDATE]) : null;
+  form[DepartmentFields.CREATIONDATE] = record[DepartmentFields.CREATIONDATE] ? dayjs(record[DepartmentFields.CREATIONDATE]) : null;
   form.modifystatus = 'update';
 };
 

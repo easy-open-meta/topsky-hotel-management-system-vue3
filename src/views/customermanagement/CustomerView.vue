@@ -37,7 +37,6 @@
         <a-form-item :label="customerBirthdayLabel" :name="CustomerFields.BIRTH_DATE">
           <a-date-picker 
             v-model:value="form[CustomerFields.BIRTH_DATE]"
-            :format="DATE_FORMAT"
           />
         </a-form-item>
 
@@ -83,17 +82,17 @@ import { fetchCustomers, addCustomer, updateCustomer, deleteCustomer } from '@/a
 import { 
   CustomerFields,
   Gender,
-  DATE_FORMAT,
   initialFormValues,
   getColumns,
   getFormRules
 } from '@/entities/customer.entity';
+import { CustomerTypeFields } from '../../entities/customertype.entity';
 import { fetchCanUsePassports } from '@/api/passportapi';
 import { fetchCanUseCustomerTypes } from '@/api/custotypeapi';
 import { formatDate,showNotification } from '@/utils/index';
 import { useI18n } from 'vue-i18n';
 import generateSnowflakeId from '@/utils/snowflake';
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -187,8 +186,8 @@ const fetchSelectCustoTypes = async () => {
   try {
     const result = await fetchCanUseCustomerTypes();
     customerTypeOptions.value = result.listSource.map((item) => ({
-      label: item.TypeName,
-      value: item.UserType,
+      label: item[CustomerTypeFields.NAME],
+      value: item[CustomerTypeFields.NUMBER],
     }));
   } catch (error) {
     showNotification('error', t('message.fetchDataFailed'), t('message.pleaseTryAgainLater'));
@@ -231,7 +230,7 @@ const editCustomer = (record) => {
   form[CustomerFields.ID] = record[CustomerFields.ID];
   form[CustomerFields.NAME] = record[CustomerFields.NAME];
   form[CustomerFields.GENDER] = record[CustomerFields.GENDER];
-  form[CustomerFields.BIRTH_DATE] = record[CustomerFields.BIRTH_DATE] ? moment(record[CustomerFields.BIRTH_DATE]) : null;
+  form[CustomerFields.BIRTH_DATE] = record[CustomerFields.BIRTH_DATE] ? dayjs(record[CustomerFields.BIRTH_DATE]) : null;
   form[CustomerFields.TYPE] = record[CustomerFields.TYPE];
   form[CustomerFields.PASSPORT_TYPE] = record[CustomerFields.PASSPORT_TYPE];
   form[CustomerFields.ID_NUMBER] = record[CustomerFields.ID_NUMBER];

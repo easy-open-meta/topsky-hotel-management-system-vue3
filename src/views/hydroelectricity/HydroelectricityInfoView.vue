@@ -61,7 +61,7 @@ import {
 } from '@/entities/energymanagement.entity';
 import { formatDate } from '@/utils/index';
 import { useI18n } from 'vue-i18n';
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -139,8 +139,8 @@ const editHydroelectricity = (record) => {
   form[EnergyManagementFields.NUMBER] = record[EnergyManagementFields.NUMBER];
   form[EnergyManagementFields.ROOMNUMBER] = record[EnergyManagementFields.ROOMNUMBER];
   form[EnergyManagementFields.CUSTOMERNUMBER] = record[EnergyManagementFields.CUSTOMERNUMBER];
-  form[EnergyManagementFields.STARTDATE] = record[EnergyManagementFields.STARTDATE] ? moment(record[EnergyManagementFields.STARTDATE]) : null;
-  form[EnergyManagementFields.ENDDATE] = record[EnergyManagementFields.ENDDATE] ? moment(record[EnergyManagementFields.ENDDATE]) : null;
+  form[EnergyManagementFields.STARTDATE] = record[EnergyManagementFields.STARTDATE] ? dayjs(record[EnergyManagementFields.STARTDATE]) : null;
+  form[EnergyManagementFields.ENDDATE] = record[EnergyManagementFields.ENDDATE] ? dayjs(record[EnergyManagementFields.ENDDATE]) : null;
   form[EnergyManagementFields.WATERUSAGE] = record[EnergyManagementFields.WATERUSAGE];
   form[EnergyManagementFields.POWERUSAGE] = record[EnergyManagementFields.POWERUSAGE];
   form[EnergyManagementFields.RECORDER] = record[EnergyManagementFields.RECORDER];

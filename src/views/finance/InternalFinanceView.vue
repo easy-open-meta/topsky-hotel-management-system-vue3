@@ -40,7 +40,7 @@
           />
         </a-form-item>
         <a-form-item :label="cashTimeLabel" :name="InternalFinanceFields.ACQUISITIONDATE">
-          <a-date-picker format="YYYY-MM-DD" v-model:value="form[InternalFinanceFields.ACQUISITIONDATE]"/>
+          <a-date-picker v-model:value="form[InternalFinanceFields.ACQUISITIONDATE]" show-time/>
         </a-form-item>
         <a-form-item :label="cashSourceLabel" :name="InternalFinanceFields.ASSETSOURCE">
           <a-input v-model:value="form[InternalFinanceFields.ASSETSOURCE]" />
@@ -79,7 +79,7 @@ import { fetchEmployees } from '@/api/employeeapi';
 import { formatDate,showNotification } from '@/utils/index';
 import { useI18n } from 'vue-i18n';
 import generateSnowflakeId from '@/utils/snowflake';
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -220,7 +220,7 @@ const editInternalfinance = (record) => {
   form[InternalFinanceFields.NAME] = record[InternalFinanceFields.NAME];
   form[InternalFinanceFields.ASSETVALUE] = record[InternalFinanceFields.ASSETVALUE];
   form[InternalFinanceFields.DEPARTMENT] = record[InternalFinanceFields.DEPARTMENT];
-  form[InternalFinanceFields.ACQUISITIONDATE] = moment(record[InternalFinanceFields.ACQUISITIONDATE], 'YYYY-MM-DD HH:mm:ss')
+  form[InternalFinanceFields.ACQUISITIONDATE] = dayjs(record[InternalFinanceFields.ACQUISITIONDATE], 'YYYY-MM-DD HH:mm:ss')
   form[InternalFinanceFields.ASSETSOURCE] = record[InternalFinanceFields.ASSETSOURCE];
   form[InternalFinanceFields.ACQUIREDBYEMPLOYEE] = record[InternalFinanceFields.ACQUIREDBYEMPLOYEE];
   form.modifystatus = 'update';

@@ -79,3 +79,13 @@ export const fetchEmployeeAttendance = async (params) => {
     throw error;
   }
 };
+
+// 重置账号密码
+export const resetEmployeePassword = async (data) => {
+  try {
+    const response = await api.post(`/Employee/ResetEmployeeAccountPassword`, data);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

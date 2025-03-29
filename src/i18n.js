@@ -49,6 +49,7 @@ const messages = {
             nationManage: 'Nation Management',
             educationManage: 'Education Management',
             departmentManage: 'Department Management',
+            passportManage: 'Passport Management',
             internalFinanceBill: 'Internal Finance Bill',
             humanresourcemanagement: 'Human Resource Management',
             hydroelectricinformation: 'Hydroelectric Information',
@@ -69,6 +70,7 @@ const messages = {
             zeroconfig: 'Zero Configuration',
             systemmodule: 'System Module',
             defaultTitle: 'Default Title',
+            resetPasswordSuccess: "Reset Password Success",
 
             pageNotFound:'Page not found',
             
@@ -109,6 +111,14 @@ const messages = {
             pleaseInputQualificationNo: "Please input qualification no",
             qualificationNo: "Qualification No",
             qualificationName: "Qualification Name",
+
+            passport: "Passport Management",
+            insertPassport: "Create Passport",
+            updatePassport:"Edit Passport",
+            pleaseInputPassportName: "Please input passport name",
+            pleaseInputPassportNo: "Please input passport no",
+            passportNo: "Passport No",
+            passportName: "Passport Name",
 
             internalfinance: "Internal Finance Bill",
             insertInternalFinance: "Create Internal Finance",
@@ -281,8 +291,8 @@ const messages = {
             workHistory: "Work History",
             employeeName: "Name",
             gender: "Gender",
-            startDate: "Start Date",
-            endDate: "End Date",
+            hireDate: "Hire Date",
+            departureDate: "Departure Date",
             company: "Company",
             timeline: "Timeline",
             checkTime: "Check Time",
@@ -290,6 +300,7 @@ const messages = {
             checkMethod: "Check Way",
             daySum: "Check Days",
             more:"More",
+            historyPosition: "Position",
 
             insertGoods:"Create Goods",
             updateGoods:"Edit Goods",
@@ -378,6 +389,7 @@ const messages = {
             nationManage: '民族管理',
             educationManage: '学历管理',
             departmentManage: '部门管理',
+            passportManage: '证件管理',
             internalFinanceBill: '内部财务账单',
             humanresourcemanagement: '酒店人事管理',
             hydroelectricinformation: '水电信息',
@@ -398,6 +410,7 @@ const messages = {
             zeroconfig: '权限分配',
             systemmodule: '系统模块',
             defaultTitle: '默认标题',
+            resetPasswordSuccess: "重置密码成功",
 
             pageNotFound:'找不到页面',
 
@@ -439,6 +452,14 @@ const messages = {
             pleaseInputQualificationNo: "请输入学历编号",
             qualificationNo: "学历编号",
             qualificationName: "学历名称",
+
+            passport: "证件管理",
+            insertPassport: "添加证件",
+            updatePassport:"编辑证件",
+            pleaseInputPassportName: "请输入证件名称",
+            pleaseInputPassportNo: "请输入证件编号",
+            passportNo: "证件编号",
+            passportName: "证件名称",
 
             internalfinance: "内部资产管理",
             insertInternalFinance: "添加内部资产",
@@ -608,8 +629,8 @@ const messages = {
             workHistory: "工作履历",
             employeeName: "姓名",
             gender: "性别",
-            startDate: "入职日期",
-            endDate: "离职日期",
+            hireDate: "入职日期",
+            departureDate: "离职日期",
             company: "公司",
             timeline: "时间线",
             checkTime: "打卡日期",
@@ -617,6 +638,7 @@ const messages = {
             checkMethod: "打卡方式",
             daySum: "打卡天数",
             more:"更多",
+            historyPosition: "职位",
 
             insertGoods:"创建商品",
             updateGoods:"编辑商品",

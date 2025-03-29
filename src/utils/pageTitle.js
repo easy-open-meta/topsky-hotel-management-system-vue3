@@ -10,6 +10,8 @@ export function getPageTitle(routePath) {
           return 'message.educationManage';
       case '/department':
           return 'message.departmentManage';
+      case '/passport':
+          return 'message.passportManage';
       case '/internalfinance':
           return 'message.internalFinanceBill';
       case '/hydroelectricinformation':

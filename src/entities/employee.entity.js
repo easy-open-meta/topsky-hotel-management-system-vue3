@@ -1,4 +1,5 @@
 import { BaseFields, BaseInitialValues } from './common.entity';
+import { formatDate } from '@/utils/index';
 
 export const EmployeeSpecificFields  = {
     NUMBER: 'EmployeeId',
@@ -29,11 +30,9 @@ export const EmployeeSpecificFields  = {
   };
   
   export const Gender = {
-    MALE: 1,
-    FEMALE: 0
+    MALE: "1",
+    FEMALE: "0"
   };
-
-  export const DATE_FORMAT = 'YYYY-MM-DD';
 
   export const initialFormValues = {
     ...BaseInitialValues,
@@ -88,6 +87,7 @@ export const EmployeeSpecificFields  = {
         title: t('message.staffBirthday'),
         dataIndex: EmployeeFields.DATEOFBIRTH,
         key: EmployeeFields.DATEOFBIRTH,
+        customRender: ({ text }) => formatDate(text, EmployeeFields.DATEOFBIRTH)
       },
       {
         title: t('message.staffEducation'),

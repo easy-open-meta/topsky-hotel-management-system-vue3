@@ -1,4 +1,5 @@
 import { BaseFields, BaseInitialValues } from './common.entity';
+import { formatDate } from '@/utils/index';
 
 export const SpendInfoSpecificFields = {
   ROOM_NO: 'RoomNumber',
@@ -93,6 +94,7 @@ export const getColumns = (t) => [
     title: t('message.spendTime'),
     dataIndex: SpendInfoFields.TIME,
     key: SpendInfoFields.TIME,
+    customRender: ({ text }) => formatDate(text, SpendInfoFields.TIME),
     width: 180
   },
   {

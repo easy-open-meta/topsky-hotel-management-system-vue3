@@ -34,8 +34,8 @@ export const getColumns = (t) => [
         title: t('message.operationTime'),
         dataIndex: LogFields.TIME,
         key: LogFields.TIME,
-        sorter: (a, b) => new Date(a[LogFields.TIME]) - new Date(b[LogFields.TIME]),
-        customRender: ({ text }) => formatDate(text),
+        sorter: (a, b) => new Date(a[LogFields.TIME]).getTime() - new Date(b[LogFields.TIME]).getTime(),
+        customRender: ({ text }) => formatDate(text, LogFields.TIME),
         defaultSortOrder: 'descend'
     },
     {

@@ -68,7 +68,7 @@ import { fetchDepartments } from '@/api/departmentapi';
 import { formatDate, showNotification } from '@/utils/index';
 import { useI18n } from 'vue-i18n';
 import generateSnowflakeId from '@/utils/snowflake';
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -191,7 +191,7 @@ const handleModalOk = async () => {
     const payload = { 
       ...form,
       [SupervisionFields.DATA_INS_DATE]: form[SupervisionFields.DATA_INS_DATE]?.format('YYYY-MM-DD'),
-      [SupervisionFields.DATA_CHG_DATE]: moment().format('YYYY-MM-DD')
+      [SupervisionFields.DATA_CHG_DATE]: dayjs().format('YYYY-MM-DD')
     };
 
     if (form.modifystatus === 'update') {

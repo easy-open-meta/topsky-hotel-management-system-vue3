@@ -1,4 +1,5 @@
 import { BaseFields, BaseInitialValues } from './common.entity';
+import { formatDate } from '@/utils/index';
 
 export const EnergyManagementSpecificFields  = {
     ID: 'Id',
@@ -50,11 +51,13 @@ export const EnergyManagementSpecificFields  = {
         title: t('message.useDate'),
         dataIndex: [EnergyManagementFields.STARTDATE],
         key: [EnergyManagementFields.STARTDATE],
+        customRender: ({ text }) => formatDate(text, EnergyManagementFields.STARTDATE)
       },
       {
         title: t('message.endDate'),
         dataIndex: [EnergyManagementFields.ENDDATE],
         key: [EnergyManagementFields.ENDDATE],
+        customRender: ({ text }) => formatDate(text, EnergyManagementFields.ENDDATE)
       },
       {
         title: t('message.waterUse'),

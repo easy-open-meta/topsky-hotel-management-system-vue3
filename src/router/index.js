@@ -7,6 +7,7 @@ import Position from '../views/base/PositionView.vue';
 import Nation from '../views/base/NationView.vue';
 import Qualification from '../views/base/QualificationView.vue';
 import Department from '../views/base/DepartmentView.vue';
+import Passport from '../views/base/PassportView.vue';
 import InternalFinance from '../views/finance/InternalFinanceView.vue';
 import Hydroelectricity from '../views/hydroelectricity/HydroelectricityInfoView.vue';
 import Supervision from '../views/supervision/SupervisionView.vue';
@@ -54,6 +55,12 @@ const routes = [
         path: '/department',
         name: 'department',
         component: Department,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: '/passport',
+        name: 'passport',
+        component: Passport,
         meta: { requiresAuth: true }
       },
       {

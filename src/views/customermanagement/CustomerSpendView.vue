@@ -7,9 +7,6 @@
         <template v-if="column.key === 'operation'">
           <a-button @click="editSpend(record)" style="margin-right: -5px;"><edit-outlined /> {{ $t('message.edit') }}</a-button>
         </template>
-        <template v-if="column.key === SpendInfoFields.TIME">
-          {{ formatDate(record[SpendInfoFields.TIME]) }}
-        </template>
         <template v-else-if="column.key === SpendInfoFields.STATE">
           <a-tag :color="getStateColor(record[SpendInfoFields.STATE])">
             {{ record[SpendInfoFields.STATE_NAME] }}
@@ -110,7 +107,7 @@ import {
 } from '@/entities/spendinfo.entity';
 import { formatDate,showNotification } from '@/utils/index';
 import { useI18n } from 'vue-i18n';
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -200,7 +197,7 @@ const editSpend = (record) => {
   form[SpendInfoFields.AMOUNT] = record[SpendInfoFields.AMOUNT];
   form[SpendInfoFields.PRICE] = record[SpendInfoFields.PRICE];
   form[SpendInfoFields.MONEY] = record[SpendInfoFields.MONEY];
-  form[SpendInfoFields.TIME] = record[SpendInfoFields.TIME] ? moment(record[SpendInfoFields.TIME]) : null;
+  form[SpendInfoFields.TIME] = record[SpendInfoFields.TIME] ? dayjs(record[SpendInfoFields.TIME]) : null;
   form[SpendInfoFields.STATE] = record[SpendInfoFields.STATE];
   form.modifystatus = 'update';
 };

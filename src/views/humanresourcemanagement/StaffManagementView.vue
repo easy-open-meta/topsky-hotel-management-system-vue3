@@ -8,7 +8,13 @@
         <template v-if="column.key === 'operation'">
           <a-button style="margin-right: 15px;" @click="viewDetail(record)"><EyeOutlined /> {{ $t('message.view') }}</a-button>
           <a-button @click="editStaff(record)" style="margin-right: 15px;"><edit-outlined /> {{ $t('message.edit') }}</a-button>
-          <a-button @click="disabledStaff(record)" style="margin-right: 15px;" :danger="record[EmployeeFields.ISENABLE] !== 1"><StopOutlined />{{ record[EmployeeFields.ISENABLE] === 0 ? $t('message.disabled') : $t('message.enabled') }}</a-button>
+          <a-button 
+            @click="disabledStaff(record)" 
+            style="margin-right: 15px;"
+            :danger="record[EmployeeFields.ISENABLE] === 0">
+            <StopOutlined :style="{ color: record[EmployeeFields.ISENABLE] === 1 ? '#52c41a' : '#ff4d4f' }" />
+            {{ record[EmployeeFields.ISENABLE] === 0 ? $t('message.disabled') : $t('message.enabled') }}
+          </a-button>
           <a-button @click="resetPassword(record)" style="margin-right: 15px;"><RetweetOutlined /> {{ $t('message.resetPassword') }}</a-button>
             <a-popconfirm :title="t('message.areYouSureToDeleteRecord')" @confirm="handleDelete(record)">
             <a-button danger><delete-outlined /> {{ $t('message.delete') }}</a-button>
@@ -62,7 +68,9 @@
             <a-form-item :label="staffBirthdayLabel" :name="EmployeeFields.DATEOFBIRTH">
               <a-date-picker
                 v-model:value="form[EmployeeFields.DATEOFBIRTH]"
-                :format="DATE_FORMAT"
+                :format="getDateFormat(EmployeeFields.DATEOFBIRTH)"
+                :show-time="needsTime(EmployeeFields.DATEOFBIRTH)"
+                :valueFormat="getValueFormat(EmployeeFields.DATEOFBIRTH)"
                 class="full-width"
               />
             </a-form-item>
@@ -71,7 +79,9 @@
             <a-form-item :label="staffTimeLabel" :name="EmployeeFields.HIREDATE">
               <a-date-picker
                 v-model:value="form[EmployeeFields.HIREDATE]"
-                :format="DATE_FORMAT"
+                :format="getDateFormat(EmployeeFields.HIREDATE)"
+                :show-time="needsTime(EmployeeFields.HIREDATE)"
+                :valueFormat="getValueFormat(EmployeeFields.HIREDATE)"
                 class="full-width"
               />
             </a-form-item>
@@ -169,11 +179,10 @@ import { ref, onMounted, computed, reactive } from 'vue';
 import { Select } from 'ant-design-vue';
 import { useRoute,useRouter } from 'vue-router';
 import { getPageTitle } from '@/utils/pageTitle';
-import { fetchEmployees, addEmployee, updateEmployee, managerEmployeeAccount } from '@/api/employeeapi';
+import { fetchEmployees, addEmployee, updateEmployee, managerEmployeeAccount, resetEmployeePassword } from '@/api/employeeapi';
 import { 
   EmployeeFields,
   Gender,
-  DATE_FORMAT,
   initialFormValues,
   getColumns,
   getFormRules
@@ -198,7 +207,8 @@ import { fetchWorkerFeatures } from '@/api/workerfeatureapi';
 import { formatDate,showNotification } from '@/utils/index';
 import { useI18n } from 'vue-i18n';
 import generateSnowflakeId from '@/utils/snowflake';
-import moment from 'moment';
+import { dateFieldConfig } from '@/config/dateFields';
+import dayjs from 'dayjs';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -217,6 +227,18 @@ const staffFeaturesOptions = ref([]);
 const staffQualificationOptions = ref([]);
 const staffDepartmentOptions = ref([]);
 const staffPositionOptions = ref([]);
+
+const needsTime = (fieldName) => {
+  return dateFieldConfig.WITH_TIME.includes(fieldName);
+};
+
+const getDateFormat = (fieldName) => {
+  return needsTime(fieldName) ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD';
+};
+
+const getValueFormat = (fieldName) => {
+  return needsTime(fieldName) ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD';
+};
 
 const viewDetail = (record) => {
   router.push({
@@ -255,14 +277,6 @@ const pagination = reactive({
   showTotal: total => t('message.totalRecords', { total })
 });
 
-const EnableStatus = {
-  DISABLED: 0,
-  ENABLED: 1
-}
-const isEnabled = (record) => {
-  return record[EmployeeFields.ISENABLE] === EnableStatus.ENABLED
-}
-
 const fetchStaffData = async () => {
   loading.value = true;
   try {
@@ -279,8 +293,8 @@ const fetchStaffData = async () => {
         [EmployeeFields.GENDERNAME]: item[EmployeeFields.GENDERNAME] === Gender.MALE 
           ? t('message.male') 
           : t('message.female'),
-        [EmployeeFields.DATEOFBIRTH]: item[EmployeeFields.DATEOFBIRTH],
-        [EmployeeFields.HIREDATE]: item[EmployeeFields.HIREDATE],
+        [EmployeeFields.DATEOFBIRTH]: formatDate(item[EmployeeFields.DATEOFBIRTH]),
+        [EmployeeFields.HIREDATE]: formatDate(item[EmployeeFields.HIREDATE]),
         [EmployeeFields.ETHNICITY]: item[EmployeeFields.ETHNICITY],
         [EmployeeFields.ETHNICITYNAME]: item[EmployeeFields.ETHNICITYNAME],
         [EmployeeFields.EDUCATIONLEVEL]: item[EmployeeFields.EDUCATIONLEVEL],
@@ -406,6 +420,7 @@ const showModal = () => {
   form[EmployeeFields.IDCARDNUMBER] = '';
   form[EmployeeFields.PHONENUMBER] = '';
   form[EmployeeFields.ADDRESS] = '';
+  form[EmployeeFields.POLITICALAFFILIATION] = null;
 
   form.modifystatus = 'insert';
 };
@@ -421,10 +436,11 @@ const editStaff = (record) => {
   form[EmployeeFields.NUMBER] = record[EmployeeFields.NUMBER];
   form[EmployeeFields.NAME] = record[EmployeeFields.NAME];
   form[EmployeeFields.GENDER] = record[EmployeeFields.GENDER];
-  form[EmployeeFields.DATEOFBIRTH] = record[EmployeeFields.DATEOFBIRTH] ? moment(record[EmployeeFields.DATEOFBIRTH]) : null;
-  form[EmployeeFields.HIREDATE] = record[EmployeeFields.HIREDATE] ? moment(record[EmployeeFields.HIREDATE]) : null;
+  form[EmployeeFields.DATEOFBIRTH] = dayjs(record[EmployeeFields.DATEOFBIRTH]);
+  form[EmployeeFields.HIREDATE] = dayjs(record[EmployeeFields.HIREDATE]);
   form[EmployeeFields.EDUCATIONLEVEL] = record[EmployeeFields.EDUCATIONLEVEL];
   form[EmployeeFields.ETHNICITY] = record[EmployeeFields.ETHNICITY];
+  form[EmployeeFields.POLITICALAFFILIATION] = record[EmployeeFields.POLITICALAFFILIATION];
   form[EmployeeFields.DEPARTMENT] = record[EmployeeFields.DEPARTMENT];
   form[EmployeeFields.POSITION] = record[EmployeeFields.POSITION];
   form[EmployeeFields.IDCARDNUMBER] = record[EmployeeFields.IDCARDNUMBER];
@@ -440,19 +456,37 @@ const disabledStaff = async (record) => {
 }
 
 const resetPassword = async (record) => {
-  await managerEmployeeAccount({ [EmployeeFields.NUMBER]: record[EmployeeFields.NUMBER], [EmployeeFields.ISENABLE]: record[EmployeeFields.ISENABLE] === 0 ? 1 : 0 });
+  var result = await resetEmployeePassword({ [EmployeeFields.NUMBER]: record[EmployeeFields.NUMBER] });
+  if(result.StatusCode !== 200){
+    showNotification('error', t('message.operationTitle'), result.Message);
+  }
+  else
+  {
+    showNotification('success', t('message.operationTitle'), t('message.resetPasswordSuccess'));
+  }
   fetchStaffData();
 }
 
 const handleModalOk = async () => {
   try {
     await formRef.value.validate();
+    const payload = { ...form };
+    dateFieldConfig.WITH_TIME.forEach(field => {
+      if (payload[field]) {
+        payload[field] = dayjs(payload[field]).format('YYYY-MM-DD HH:mm:ss');
+      }
+    });
+    dateFieldConfig.WITHOUT_TIME.forEach(field => {
+      if (payload[field]) {
+        payload[field] = dayjs(payload[field]).format('YYYY-MM-DD');
+      }
+    });
     confirmLoading.value = true;
     if (form.modifystatus === 'update') {
-      await updateEmployee({ ...form,[EmployeeFields.DATEOFBIRTH]:form[EmployeeFields.DATEOFBIRTH]?form[EmployeeFields.DATEOFBIRTH].format('YYYY-MM-DD'):null,[EmployeeFields.HIREDATE]:form[EmployeeFields.HIREDATE]?form[EmployeeFields.HIREDATE].format('YYYY-MM-DD'):null});
+      await updateEmployee(payload);
       showNotification('success', t('message.operationTitle') , t('message.updateSuccess'));
     } else {
-      await addEmployee({ ...form,[EmployeeFields.DATEOFBIRTH]:form[EmployeeFields.DATEOFBIRTH]?form[EmployeeFields.DATEOFBIRTH].format('YYYY-MM-DD'):null,[EmployeeFields.HIREDATE]:form[EmployeeFields.HIREDATE]?form[EmployeeFields.HIREDATE].format('YYYY-MM-DD'):null});
+      await addEmployee(payload);
       showNotification('success', t('message.operationTitle') , t('message.addSuccess'));
     }
     modalVisible.value = false;

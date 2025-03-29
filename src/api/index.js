@@ -1,6 +1,6 @@
 import axios from 'axios';
 import router from '../router';
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -21,10 +21,10 @@ api.interceptors.request.use(
       url = url.replace(config.baseURL.toLowerCase(), '');
       if (url.includes('/add') || url.includes('/insert')) {
         config.data.DataInsUsr = account;
-        config.data.DataInsDate = moment().format('YYYY-MM-DD');
+        config.data.DataInsDate = dayjs().format('YYYY-MM-DD HH:mm:ss');
       } else if (url.includes('/upd') || url.includes('/update')) {
         config.data.DataChgUsr = account;
-        config.data.DataChgDate = moment().format('YYYY-MM-DD');
+        config.data.DataChgDate = dayjs().format('YYYY-MM-DD HH:mm:ss');
       }
     }
     return config;
