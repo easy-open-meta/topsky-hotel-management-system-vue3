@@ -21,6 +21,7 @@ export const EmployeeSpecificFields  = {
     POLITICALAFFILIATIONNAME: 'PoliticalAffiliationName',
     EDUCATIONLEVEL: 'EducationLevel',
     EDUCATIONLEVELNAME: 'EducationLevelName',
+    EMAILADDRESS: 'EmailAddress',
     ISENABLE: 'IsEnable',
   };
 
@@ -30,15 +31,15 @@ export const EmployeeSpecificFields  = {
   };
   
   export const Gender = {
-    MALE: "1",
-    FEMALE: "0"
+    MALE: 1,
+    FEMALE: 0
   };
 
   export const initialFormValues = {
     ...BaseInitialValues,
     [EmployeeFields.NUMBER]: null,
     [EmployeeFields.NAME]: '',
-    [EmployeeFields.GENDER]: '',
+    [EmployeeFields.GENDER]: null,
     [EmployeeFields.GENDERNAME]: '',
     [EmployeeFields.DATEOFBIRTH]: null,
     [EmployeeFields.ETHNICITY]: '',
@@ -55,6 +56,7 @@ export const EmployeeSpecificFields  = {
     [EmployeeFields.POLITICALAFFILIATIONNAME]: '',
     [EmployeeFields.EDUCATIONLEVEL]: '',
     [EmployeeFields.EDUCATIONLEVELNAME]: '',
+    [EmployeeFields.EMAILADDRESS]: '',
     [EmployeeFields.ISENABLE]: 0,
     modifystatus: ''
   };
@@ -185,4 +187,5 @@ export const EmployeeSpecificFields  = {
     [EmployeeFields.ADDRESS]: [{ required: true, message: t('message.pleaseInputStaffAddress'), trigger: 'blur' }],
     [EmployeeFields.DATEOFBIRTH]: [{ required: true, message: t('message.pleaseInputStaffBirthday'), trigger: 'blur' }],
     [EmployeeFields.HIREDATE]: [{ required: true, message: t('message.pleaseInputStaffTime'), trigger: 'blur' }],
+    [EmployeeFields.EMAILADDRESS]: [{ required: true, message: t('message.pleaseInputStaffEmail'), trigger: 'blur' }],
   });

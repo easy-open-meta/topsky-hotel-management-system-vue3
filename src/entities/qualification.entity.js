@@ -39,6 +39,6 @@ export const EducationSpecificFields = {
   
   export const getFormRules = (t) => ({
     [EducationFields.NAME]: [
-      { required: true, message: t('message.pleaseInputEducationName'), trigger: 'blur' }
+      { required: true, message: t('message.pleaseInputQualificationName'), trigger: 'blur' }
     ]
   });

@@ -163,6 +163,13 @@
           </a-col>
         </a-row>
 
+        <a-form-item :label="staffEmailAddressLabel" :name="EmployeeFields.EMAILADDRESS">
+          <a-input
+            v-model:value="form[EmployeeFields.EMAILADDRESS]"
+            :placeholder="t('message.pleaseInputStaffEmail')"
+          />
+        </a-form-item>
+
         <a-form-item :label="staffAddressLabel" :name="EmployeeFields.ADDRESS">
           <a-input
             v-model:value="form[EmployeeFields.ADDRESS]"
@@ -260,6 +267,7 @@ const staffDepartmentLabel = computed(() => t('message.staffDepartment'));
 const staffPositionLabel = computed(() => t('message.staffPosition'));
 const staffBirthdayLabel = computed(() => t('message.staffBirthday'));
 const staffAddressLabel = computed(() => t('message.staffAddress'));
+const staffEmailAddressLabel = computed(() => t('message.staffEmailAddress'));
 const staffFaceLabel = computed(() => t('message.staffFace'));
 const staffTimeLabel = computed(() => t('message.staffTime'));
 const staffCardIDLabel = computed(() => t('message.staffCardID'));
@@ -290,9 +298,7 @@ const fetchStaffData = async () => {
         [EmployeeFields.NUMBER]: item[EmployeeFields.NUMBER],
         [EmployeeFields.NAME]: item[EmployeeFields.NAME],
         [EmployeeFields.GENDER]: item[EmployeeFields.GENDER],
-        [EmployeeFields.GENDERNAME]: item[EmployeeFields.GENDERNAME] === Gender.MALE 
-          ? t('message.male') 
-          : t('message.female'),
+        [EmployeeFields.GENDERNAME]: item[EmployeeFields.GENDERNAME],
         [EmployeeFields.DATEOFBIRTH]: formatDate(item[EmployeeFields.DATEOFBIRTH]),
         [EmployeeFields.HIREDATE]: formatDate(item[EmployeeFields.HIREDATE]),
         [EmployeeFields.ETHNICITY]: item[EmployeeFields.ETHNICITY],
@@ -309,6 +315,7 @@ const fetchStaffData = async () => {
         [EmployeeFields.IS_DELETED]: item[EmployeeFields.IS_DELETED],
         [EmployeeFields.POLITICALAFFILIATION]: item[EmployeeFields.POLITICALAFFILIATION],
         [EmployeeFields.POLITICALAFFILIATIONNAME]: item[EmployeeFields.POLITICALAFFILIATIONNAME],
+        [EmployeeFields.EMAILADDRESS]: item[EmployeeFields.EMAILADDRESS],
         [EmployeeFields.ISENABLE]: item[EmployeeFields.ISENABLE]
       }));
       pagination.total = result.total;
@@ -420,6 +427,7 @@ const showModal = () => {
   form[EmployeeFields.IDCARDNUMBER] = '';
   form[EmployeeFields.PHONENUMBER] = '';
   form[EmployeeFields.ADDRESS] = '';
+  form[EmployeeFields.EMAILADDRESS] = '';
   form[EmployeeFields.POLITICALAFFILIATION] = null;
 
   form.modifystatus = 'insert';
@@ -446,6 +454,7 @@ const editStaff = (record) => {
   form[EmployeeFields.IDCARDNUMBER] = record[EmployeeFields.IDCARDNUMBER];
   form[EmployeeFields.PHONENUMBER] = record[EmployeeFields.PHONENUMBER];
   form[EmployeeFields.ADDRESS] = record[EmployeeFields.ADDRESS];
+  form[EmployeeFields.EMAILADDRESS] = record[EmployeeFields.EMAILADDRESS];
 
   form.modifystatus = 'update';
 };

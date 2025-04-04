@@ -51,8 +51,7 @@ export const getColumns = (t) => [
 
 export const getFormRules = (t) => ({
   [RoomConfigFields.NO]: [
-    { required: true, message: t('message.pleaseInputRoomTypeCode'), trigger: 'blur' },
-    { type: 'number', min: 1, message: t('message.codeMinimumError') }
+    { required: true, message: t('message.pleaseInputRoomTypeCode'), trigger: 'blur' }
   ],
   [RoomConfigFields.NAME]: [
     { 

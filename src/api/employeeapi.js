@@ -34,6 +34,7 @@ export const fetchEmployeeResume = async (params) => {
 export const addEmployee = async (data) => {
   try {
     const response = await api.post('/Employee/AddEmployee', data);
+    console.log(data);
     return response.data;
   } catch (error) {
     throw error;

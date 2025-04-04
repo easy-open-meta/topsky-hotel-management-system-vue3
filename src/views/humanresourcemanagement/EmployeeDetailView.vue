@@ -43,6 +43,9 @@
             <a-descriptions-item :label="$t('message.staffTel')">
               {{ employeeInfo[EmployeeFields.PHONENUMBER] }}
             </a-descriptions-item>
+            <a-descriptions-item :label="$t('message.staffEmailAddress')">
+              {{ employeeInfo[EmployeeFields.EMAILADDRESS] }}
+            </a-descriptions-item>
             <a-descriptions-item :label="$t('message.staffAddress')">
               {{ employeeInfo[EmployeeFields.ADDRESS] }}
             </a-descriptions-item>

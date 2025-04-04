@@ -61,11 +61,11 @@ export const getFormRules = (t) => ({
       required: true, 
       type: 'number', 
       min: 0, 
-      message: t('message.pleaseInputValidAmount'), 
+      message: t('message.pleaseInputVipRuleValue'), 
       trigger: 'blur' 
     }
   ],
   [VipRuleFields.CUSTOMER_TYPE_ID]: [
-    { required: true, message: t('message.pleaseSelectCustomerType'), trigger: 'change' }
+    { required: true, message: t('message.pleaseInputVipRuleCustomerType'), trigger: 'change' }
   ]
 });

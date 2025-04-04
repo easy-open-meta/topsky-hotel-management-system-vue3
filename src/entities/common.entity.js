@@ -4,7 +4,8 @@ export const BaseFields = {
     DATA_INS_USER: 'DataInsUsr',
     DATA_INS_DATE: 'DataInsDate',
     DATA_CHG_USER: 'DataChgUsr',
-    DATA_CHG_DATE: 'DataChgDate'
+    DATA_CHG_DATE: 'DataChgDate',
+    USER_TOKEN: 'UserToken',
   };
 
   export const BaseInitialValues = {
@@ -13,5 +14,6 @@ export const BaseFields = {
     [BaseFields.DATA_INS_USER]: '',
     [BaseFields.DATA_INS_DATE]: null,
     [BaseFields.DATA_CHG_USER]: '',
-    [BaseFields.DATA_CHG_DATE]: null
+    [BaseFields.DATA_CHG_DATE]: null,
+    [BaseFields.USER_TOKEN]: ''
   };

@@ -5,6 +5,9 @@
       <a-button @click="refreshData" style="margin-right: 12px;">
         <sync-outlined /> {{ $t('message.refreshData') }}
       </a-button>
+      <a-button @click="deleteLogBySevenDays" style="margin-right: 12px;" danger>
+        <delete-outlined /> {{ $t('message.deleteLogBySevenDays') }}
+      </a-button>
     </div>
 
     <a-table 
@@ -48,7 +51,7 @@ import {
   initialFormValues, 
   getColumns 
 } from '@/entities/log.entity';
-import { fetchOperationlogs } from '@/api/utilityapi';
+import { fetchOperationlogs,deleteOperationlogByRange, deleteOperationlog } from '@/api/utilityapi';
 import { showNotification } from '@/utils/index';
 import { getPageTitle } from '@/utils/pageTitle';
 
@@ -103,6 +106,7 @@ const fetchLogData = async () => {
 };
 
 const getLevelName = (level) => {
+  console.log(level);
   const levels = { 100: t('message.normal'), 300: t('message.error'), 200: t('message.warning') };
   return levels[level] || 'UNKNOWN';
 };
@@ -118,14 +122,27 @@ const handleTableChange = (newPagination) => {
   fetchLogData();
 };
 
-const handleDateChange = (dates) => {
-  dateRange.value = dates;
+const deleteLogBySevenDays = () => {
+  const now = new Date();
+  
+  const sevenDaysAgoStart = new Date(now);
+  sevenDaysAgoStart.setDate(now.getDate() - 7);
+  sevenDaysAgoStart.setHours(0, 0, 0, 0);
+
+  const sevenDaysAgoEnd = new Date(sevenDaysAgoStart);
+  sevenDaysAgoEnd.setHours(23, 59, 59, 999);
+
+  deleteOperationlogByRange({
+    startTime: sevenDaysAgoStart.toISOString(), 
+    endTime: sevenDaysAgoEnd.toISOString() 
+  });
+  
   fetchLogData();
 };
 
 const handleDelete = async (record) => {
   try {
-    await deleteLog({ [LogFields.ID]: record[LogFields.ID] });
+    deleteOperationlog(record[LogFields.ID]);
     showNotification('success', t('message.deleteSuccess'));
     fetchLogData();
   } catch (error) {

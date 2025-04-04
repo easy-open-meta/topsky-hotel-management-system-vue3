@@ -105,7 +105,7 @@ export const getFormRules = (t) => ({
   [CustomerFields.NAME]: [
     { 
       required: true,
-      message: t('message.requiredField', { field: t('message.customerName') }),
+      message: t('message.pleaseInputCustomerName', { field: t('message.customerName') }),
       trigger: 'blur',
       whitespace: true
     }
@@ -113,7 +113,7 @@ export const getFormRules = (t) => ({
   [CustomerFields.GENDER]: [
     { 
       required: true,
-      message: t('message.requiredField', { field: t('message.customerSex') }),
+      message: t('message.pleaseInputCustomerSex', { field: t('message.customerSex') }),
       trigger: 'change'
     }
   ],

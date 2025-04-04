@@ -11,7 +11,7 @@ export const RoomSpecificFields = {
   RENT: 'RoomRent',
   DEPOSIT: 'RoomDeposit',
   STATE_ID: 'RoomStateId',
-  TYPE: 'RoomType'
+  TYPE: 'RoomTypeId',
 };
 
 export const RoomFields = {
@@ -22,7 +22,7 @@ export const RoomFields = {
 export const RoomStateMap = {
   'vacant': '空房',
   'occupied': '已住',
-  'maintenance': '维修中',
+  'maintenance': '维修',
   'dirty': '脏房',
   'reserved': '预约'
 };
@@ -30,7 +30,7 @@ export const RoomStateMap = {
 export const RoomStateColors = {
   '空房': '#48a54b',
   '已住': '#1f8de5',
-  '维修中': '#f0b607',
+  '维修': '#f0b607',
   '脏房': '#e63f33',
   '预约': '#ff9800'
 };
@@ -40,6 +40,8 @@ export const initialFormValues = {
   [RoomFields.NO]: null,
   [RoomFields.NAME]: '',
   [RoomFields.STATE]: 'vacant',
+  [RoomFields.STATE_ID]: 0,
+  [RoomFields.TYPE]: null,
   [RoomFields.POSITION]: '',
   [RoomFields.CUSTOMER_NAME]: '',
   [RoomFields.CHECK_IN_TIME]: null,

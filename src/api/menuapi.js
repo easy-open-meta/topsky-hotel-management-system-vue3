@@ -1,9 +1,9 @@
 import api from '../api';
 
 // 获取菜单树
-export const fetchMenusTree = async () => {
+export const fetchMenusTree = async (menu) => {
   try {
-    const response = await api.get('/Menu/BuildMenuAll');
+    const response = await api.post('/Menu/BuildMenuAll',menu);
     return response.data;
   } catch (error) {
     throw error;

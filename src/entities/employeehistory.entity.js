@@ -2,7 +2,7 @@ import { BaseFields, BaseInitialValues } from './common.entity';
 import { formatDate } from '@/utils/index';
 
 export const EmployeeHistorySpecificFields  = {
-    NUMBER: 'Id',
+    NUMBER: 'HistoryNumber',
     EMPLOYEENUMBER: 'EmployeeId',
     STARTDATE: 'StartDate',
     ENDDATE: 'EndDate',

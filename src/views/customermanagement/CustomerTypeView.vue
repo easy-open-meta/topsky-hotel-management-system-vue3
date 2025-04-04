@@ -49,8 +49,7 @@
           layout="vertical"
         >
             <a-form-item :name="CustomerTypeFields.NUMBER" :label="t('message.customerTypeNo')">
-                <a-input v-model:value="form[CustomerTypeFields.NUMBER]" type="hidden" />
-                <span>{{ form[CustomerTypeFields.NUMBER] }}</span>
+                <a-input-number v-model:value="form[CustomerTypeFields.NUMBER]" :disabled="form.modifystatus == 'update'" />
             </a-form-item>
             <a-form-item :label="t('message.customerTypeName')" :name="CustomerTypeFields.NAME">
                 <a-input v-model:value="form[CustomerTypeFields.NAME]" :placeholder="t('message.pleaseInputCustomerTypeNo')"/>
@@ -142,10 +141,7 @@ onMounted(() => {
 const showModal = () => {
   modalVisible.value = true;
   modalTitle.value = t('message.insertCustomerType');
-  form[CustomerTypeFields.NUMBER] = generateSnowflakeId({
-      prefix: 'CST-',
-      separator: null,
-    });
+  form[CustomerTypeFields.NUMBER] = null;
   form[CustomerTypeFields.NAME] = '';
   form.modifystatus = 'insert';
 };

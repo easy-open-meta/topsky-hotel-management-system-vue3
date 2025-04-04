@@ -30,9 +30,14 @@
         <a-form-item :label="vipruleValueLabel" :name="VipRuleFields.VALUE">
           <a-input-number
             v-model:value="form[VipRuleFields.VALUE]"
-            :min="0"
-            :precision="2"
-            :formatter="value => `￥ ${value}`"
+            :precision="0"
+            :formatter="value => value ? `￥ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : ''"
+            :parser="value => {
+              const numStr = value.replace(/[^\d]/g, '');
+              return numStr ? parseInt(numStr) : 0;
+            }"
+            :controls="false"
+            style="width: 200px"
           />
         </a-form-item>
         

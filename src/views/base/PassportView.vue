@@ -17,8 +17,7 @@
       <a-modal :open="modalVisible" :title="modalTitle" @ok="handleModalOk" @cancel="handleModalCancel" :confirm-loading="confirmLoading">
         <a-form :model="form" :rules="rules" ref="formRef">
           <a-form-item :label="passportNoLabel" :name="PassportFields.NUMBER">
-            <a-input v-model:value="form[PassportFields.NUMBER]" type="hidden" />
-            <span>{{ form[PassportFields.NUMBER] }}</span>
+            <a-input-number v-model:value="form[PassportFields.NUMBER]" :disabled="form.modifystatus == 'update'" />
           </a-form-item>
           <a-form-item :label="passportNameLabel" :name="PassportFields.NAME">
             <a-input v-model:value="form[PassportFields.NAME]" />
@@ -41,7 +40,6 @@
     getFormRules 
   } from '@/entities/passport.entity';
   import { useI18n } from 'vue-i18n';
-  import generateSnowflakeId from '@/utils/snowflake';
   
   const { t } = useI18n();
   const route = useRoute();
@@ -104,10 +102,7 @@
   const showModal = () => {
     modalVisible.value = true;
     modalTitle.value = t('message.insertPassport');
-    form[PassportFields.NUMBER] = generateSnowflakeId({
-        prefix: 'N-',
-        separator: null,
-      });
+    form[PassportFields.NUMBER] = null;
     form[PassportFields.NAME] = '';
     form.modifystatus = 'insert';
   };

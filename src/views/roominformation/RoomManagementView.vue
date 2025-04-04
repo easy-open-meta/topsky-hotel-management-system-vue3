@@ -72,9 +72,6 @@ import {
   getFormRules,
   RoomStateColors
 } from '@/entities/room.entity';
-import { 
-  RoomConfigFields
-} from '@/entities/roomconfig.entity';
 import { fetchRoomTypes } from '@/api/roomtypeapi.js';
 import { fetchRoomStates } from '@/api/roomstateapi.js';
 import { useI18n } from 'vue-i18n';
@@ -132,7 +129,9 @@ const fetchRoomData = async () => {
     [RoomFields.NO]: item[RoomFields.NO],
     [RoomFields.NAME]: item[RoomFields.NAME],
     [RoomFields.TYPE]: item[RoomFields.TYPE],
+    [RoomFields.TYPENAME]: item[RoomFields.TYPENAME],
     [RoomFields.STATE]: item[RoomFields.STATE],
+    [RoomFields.STATE_ID]: item[RoomFields.STATE_ID],
     [RoomFields.RENT]: item[RoomFields.RENT],
     [RoomFields.DEPOSIT]: item[RoomFields.DEPOSIT],
     [RoomFields.POSITION]: item[RoomFields.POSITION]
@@ -152,8 +151,8 @@ const fetchSelectRoomTypes = async () => {
       [RoomFields.IGNOREPAGING]: true
     });
     roomTypeOptions.value = result.listSource.map((item) => ({
-      label: item.RoomName,
-      value: item.Roomtype,
+      label: item.RoomTypeName,
+      value: item.RoomTypeId,
     }));
     roomTypes.value = result;
   } catch (error) {
@@ -163,13 +162,10 @@ const fetchSelectRoomTypes = async () => {
 
 const fetchSelectRoomStates = async () => {
   try {
-    const result = await fetchRoomStates({
-      [RoomFields.IS_DELETED]: 0,
-      [RoomFields.IGNOREPAGING]: true
-    });
-    roomStateOptions.value = result.listSource.map((item) => ({
-      label: item[RoomFields.STATE],
-      value: item[RoomFields.STATE_ID],
+    const result = await fetchRoomStates();
+    roomStateOptions.value = result.map((item) => ({
+      label: item.Description,
+      value: item.Id,
     }));
   } catch (error) {
     showNotification('error', t('message.fetchDataFailed'), t('message.pleaseTryAgainLater'));
@@ -260,7 +256,7 @@ const handleSorterChange = (pagination, filters, sorter) => {
 };
 const handleRoomTypeSelectChange = (value) => {
   form[RoomFields.TYPE] = value;
-  const foundData = roomTypes.value.find((item) => item.Roomtype === value);
+  const foundData = roomTypes.value.listSource.find((item) => item.RoomTypeId === value);
   if (foundData) {
     form[RoomFields.RENT] = foundData.RoomRent;
     form[RoomFields.DEPOSIT] = foundData.RoomDeposit;

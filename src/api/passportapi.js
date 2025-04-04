@@ -23,7 +23,7 @@ export const fetchCanUsePassports = async (params) => {
 // 添加证件类型
 export const addPassport = async (data) => {
   try {
-    const response = await api.post('/Base/AddPassPortType', data);
+    const response = await api.post('/Base/InsertPassPortType', data);
     return response.data;
   } catch (error) {
     throw error;
@@ -33,7 +33,7 @@ export const addPassport = async (data) => {
 // 更新证件类型
 export const updatePassport = async (data) => {
   try {
-    const response = await api.post(`/Base/UpdPassPortType`, data);
+    const response = await api.post(`/Base/UpdatePassPortType`, data);
     return response.data;
   } catch (error) {
     throw error;
@@ -43,7 +43,7 @@ export const updatePassport = async (data) => {
 // 删除证件类型
 export const deletePassport = async (data) => {
   try {
-    const response = await api.post(`/Base/DelPassPortType`,data);
+    const response = await api.post(`/Base/DeletePassPortType`,data);
       return response.data;
   } catch (error) {
     throw error;

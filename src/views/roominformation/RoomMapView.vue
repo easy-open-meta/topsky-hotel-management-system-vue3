@@ -56,7 +56,6 @@ const route = useRoute();
 const loading = ref(false);
 const rooms = ref([]);
 
-// 计算属性
 const pageTitleKey = computed(() => getPageTitle(route.path));
 const translatedPageTitle = computed(() => t(pageTitleKey.value));
 const groupedRooms = computed(() => groupRoomsByPosition());

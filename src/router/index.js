@@ -14,6 +14,7 @@ import Supervision from '../views/supervision/SupervisionView.vue';
 import RoomMap from '../views/roominformation/RoomMapView.vue';
 import RoomManagement from '../views/roominformation/RoomManagementView.vue';
 import RoomConfig from '../views/roominformation/RoomConfigView.vue';
+import ReserManagement from '../views/roominformation/ReserManagementView.vue';
 import VipLevel from '../views/customermanagement/VipLevelView.vue';
 import Customer from '../views/customermanagement/CustomerView.vue';
 import CustomerSpend from '../views/customermanagement/CustomerSpendView.vue';
@@ -97,6 +98,12 @@ const routes = [
         path: '/roomconfig',
         name: 'roomconfig',
         component: RoomConfig,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: '/resermanagement',
+        name: 'resermanagement',
+        component: ReserManagement,
         meta: { requiresAuth: true }
       },
       {

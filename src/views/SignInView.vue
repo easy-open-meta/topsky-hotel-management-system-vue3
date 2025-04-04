@@ -75,12 +75,11 @@ const onFinish = async () => {
   loading.value = true;
   try {
     const response = await signIn(form);
-    console.log(response);
     if (response && response.StatusCode === 200) {
       const { Source } = response;
       localStorage.setItem('token', Source.UserToken);
       localStorage.setItem('username',Source.Name);
-      localStorage.setItem('account',Source.Account);
+      localStorage.setItem('account',Source.Number);
       router.push('/');
        showNotification('success', '登录成功', '欢迎回来');
     } else {

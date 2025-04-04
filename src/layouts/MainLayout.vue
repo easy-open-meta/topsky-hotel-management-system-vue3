@@ -77,6 +77,10 @@ import { ref, onMounted, computed, watch, onBeforeMount } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { showNotification } from '@/utils/index';
 import { fetchMenusTree } from '../api/menuapi';
+import { 
+  BaseFields
+} from '@/entities/common.entity';
+
 import { useI18n } from 'vue-i18n';
 
 const route = useRoute();
@@ -124,7 +128,9 @@ onBeforeMount(() => {
 
 onMounted(async () => {
   try {
-    const data = await fetchMenusTree();
+    const data = await fetchMenusTree({
+      [BaseFields.USER_TOKEN]: localStorage.getItem('token')
+    });
     menuData.value = data.map(item => {
       const processedItem = {
         key: item.Key,

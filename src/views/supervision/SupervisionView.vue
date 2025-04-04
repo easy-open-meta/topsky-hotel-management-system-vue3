@@ -65,6 +65,7 @@ import {
 } from '@/entities/supervision.entity';
 import { fetchSupervisionInfos, addSupervisionInfo, updateSupervisionInfo, deleteSupervisionInfo } from '@/api/supervisioninfoapi';
 import { fetchDepartments } from '@/api/departmentapi';
+import { DepartmentFields } from '@/entities/department.entity';
 import { formatDate, showNotification } from '@/utils/index';
 import { useI18n } from 'vue-i18n';
 import generateSnowflakeId from '@/utils/snowflake';
@@ -147,8 +148,8 @@ const fetchSelectDepartments = async () => {
       [SupervisionFields.IS_DELETED]: 0
     });
     departmentOptions.value = result.listSource.map((item) => ({
-      label: item[SupervisionFields.CHECK_CLUB_NAME],
-      value: item[SupervisionFields.CHECK_CLUB],
+      label: item[DepartmentFields.NAME],
+      value: item[DepartmentFields.NUMBER],
     }));
   } catch (error) {
     showNotification('error', t('message.fetchDataFailed'), t('message.pleaseTryAgainLater'));

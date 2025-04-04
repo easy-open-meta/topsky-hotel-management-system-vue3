@@ -24,6 +24,8 @@ export function getPageTitle(routePath) {
           return 'message.roomManagement';
       case '/roomconfig':
           return 'message.roomConfig';
+      case '/resermanagement':
+          return 'message.reserManagement';
       case '/viplevel':
           return 'message.vipLevelRules';
       case '/customer':

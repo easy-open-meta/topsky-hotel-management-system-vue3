@@ -19,3 +19,23 @@ export const fetchCardCode = async (params) => {
     throw error;
   }
 };
+
+// 删除时间段内的操作日志
+export const deleteOperationlogByRange = async (operationlog) => {
+  try {
+    const response = await api.post('/Utility/DeleteOperationlogByRange', operationlog);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+// 删除单条操作日志
+export const deleteOperationlog = async (operationlog) => {
+  try {
+    const response = await api.post('/Utility/DeleteOperationlog', operationlog);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
