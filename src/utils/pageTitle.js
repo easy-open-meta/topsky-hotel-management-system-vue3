@@ -40,8 +40,8 @@ export function getPageTitle(routePath) {
           return 'message.goodsmanagement';
       case '/operationlog':
           return 'message.operationlog';
-      case '/addadmin':
-          return 'message.addadmin';
+      case '/administratormanagement':
+          return 'message.administratormanagement';
       case '/zeroconfig':
           return 'message.zeroconfig';
        case '/systemmodule':

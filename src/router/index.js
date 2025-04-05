@@ -23,7 +23,7 @@ import StaffManagement from '../views/humanresourcemanagement/StaffManagementVie
 import EmployeeDetail from '../views/humanresourcemanagement/EmployeeDetailView.vue';
 import GoodsManagement from '../views/materialmanagement/GoodsmanagementView.vue';
 import OperationLog from '../views/operationmanagement/OperationLogView.vue';
-import AddAdmin from '../views/systemmanagement/AddAdminiView.vue';
+import AdminManagement from '../views/systemmanagement/AdministratorManagementView.vue';
 import ZeroConfig from '../views/systemmanagement/ZeroConfigView.vue';
 import SystemModule from '../views/systemmanagement/SystemModuleView.vue';
 import { checkTokenValidity } from '../utils/auth';
@@ -155,9 +155,9 @@ const routes = [
         meta: { requiresAuth: true }
       },
       {
-        path: '/addadmin',
-        name: 'addadmin',
-        component: AddAdmin,
+        path: '/administratormanagement',
+        name: 'administratormanagement',
+        component: AdminManagement,
         meta: { requiresAuth: true }
       },
       {

@@ -8,9 +8,9 @@ export const CustomerSpecificFields = {
   BIRTH_DATE: 'DateOfBirth',
   TYPE: 'CustomerType',
   TYPE_NAME: 'CustomerTypeName',
-  PASSPORT_TYPE: 'PassportType',
-  PASSPORT_NAME: 'PassportTypeName',
-  ID_NUMBER: 'PassportID',
+  PASSPORTTYPE: 'PassportId',
+  PASSPORTNAME: 'PassportName',
+  ID_NUMBER: 'IdCardNumber',
   PHONE: 'CustomerPhoneNumber',
   ADDRESS: 'CustomerAddress'
 };
@@ -34,7 +34,8 @@ export const initialFormValues = {
   [CustomerFields.GENDER]: null,
   [CustomerFields.BIRTH_DATE]: null,
   [CustomerFields.TYPE]: null,
-  [CustomerFields.PASSPORT_TYPE]: null,
+  [CustomerFields.PASSPORTTYPE]: null,
+  [CustomerFields.PASSPORTNAME]: '',
   [CustomerFields.ID_NUMBER]: '',
   [CustomerFields.PHONE]: '',
   [CustomerFields.ADDRESS]: ''
@@ -77,8 +78,14 @@ export const getColumns = (t) => [
   },
   {
     title: t('message.customerPassportType'),
-    dataIndex: CustomerFields.PASSPORT_NAME,
-    key: CustomerFields.PASSPORT_NAME
+    dataIndex: CustomerFields.PASSPORTTYPE,
+    key: CustomerFields.PASSPORTTYPE,
+    hidden: true
+  },
+  {
+    title: t('message.customerPassportType'),
+    dataIndex: CustomerFields.PASSPORTNAME,
+    key: CustomerFields.PASSPORTNAME
   },
   {
     title: t('message.customerPassportID'),

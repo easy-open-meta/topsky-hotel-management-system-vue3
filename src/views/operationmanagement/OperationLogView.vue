@@ -106,7 +106,6 @@ const fetchLogData = async () => {
 };
 
 const getLevelName = (level) => {
-  console.log(level);
   const levels = { 100: t('message.normal'), 300: t('message.error'), 200: t('message.warning') };
   return levels[level] || 'UNKNOWN';
 };

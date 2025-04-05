@@ -11,9 +11,9 @@ export const fetchOperationlogs = async (params) => {
 };
 
 // 获取身份证地区代码
-export const fetchCardCode = async (params) => {
+export const fetchCardCode = async (cardcode) => {
   try {
-    const response = await api.get('/Utility/SelectCardCode', { params });
+    const response = await api.post('/Utility/SelectCardCode', cardcode);
     return response.data;
   } catch (error) {
     throw error;

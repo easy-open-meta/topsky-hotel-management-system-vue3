@@ -146,6 +146,16 @@
 
         <a-row :gutter="24">
           <a-col :span="12">
+            <a-form-item :label="staffCardIDLabel" :name="EmployeeFields.IDCARDTYPE">
+              <a-select
+                v-model:value="form[EmployeeFields.IDCARDTYPE]"
+                :options="passportTypeOptions"
+                :placeholder="t('message.pleaseInputStaffCardType')"
+                show-search
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
             <a-form-item :label="staffCardIDLabel" :name="EmployeeFields.IDCARDNUMBER">
               <a-input
                 v-model:value="form[EmployeeFields.IDCARDNUMBER]"
@@ -153,7 +163,10 @@
               />
             </a-form-item>
           </a-col>
-          <a-col :span="12">
+        </a-row>
+
+        <a-row :gutter="24">
+          <a-col :span="24">
             <a-form-item :label="staffTelLabel" :name="EmployeeFields.PHONENUMBER">
               <a-input
                 v-model:value="form[EmployeeFields.PHONENUMBER]"
@@ -182,11 +195,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, reactive } from 'vue';
+import { ref, onMounted, computed, reactive, watch, onBeforeUnmount } from 'vue';
 import { Select } from 'ant-design-vue';
 import { useRoute,useRouter } from 'vue-router';
 import { getPageTitle } from '@/utils/pageTitle';
 import { fetchEmployees, addEmployee, updateEmployee, managerEmployeeAccount, resetEmployeePassword } from '@/api/employeeapi';
+import { fetchCardCode } from '@/api/utilityapi';
+import { fetchCanUsePassports } from '@/api/passportapi';
+import { debounce } from 'lodash-es';
 import { 
   EmployeeFields,
   Gender,
@@ -211,6 +227,7 @@ import {
   NationFields
 } from '@/entities/nation.entity';
 import { fetchWorkerFeatures } from '@/api/workerfeatureapi';
+import { PassportFields } from '@/entities/passport.entity';
 import { formatDate,showNotification } from '@/utils/index';
 import { useI18n } from 'vue-i18n';
 import generateSnowflakeId from '@/utils/snowflake';
@@ -234,6 +251,7 @@ const staffFeaturesOptions = ref([]);
 const staffQualificationOptions = ref([]);
 const staffDepartmentOptions = ref([]);
 const staffPositionOptions = ref([]);
+const passportTypeOptions = ref([]);
 
 const needsTime = (fieldName) => {
   return dateFieldConfig.WITH_TIME.includes(fieldName);
@@ -276,6 +294,43 @@ const columns = computed(() => getColumns(t));
 
 const filteredColumns = computed(() => columns.value.filter(column => !column.hidden));
 
+const queryAddress = debounce(async (idCard) => {
+  try {
+    if (!idCard || idCard.length < 15) return;
+    
+    const result = await fetchCardCode({
+      IdentityCardNumber:idCard
+    });
+    
+    if (result?.Source) {
+      const { 
+        Province = '', 
+        City = '', 
+        District = '' 
+    } = result?.Source || {};
+    const fullAddress = [Province, City, District]
+        .filter(part => part?.trim())
+        .join('');
+        if (fullAddress) {
+        form[EmployeeFields.ADDRESS] = fullAddress;
+      }
+    }
+  } catch (e) {
+    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+  }
+}, 500);
+
+watch(
+  () => form[EmployeeFields.IDCARDNUMBER],
+  (newVal) => {
+    queryAddress(newVal.trim());
+  }
+);
+
+onBeforeUnmount(() => {
+  queryAddress.cancel();
+});
+
 const pagination = reactive({
   current: 1,
   pageSize: 15,
@@ -309,6 +364,8 @@ const fetchStaffData = async () => {
         [EmployeeFields.DEPARTMENTNAME]: item[EmployeeFields.DEPARTMENTNAME],
         [EmployeeFields.POSITION]: item[EmployeeFields.POSITION],
         [EmployeeFields.POSITIONNAME]: item[EmployeeFields.POSITIONNAME],
+        [EmployeeFields.IDCARDTYPE]: item[EmployeeFields.IDCARDTYPE],
+        [EmployeeFields.IDCARDTYPENAME]: item[EmployeeFields.IDCARDTYPENAME],
         [EmployeeFields.IDCARDNUMBER]: item[EmployeeFields.IDCARDNUMBER],
         [EmployeeFields.PHONENUMBER]: item[EmployeeFields.PHONENUMBER],
         [EmployeeFields.ADDRESS]: item[EmployeeFields.ADDRESS],
@@ -324,6 +381,18 @@ const fetchStaffData = async () => {
     showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
   } finally {
     loading.value = false;
+  }
+};
+
+const fetchSelectPassports = async () => {
+  try {
+    const result = await fetchCanUsePassports();
+    passportTypeOptions.value = result.listSource.map((item) => ({
+      label: item[PassportFields.NAME],
+      value: item[PassportFields.NUMBER],
+    }));
+  } catch (error) {
+    showNotification('error', t('message.fetchDataFailed'), t('message.pleaseTryAgainLater'));
   }
 };
 
@@ -407,6 +476,8 @@ onMounted(() => {
   fetchSelectDepartments();
   fetchSelectPositions();
   fetchSelectWorkerFeatures();
+  fetchSelectPassports();
+  queryAddress.cancel();
 });
 
 const showModal = () => {
@@ -424,6 +495,7 @@ const showModal = () => {
   form[EmployeeFields.ETHNICITY] = null;
   form[EmployeeFields.DEPARTMENT] = null;
   form[EmployeeFields.POSITION] = null;
+  form[EmployeeFields.IDCARDTYPE] = null;
   form[EmployeeFields.IDCARDNUMBER] = '';
   form[EmployeeFields.PHONENUMBER] = '';
   form[EmployeeFields.ADDRESS] = '';
@@ -451,6 +523,7 @@ const editStaff = (record) => {
   form[EmployeeFields.POLITICALAFFILIATION] = record[EmployeeFields.POLITICALAFFILIATION];
   form[EmployeeFields.DEPARTMENT] = record[EmployeeFields.DEPARTMENT];
   form[EmployeeFields.POSITION] = record[EmployeeFields.POSITION];
+  form[EmployeeFields.IDCARDTYPE] = record[EmployeeFields.IDCARDTYPE];
   form[EmployeeFields.IDCARDNUMBER] = record[EmployeeFields.IDCARDNUMBER];
   form[EmployeeFields.PHONENUMBER] = record[EmployeeFields.PHONENUMBER];
   form[EmployeeFields.ADDRESS] = record[EmployeeFields.ADDRESS];

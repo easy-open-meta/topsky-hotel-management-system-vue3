@@ -15,6 +15,8 @@ export const EmployeeSpecificFields  = {
     ADDRESS: 'Address',
     POSITION: 'Position',
     POSITIONNAME: 'PositionName',
+    IDCARDTYPE: 'IdCardType',
+    IDCARDTYPENAME: 'IdCardTypeName',
     IDCARDNUMBER: 'IdCardNumber',
     HIREDATE: 'HireDate',
     POLITICALAFFILIATION: 'PoliticalAffiliation',
@@ -50,6 +52,7 @@ export const EmployeeSpecificFields  = {
     [EmployeeFields.ADDRESS]: '',
     [EmployeeFields.POSITION]: '',
     [EmployeeFields.POSITIONNAME]: '',
+    [EmployeeFields.IDCARDTYPE]: null,
     [EmployeeFields.IDCARDNUMBER]: '',
     [EmployeeFields.HIREDATE]: null,
     [EmployeeFields.POLITICALAFFILIATION]: null,
@@ -147,6 +150,17 @@ export const EmployeeSpecificFields  = {
         key: EmployeeFields.POLITICALAFFILIATIONNAME
       },
       {
+        title: t('message.staffCardType'),
+        dataIndex: EmployeeFields.IDCARDTYPE,
+        key: EmployeeFields.IDCARDTYPE,
+        hidden: true
+      },
+      {
+        title: t('message.staffCardType'),
+        dataIndex: EmployeeFields.IDCARDTYPENAME,
+        key: EmployeeFields.IDCARDTYPENAME
+      },
+      {
         title: t('message.staffCardID'),
         dataIndex: EmployeeFields.IDCARDNUMBER,
         key: EmployeeFields.IDCARDNUMBER
@@ -183,6 +197,7 @@ export const EmployeeSpecificFields  = {
     [EmployeeFields.ETHNICITY]: [{ required: true, message: t('message.pleaseInputStaffNation'), trigger: 'blur' }],
     [EmployeeFields.DEPARTMENT]: [{ required: true, message: t('message.pleaseInputStaffDepartment'), trigger: 'blur' }],
     [EmployeeFields.POSITION]: [{ required: true, message: t('message.pleaseInputStaffPosition'), trigger: 'blur' }],
+    [EmployeeFields.IDCARDTYPE]: [{ required: true, message: t('message.pleaseInputStaffCardType'), trigger: 'blur' }],
     [EmployeeFields.IDCARDNUMBER]: [{ required: true, message: t('message.pleaseInputStaffCardID'), trigger: 'blur' }],
     [EmployeeFields.ADDRESS]: [{ required: true, message: t('message.pleaseInputStaffAddress'), trigger: 'blur' }],
     [EmployeeFields.DATEOFBIRTH]: [{ required: true, message: t('message.pleaseInputStaffBirthday'), trigger: 'blur' }],

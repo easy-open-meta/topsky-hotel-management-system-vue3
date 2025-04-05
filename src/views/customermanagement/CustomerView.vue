@@ -49,9 +49,9 @@
           />
         </a-form-item>
 
-        <a-form-item :label="customerPassportTypeLabel" :name="CustomerFields.PASSPORT_TYPE">
+        <a-form-item :label="customerPassportTypeLabel" :name="CustomerFields.PASSPORTTYPE">
           <a-select
-            v-model:value="form[CustomerFields.PASSPORT_TYPE]"
+            v-model:value="form[CustomerFields.PASSPORTTYPE]"
             :options="passportTypeOptions"
             :placeholder="t('message.pleaseInputCustomerPassportType')"
             show-search
@@ -75,10 +75,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, reactive } from 'vue';
+import { ref, onMounted, computed, reactive, watch, onBeforeUnmount } from 'vue';
 import { useRoute } from 'vue-router';
 import { getPageTitle } from '@/utils/pageTitle';
 import { fetchCustomers, addCustomer, updateCustomer, deleteCustomer } from '@/api/customerapi';
+import { fetchCardCode } from '@/api/utilityapi';
+import { debounce } from 'lodash-es';
 import { 
   CustomerFields,
   Gender,
@@ -86,7 +88,8 @@ import {
   getColumns,
   getFormRules
 } from '@/entities/customer.entity';
-import { CustomerTypeFields } from '../../entities/customertype.entity';
+import { CustomerTypeFields } from '@/entities/customertype.entity';
+import { PassportFields } from '@/entities/passport.entity';
 import { fetchCanUsePassports } from '@/api/passportapi';
 import { fetchCanUseCustomerTypes } from '@/api/custotypeapi';
 import { formatDate,showNotification } from '@/utils/index';
@@ -126,6 +129,43 @@ const columns = computed(() => getColumns(t));
 
 const filteredColumns = computed(() => columns.value.filter(column => !column.hidden));
 
+const queryAddress = debounce(async (idCard) => {
+  try {
+    if (!idCard || idCard.length < 15) return;
+    
+    const result = await fetchCardCode({
+      IdentityCardNumber:idCard
+    });
+    
+    if (result?.Source) {
+      const { 
+        Province = '', 
+        City = '', 
+        District = '' 
+    } = result?.Source || {};
+    const fullAddress = [Province, City, District]
+        .filter(part => part?.trim())
+        .join('');
+        if (fullAddress) {
+        form[CustomerFields.ADDRESS] = fullAddress;
+      }
+    }
+  } catch (e) {
+    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+  }
+}, 500);
+
+watch(
+  () => form[CustomerFields.ID_NUMBER],
+  (newVal) => {
+    queryAddress(newVal.trim());
+  }
+);
+
+onBeforeUnmount(() => {
+  queryAddress.cancel();
+});
+
 const pagination = reactive({
   current: 1,
   pageSize: 15,
@@ -154,8 +194,8 @@ const fetchCustomerData = async () => {
         [CustomerFields.BIRTH_DATE]: item[CustomerFields.BIRTH_DATE],
         [CustomerFields.TYPE]: item[CustomerFields.TYPE],
         [CustomerFields.TYPE_NAME]: item[CustomerFields.TYPE_NAME],
-        [CustomerFields.PASSPORT_TYPE]: item[CustomerFields.PASSPORT_TYPE],
-        [CustomerFields.PASSPORT_NAME]: item[CustomerFields.PASSPORT_NAME],
+        [CustomerFields.PASSPORTTYPE]: item[CustomerFields.PASSPORTTYPE],
+        [CustomerFields.PASSPORTNAME]: item[CustomerFields.PASSPORTNAME],
         [CustomerFields.ID_NUMBER]: item[CustomerFields.ID_NUMBER],
         [CustomerFields.PHONE]: item[CustomerFields.PHONE],
         [CustomerFields.ADDRESS]: item[CustomerFields.ADDRESS],
@@ -174,8 +214,8 @@ const fetchSelectPassports = async () => {
   try {
     const result = await fetchCanUsePassports();
     passportTypeOptions.value = result.listSource.map((item) => ({
-      label: item.PassportName,
-      value: item.PassportId,
+      label: item[PassportFields.NAME],
+      value: item[PassportFields.NUMBER],
     }));
   } catch (error) {
     showNotification('error', t('message.fetchDataFailed'), t('message.pleaseTryAgainLater'));
@@ -211,7 +251,7 @@ const showModal = () => {
   form[CustomerFields.GENDER] = null;
   form[CustomerFields.BIRTH_DATE] = null;
   form[CustomerFields.TYPE] = null;
-  form[CustomerFields.PASSPORT_TYPE] = null;
+  form[CustomerFields.PASSPORTTYPE] = null;
   form[CustomerFields.ID_NUMBER] = '';
   form[CustomerFields.PHONE] = '';
   form[CustomerFields.ADDRESS] = '';
@@ -232,7 +272,7 @@ const editCustomer = (record) => {
   form[CustomerFields.GENDER] = record[CustomerFields.GENDER];
   form[CustomerFields.BIRTH_DATE] = record[CustomerFields.BIRTH_DATE] ? dayjs(record[CustomerFields.BIRTH_DATE]) : null;
   form[CustomerFields.TYPE] = record[CustomerFields.TYPE];
-  form[CustomerFields.PASSPORT_TYPE] = record[CustomerFields.PASSPORT_TYPE];
+  form[CustomerFields.PASSPORTTYPE] = record[CustomerFields.PASSPORTTYPE];
   form[CustomerFields.ID_NUMBER] = record[CustomerFields.ID_NUMBER];
   form[CustomerFields.PHONE] = record[CustomerFields.PHONE];
   form[CustomerFields.ADDRESS] = record[CustomerFields.ADDRESS];

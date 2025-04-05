@@ -71,6 +71,9 @@
             <a-descriptions-item :label="$t('message.staffName')">
               {{ employeeInfo[EmployeeFields.NAME] }}
             </a-descriptions-item>
+            <a-descriptions-item :label="$t('message.staffCardType')">
+              {{ employeeInfo[EmployeeFields.IDCARDTYPENAME] }}
+            </a-descriptions-item>
             <a-descriptions-item :label="$t('message.staffCardID')">
               {{ employeeInfo[EmployeeFields.IDCARDNUMBER] }}
             </a-descriptions-item>
