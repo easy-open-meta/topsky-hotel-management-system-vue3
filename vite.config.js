@@ -6,7 +6,7 @@ import Components from 'unplugin-vue-components/vite';
 import { AntDesignVueResolver } from 'unplugin-vue-components/resolvers';
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd());
+  const env = loadEnv(mode, process.cwd(), '');
 
   return {
     plugins: [
@@ -16,32 +16,24 @@ export default defineConfig(({ mode }) => {
           AntDesignVueResolver({
             resolveIcons: true,
             importStyle: false,
-            cjs: false,
           })
         ],
-        dts: true,
-        include: [/\.vue$/, /\.vue\?vue/] 
+        dts: mode === 'development',
+        include: [/\.vue$/, /\.vue\?vue/]
       }),
       commonjs({
-        filter: (id) => {
-          return id.includes('node_modules/dayjs');
-        }
+        include: /node_modules\/dayjs/,
       })
     ],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, 'src'),
         'ant-design-vue/es': 'ant-design-vue/es',
-        'dayjs/plugin/advancedFormat': path.resolve(__dirname, 'node_modules/dayjs/plugin/advancedFormat.js'),
-        'dayjs/plugin/customParseFormat': path.resolve(__dirname, 'node_modules/dayjs/plugin/customParseFormat.js')
       }
     },
     optimizeDeps: {
-      exclude: [
-        'ant-design-vue/es',
-        'dayjs/plugin/advancedFormat',
-      ],
-      include: ['lodash-es']
+      exclude: ['ant-design-vue/es'],
+      include: ['lodash-es', 'dayjs/plugin/advancedFormat', 'dayjs/plugin/customParseFormat']
     },
     css: {
       preprocessorOptions: {
@@ -58,9 +50,7 @@ export default defineConfig(({ mode }) => {
     server: {
       proxy: {
         '/api': {
-          target: mode === 'development' 
-            ? env.VITE_API_DEV_URL 
-            : env.VITE_API_PROD_URL,
+          target: env.VITE_API_URL,
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api/, ''),
         },
