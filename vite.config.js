@@ -14,7 +14,7 @@ export default defineConfig(({ mode }) => {
       Components({
         resolvers: [
           AntDesignVueResolver({
-            resolveIcons: false,
+            resolveIcons: true,
             importStyle: false,
             cjs: false,
           })
@@ -39,8 +39,6 @@ export default defineConfig(({ mode }) => {
     optimizeDeps: {
       exclude: [
         'ant-design-vue/es',
-        '@ant-design/icons-vue',
-        '@ant-design/icons',
         'dayjs/plugin/advancedFormat',
       ],
       include: ['lodash-es']
