@@ -372,6 +372,16 @@ const messages = {
             adminTypeNumber: "Administrator Type Number",
             adminTypeName: "Administrator Type Name",
 
+            rolemanagement: "Role Management",
+            insertRole:"Create Role",
+            updateRole:"Edit Role",
+            pleaseInputRoleNumber: "Please input role number",
+            pleaseInputRoleName: "Please input role name",
+            pleaseInputRoleDescription: "Please input role description",
+            roleNumber: "Role Number",
+            roleName: "Role Name",
+            roleDescription: "Role Description",
+
             operationTime: "Operation Time",
             logContent: "Log Content",
             operator: "Operator", 
@@ -765,6 +775,16 @@ const messages = {
             pleaseInputAdminTypeName: "请输入管理员类型姓名",
             adminTypeNumber: "管理员类型编号",
             adminTypeName: "管理员类型姓名",
+
+            rolemanagement: "角色管理",
+            insertRole:"创建角色",
+            updateRole:"编辑角色",
+            pleaseInputRoleNumber: "请输入角色编号",
+            pleaseInputRoleName: "请输入角色名称",
+            pleaseInputRoleDescription: "请输入角色描述",
+            roleNumber: "角色编号",
+            roleName: "角色名称",
+            roleDescription: "角色描述",
 
             operationTime: "操作时间",
             logContent: "日志内容",

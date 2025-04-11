@@ -33,7 +33,8 @@ export default defineConfig(({ mode }) => {
     },
     optimizeDeps: {
       exclude: ['ant-design-vue/es'],
-      include: ['lodash-es', 'dayjs/plugin/advancedFormat', 'dayjs/plugin/customParseFormat']
+      include: ['lodash-es', 'dayjs/plugin/advancedFormat', 'dayjs/plugin/customParseFormat',
+         'dayjs/plugin/customParseFormat','dayjs/plugin/weekday','dayjs/plugin/localeData','dayjs/plugin/weekday','dayjs/plugin/quarterOfYear','dayjs/plugin/weekOfYear','dayjs/plugin/weekYear']
     },
     css: {
       preprocessorOptions: {

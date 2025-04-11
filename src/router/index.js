@@ -24,6 +24,7 @@ import EmployeeDetail from '../views/humanresourcemanagement/EmployeeDetailView.
 import GoodsManagement from '../views/materialmanagement/GoodsmanagementView.vue';
 import OperationLog from '../views/operationmanagement/OperationLogView.vue';
 import AdminManagement from '../views/systemmanagement/AdministratorManagementView.vue';
+import RoleManagement from '../views/systemmanagement/RoleManagementView.vue';
 import ZeroConfig from '../views/systemmanagement/ZeroConfigView.vue';
 import SystemModule from '../views/systemmanagement/SystemModuleView.vue';
 import { checkTokenValidity } from '../utils/auth';
@@ -158,6 +159,12 @@ const routes = [
         path: '/administratormanagement',
         name: 'administratormanagement',
         component: AdminManagement,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: '/rolemanagement',
+        name: 'rolemanagement',
+        component: RoleManagement,
         meta: { requiresAuth: true }
       },
       {

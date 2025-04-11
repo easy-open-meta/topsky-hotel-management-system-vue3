@@ -42,6 +42,8 @@ export function getPageTitle(routePath) {
           return 'message.operationlog';
       case '/administratormanagement':
           return 'message.administratormanagement';
+      case '/rolemanagement':
+          return 'message.rolemanagement';
       case '/zeroconfig':
           return 'message.zeroconfig';
        case '/systemmodule':
