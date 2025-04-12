@@ -228,7 +228,7 @@ import {
 } from '@/entities/nation.entity';
 import { fetchWorkerFeatures } from '@/api/workerfeatureapi';
 import { PassportFields } from '@/entities/passport.entity';
-import { formatDate,showNotification } from '@/utils/index';
+import { formatDate, showErrorNotification, showSuccessNotification } from '@/utils/index';
 import { useI18n } from 'vue-i18n';
 import generateSnowflakeId from '@/utils/snowflake';
 import { dateFieldConfig } from '@/config/dateFields';
@@ -316,7 +316,7 @@ const queryAddress = debounce(async (idCard) => {
       }
     }
   } catch (e) {
-    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   }
 }, 500);
 
@@ -378,7 +378,7 @@ const fetchStaffData = async () => {
       pagination.total = result.total;
     }
   } catch (error) {
-    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   } finally {
     loading.value = false;
   }
@@ -392,7 +392,7 @@ const fetchSelectPassports = async () => {
       value: item[PassportFields.NUMBER],
     }));
   } catch (error) {
-    showNotification('error', t('message.fetchDataFailed'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   }
 };
 
@@ -407,7 +407,7 @@ const fetchSelectNations = async () => {
       value: item[NationFields.NUMBER],
     }));
   } catch (error) {
-    showNotification('error', t('message.fetchDataFailed'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   }
 };
 
@@ -422,7 +422,7 @@ const fetchSelectQualifications = async () => {
       value: item[EducationFields.NUMBER],
     }));
   } catch (error) {
-    showNotification('error', t('message.fetchDataFailed'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   }
 };
 
@@ -437,7 +437,7 @@ const fetchSelectDepartments = async () => {
       value: item[DepartmentFields.NUMBER],
     }));
   } catch (error) {
-    showNotification('error', t('message.fetchDataFailed'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   }
 };
 
@@ -452,7 +452,7 @@ const fetchSelectPositions = async () => {
       value: item[PositionFields.NUMBER],
     }));
   } catch (error) {
-    showNotification('error', t('message.fetchDataFailed'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   }
 };
 
@@ -465,7 +465,7 @@ const fetchSelectWorkerFeatures = async () => {
       value: item.Name,
     }));
   } catch (error) {
-    showNotification('error', t('message.fetchDataFailed'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   }
 };
 
@@ -540,11 +540,11 @@ const disabledStaff = async (record) => {
 const resetPassword = async (record) => {
   var result = await resetEmployeePassword({ [EmployeeFields.NUMBER]: record[EmployeeFields.NUMBER] });
   if(result.StatusCode !== 200){
-    showNotification('error', t('message.operationTitle'), result.Message);
+    showErrorNotification(result.Message);
   }
   else
   {
-    showNotification('success', t('message.operationTitle'), t('message.resetPasswordSuccess'));
+    showSuccessNotification(t('message.resetPasswordSuccess'));
   }
   fetchStaffData();
 }
@@ -565,16 +565,30 @@ const handleModalOk = async () => {
     });
     confirmLoading.value = true;
     if (form.modifystatus === 'update') {
-      await updateEmployee(payload);
-      showNotification('success', t('message.operationTitle') , t('message.updateSuccess'));
+      var response = await updateEmployee(payload);
+      if(response && response.StatusCode === 200)
+      {
+        showSuccessNotification(t('message.updateSuccess'));
+      }
+      else
+      {
+        showErrorNotification(t('message.pleaseTryAgainLater'));
+      }
     } else {
-      await addEmployee(payload);
-      showNotification('success', t('message.operationTitle') , t('message.addSuccess'));
+      var response = await addEmployee(payload);
+      if(response && response.StatusCode === 200)
+      {
+        showSuccessNotification(t('message.addSuccess'));
+      }
+      else
+      {
+        showErrorNotification(t('message.pleaseTryAgainLater'));
+      }
     }
     modalVisible.value = false;
     fetchStaffData();
   } catch (error) {
-    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   } finally {
     confirmLoading.value = false;
   }
@@ -587,12 +601,18 @@ const handleModalCancel = () => {
 const handleDelete = async (record) => {
   try {
     record[EmployeeFields.IS_DELETED] = 1;
-    await updateEmployee(record);
-    showNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
+    var response = await updateEmployee(record);
+    if(response && response.StatusCode === 200)
+    {
+      showSuccessNotification(t('message.deleteSuccess'));
+    }
+    else
+    {
+      showErrorNotification(t('message.pleaseTryAgainLater'));
+    }
     fetchStaffData();
   } catch (error) {
-    console.error('Delete error:', error);
-    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   }
 };
 

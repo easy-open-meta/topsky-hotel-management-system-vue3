@@ -7,7 +7,7 @@
 
 <script setup>
 import { onMounted, ref, watch, provide, nextTick } from 'vue';
-import { showNotification } from './utils/index.js';
+import { showErrorNotification,showInfoNotification,showSuccessNotification,showWarningNotification } from './utils/index.js';
 import GlobalNotification from './components/GlobalNotification.vue';
 import { checkTokenValidity } from './utils/auth';
 import { useI18n } from 'vue-i18n';
@@ -47,7 +47,7 @@ watch(
 );
 
 onMounted(() => {
-  window.$notification = showNotification;
+  window.$notification = showInfoNotification;
   checkTokenValidity();
 });
 </script>

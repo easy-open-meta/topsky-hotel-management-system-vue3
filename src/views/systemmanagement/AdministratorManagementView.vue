@@ -51,7 +51,7 @@
 import { ref, onMounted, computed, reactive } from 'vue';
 import { useRoute } from 'vue-router';
 import { getPageTitle } from '@/utils/pageTitle';
-import { showNotification } from '@/utils/index';
+import { showErrorNotification, showSuccessNotification } from '@/utils/index';
 import { fetchAdmins, addAdmin, updateAdmin, deleteAdmin } from '@/api/administratorapi';
 import { fetchAdminTypes } from '@/api/administratortypeapi';
 import { 
@@ -128,7 +128,7 @@ const fetchAdministratorData = async () => {
       throw new Error('数据格式错误');
     }
   } catch (error) {
-    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   } finally {
     loading.value = false;
   }
@@ -145,7 +145,7 @@ const fetchSelectAdminTypes = async () => {
       value: item[AdministratorTypeFields.NUMBER],
     }));
   } catch (error) {
-    showNotification('error', t('message.fetchDataFailed'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   }
 };
 
@@ -205,16 +205,24 @@ const handleModalOk = async () => {
     }
 
     if (form.modifystatus === 'update') {
-      await updateAdmin(submitData);
-      showNotification('success', t('message.operationTitle') , t('message.updateSuccess'));
+      var response = await updateAdmin(submitData);
+      if (response && response.StatusCode !== 200) {
+        showErrorNotification(t('message.updateFailed'));
+        return;
+      }
+      showSuccessNotification(t('message.updateSuccess'));
     } else {
-      await addAdmin(submitData);
-      showNotification('success', t('message.operationTitle') , t('message.addSuccess'));
+      var response = await addAdmin(submitData);
+      if (response && response.StatusCode !== 200) {
+        showErrorNotification(t('message.addFailed'));
+        return;
+      }
+      showSuccessNotification(t('message.addSuccess'));
     }
     modalVisible.value = false;
     fetchAdministratorData();
   } catch (error) {
-    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   } finally {
     confirmLoading.value = false;
   }
@@ -227,12 +235,15 @@ const handleModalCancel = () => {
 const handleDelete = async (record) => {
   try {
     record[AdministratorFields.IS_DELETED] = 1;
-    await deleteAdmin(record);
-    showNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
+    var response = await deleteAdmin(record);
+    if (response && response.StatusCode !== 200) {
+      showErrorNotification(t('message.deleteFailed'));
+      return;
+    }
+    showSuccessNotification(t('message.deleteSuccess'));
     fetchAdministratorData();
   } catch (error) {
-    console.error('Delete error:', error);
-    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   }
 };
 

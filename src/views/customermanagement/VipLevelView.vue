@@ -67,7 +67,7 @@ import {
   getFormRules
 } from '@/entities/viprule.entity';
 import { fetchCustomerTypes } from '@/api/custotypeapi';
-import { showNotification } from '@/utils/index';
+import { showErrorNotification, showSuccessNotification } from '@/utils/index';
 import { useI18n } from 'vue-i18n';
 import generateSnowflakeId from '@/utils/snowflake';
 import { formatCurrency } from '@/utils/index';
@@ -126,7 +126,7 @@ const fetchVipRuleData = async () => {
     pagination.total = result.total;
     }
   } catch (error) {
-    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   } finally {
     loading.value = false;
   }
@@ -143,7 +143,7 @@ const fetchSelectCustomerTypes = async () => {
       value: item.CustomerType,
     }));
   } catch (error) {
-    showNotification('error', t('message.fetchDataFailed'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   }
 };
 
@@ -186,16 +186,30 @@ const handleModalOk = async () => {
     await formRef.value.validate();
     confirmLoading.value = true;
     if (form.modifystatus === 'update') {
-      await updateVipRule({ ...form});
-      showNotification('success', t('message.operationTitle') , t('message.updateSuccess'));
+      var response = await updateVipRule({ ...form});
+      if(response && response.StatusCode === 200)
+      {
+        showSuccessNotification(t('message.updateSuccess'));
+      }
+      else
+      {
+        showErrorNotification(response.Message);        
+      }
     } else {
-      await addVipRule({ ...form});
-      showNotification('success', t('message.operationTitle') , t('message.addSuccess'));
+      var response = await addVipRule({ ...form});
+      if(response && response.StatusCode === 200)
+      {
+        showSuccessNotification(t('message.addSuccess'));
+      }
+      else
+      {
+        showErrorNotification(response.Message);        
+      }
     }
     modalVisible.value = false;
     fetchVipRuleData();
   } catch (error) {
-    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   } finally {
     confirmLoading.value = false;
   }
@@ -208,12 +222,18 @@ const handleModalCancel = () => {
 const handleDelete = async (record) => {
   try {
     record[VipRuleFields.IS_DELETED] = 1;
-    await deleteVipRule(record);
-    showNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
+    var response = await deleteVipRule(record);
+    if(response && response.StatusCode === 200)
+    {
+      showSuccessNotification(t('message.deleteSuccess'));
+    }
+    else
+    {
+      showErrorNotification(t('message.pleaseTryAgainLater'));
+    }
     fetchVipRuleData();
   } catch (error) {
-    console.error('Delete error:', error);
-    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   }
 };
 

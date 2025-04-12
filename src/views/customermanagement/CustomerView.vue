@@ -92,7 +92,7 @@ import { CustomerTypeFields } from '@/entities/customertype.entity';
 import { PassportFields } from '@/entities/passport.entity';
 import { fetchCanUsePassports } from '@/api/passportapi';
 import { fetchCanUseCustomerTypes } from '@/api/custotypeapi';
-import { formatDate,showNotification } from '@/utils/index';
+import { formatDate, showErrorNotification, showSuccessNotification } from '@/utils/index';
 import { useI18n } from 'vue-i18n';
 import generateSnowflakeId from '@/utils/snowflake';
 import dayjs from 'dayjs';
@@ -151,7 +151,7 @@ const queryAddress = debounce(async (idCard) => {
       }
     }
   } catch (e) {
-    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(e.message || t('message.pleaseTryAgainLater'));
   }
 }, 500);
 
@@ -204,7 +204,7 @@ const fetchCustomerData = async () => {
       pagination.total = result.total;
     }
   } catch (error) {
-    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   } finally {
     loading.value = false;
   }
@@ -218,7 +218,7 @@ const fetchSelectPassports = async () => {
       value: item[PassportFields.NUMBER],
     }));
   } catch (error) {
-    showNotification('error', t('message.fetchDataFailed'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   }
 };
 
@@ -230,7 +230,7 @@ const fetchSelectCustoTypes = async () => {
       value: item[CustomerTypeFields.NUMBER],
     }));
   } catch (error) {
-    showNotification('error', t('message.fetchDataFailed'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   }
 };
 
@@ -285,16 +285,30 @@ const handleModalOk = async () => {
     await formRef.value.validate();
     confirmLoading.value = true;
     if (form.modifystatus === 'update') {
-      await updateCustomer({ ...form,[CustomerFields.BIRTH_DATE]:form[CustomerFields.BIRTH_DATE]?form[CustomerFields.BIRTH_DATE].format('YYYY-MM-DD'):null});
-      showNotification('success', t('message.operationTitle') , t('message.updateSuccess'));
+      var response = await updateCustomer({ ...form,[CustomerFields.BIRTH_DATE]:form[CustomerFields.BIRTH_DATE]?form[CustomerFields.BIRTH_DATE].format('YYYY-MM-DD'):null});
+      if(response && response.StatusCode === 200)
+      {
+        showSuccessNotification(t('message.updateSuccess'));
+      }
+      else
+      {
+        showErrorNotification(t('message.pleaseTryAgainLater'));
+      }
     } else {
-      await addCustomer({ ...form,[CustomerFields.BIRTH_DATE]:form[CustomerFields.BIRTH_DATE]?form[CustomerFields.BIRTH_DATE].format('YYYY-MM-DD'):null});
-      showNotification('success', t('message.operationTitle') , t('message.addSuccess'));
+      var response = await addCustomer({ ...form,[CustomerFields.BIRTH_DATE]:form[CustomerFields.BIRTH_DATE]?form[CustomerFields.BIRTH_DATE].format('YYYY-MM-DD'):null});
+      if(response && response.StatusCode === 200)
+      {
+        showSuccessNotification(t('message.addSuccess'));
+      }
+      else
+      {
+        showErrorNotification(t('message.pleaseTryAgainLater'));
+      }
     }
     modalVisible.value = false;
     fetchCustomerData();
   } catch (error) {
-    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   } finally {
     confirmLoading.value = false;
   }
@@ -307,12 +321,18 @@ const handleModalCancel = () => {
 const handleDelete = async (record) => {
   try {
     record[CustomerFields.IS_DELETED] = 1;
-    await deleteCustomer(record);
-    showNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
+    var response = await deleteCustomer(record);
+    if(response && response.StatusCode === 200)
+    {
+      showSuccessNotification(t('message.deleteSuccess'));
+    }
+    else
+    {
+      showErrorNotification(t('message.pleaseTryAgainLater'));
+    }
     fetchCustomerData();
   } catch (error) {
-    console.error('Delete error:', error);
-    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   }
 };
 

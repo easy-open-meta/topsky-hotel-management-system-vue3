@@ -105,7 +105,7 @@ import {
   getFormRules,
   StateColors
 } from '@/entities/spendinfo.entity';
-import { formatDate,showNotification } from '@/utils/index';
+import { showErrorNotification, showSuccessNotification } from '@/utils/index';
 import { useI18n } from 'vue-i18n';
 import dayjs from 'dayjs';
 
@@ -173,7 +173,7 @@ const fetchSpendInfoData = async () => {
     pagination.total = result.total;
     }
   } catch (error) {
-    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   } finally {
     loading.value = false;
   }
@@ -207,13 +207,20 @@ const handleModalOk = async () => {
     await formRef.value.validate();
     confirmLoading.value = true;
     if (form.modifystatus === 'update') {
-      await updateSpendInfo({ ...form});
-      showNotification('success', t('message.operationTitle') , t('message.updateSuccess'));
+      var response = await updateSpendInfo({ ...form});
+      if(response && response.StatusCode === 200)
+      {
+        showSuccessNotification('success', t('message.operationTitle') , t('message.updateSuccess'));
+      }
+      else
+      {
+        showErrorNotification(t('message.pleaseTryAgainLater'));
+      }
     }
     modalVisible.value = false;
     fetchSpendInfoData();
   } catch (error) {
-    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   } finally {
     confirmLoading.value = false;
   }

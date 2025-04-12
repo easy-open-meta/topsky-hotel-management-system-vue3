@@ -10,8 +10,18 @@ export const fetchMenusTree = async (menu) => {
   }
 };
 
+// 获取菜单列表
+export const fetchMenus = async (params) => {
+  try {
+    const response = await api.get('/Menu/SelectMenuAll', { params });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 // 创建新菜单项
-export const createMenu = async (menu) => {
+export const addMenu = async (menu) => {
   try {
     const response = await api.post('/Menu/InsertMenu', menu);
     return response.data;
@@ -23,7 +33,7 @@ export const createMenu = async (menu) => {
 // 更新菜单项
 export const updateMenu = async (menu) => {
   try {
-    const response = await api.put(`/Menu/UpdateMenu`, menu);
+    const response = await api.post(`/Menu/UpdateMenu`, menu);
     return response.data;
   } catch (error) {
     throw error;
@@ -33,7 +43,7 @@ export const updateMenu = async (menu) => {
 // 删除菜单项
 export const deleteMenu = async (menu) => {
   try {
-    const response = await api.delete(`/Menu/DeleteMenu`,menu);
+    const response = await api.post(`/Menu/DeleteMenu`,menu);
     return response.data;
   } catch (error) {
     throw error;

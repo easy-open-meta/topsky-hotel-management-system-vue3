@@ -66,7 +66,7 @@ import {
 import { fetchSupervisionInfos, addSupervisionInfo, updateSupervisionInfo, deleteSupervisionInfo } from '@/api/supervisioninfoapi';
 import { fetchDepartments } from '@/api/departmentapi';
 import { DepartmentFields } from '@/entities/department.entity';
-import { formatDate, showNotification } from '@/utils/index';
+import { formatDate, showErrorNotification, showSuccessNotification } from '@/utils/index';
 import { useI18n } from 'vue-i18n';
 import generateSnowflakeId from '@/utils/snowflake';
 import dayjs from 'dayjs';
@@ -136,7 +136,7 @@ const fetchSupervisionInfoData = async () => {
       throw new Error('数据格式错误');
     }
   } catch (error) {
-    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   } finally {
     loading.value = false;
   }
@@ -152,7 +152,7 @@ const fetchSelectDepartments = async () => {
       value: item[DepartmentFields.NUMBER],
     }));
   } catch (error) {
-    showNotification('error', t('message.fetchDataFailed'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   }
 };
 
@@ -196,16 +196,24 @@ const handleModalOk = async () => {
     };
 
     if (form.modifystatus === 'update') {
-      await updateSupervisionInfo(payload);
-      showNotification('success', t('message.operationTitle'), t('message.updateSuccess'));
+      var response = await updateSupervisionInfo(payload);
+      if (response && response.StatusCode !== 200) {
+        showErrorNotification(t('message.updateFailed'));
+        return;
+      }
+      showSuccessNotification(t('message.updateSuccess'));
     } else {
-      await addSupervisionInfo(payload);
-      showNotification('success', t('message.operationTitle'), t('message.addSuccess'));
+      var response = await addSupervisionInfo(payload);
+      if (response && response.StatusCode !== 200) {
+        showErrorNotification(t('message.addFailed'));
+        return;
+      }
+      showSuccessNotification(t('message.addSuccess'));
     }
     modalVisible.value = false;
     fetchSupervisionInfoData();
   } catch (error) {
-    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   } finally {
     confirmLoading.value = false;
   }
@@ -218,12 +226,15 @@ const handleModalCancel = () => {
 const handleDelete = async (record) => {
   try {
     record[SupervisionFields.IS_DELETED] = 1;
-    await deleteSupervisionInfo(record);
-    showNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
+    var response = await deleteSupervisionInfo(record);
+    if (response && response.StatusCode !== 200) {
+      showErrorNotification(t('message.deleteFailed'));
+      return;
+    }
+    showSuccessNotification(t('message.deleteSuccess'));
     fetchSupervisionInfoData();
   } catch (error) {
-    console.error('Delete error:', error);
-    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   }
 };
 

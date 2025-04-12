@@ -51,7 +51,6 @@
 import { ref, onMounted, computed, reactive } from 'vue';
 import { useRoute } from 'vue-router';
 import { getPageTitle } from '@/utils/pageTitle';
-import { showNotification } from '@/utils/index';
 import { fetchHydroelectricitys, updateHydroelectricity, deleteHydroelectricity } from '@/api/hydroelectricityapi';
 import { 
   EnergyManagementFields, 
@@ -59,7 +58,7 @@ import {
   getColumns, 
   getFormRules 
 } from '@/entities/energymanagement.entity';
-import { formatDate } from '@/utils/index';
+import { formatDate, showErrorNotification, showSuccessNotification } from '@/utils/index';
 import { useI18n } from 'vue-i18n';
 import dayjs from 'dayjs';
 
@@ -123,7 +122,7 @@ const fetchHydroelectricityData = async () => {
       throw new Error('数据格式错误');
     }
   } catch (error) {
-    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   } finally {
     loading.value = false;
   }
@@ -152,13 +151,17 @@ const handleModalOk = async () => {
     await formRef.value.validate();
     confirmLoading.value = true;
     if (form.modifystatus === 'update') {
-      await updateHydroelectricity({ ...form,[EnergyManagementFields.STARTDATE]:form[EnergyManagementFields.STARTDATE]?form[EnergyManagementFields.STARTDATE].format('YYYY-MM-DD HH:mm:ss'):null,[EnergyManagementFields.ENDDATE]:form[EnergyManagementFields.ENDDATE]?form[EnergyManagementFields.ENDDATE].format('YYYY-MM-DD HH:mm:ss'):null});
-      showNotification('success', t('message.operationTitle') , t('message.updateSuccess'));
+      var response = await updateHydroelectricity({ ...form,[EnergyManagementFields.STARTDATE]:form[EnergyManagementFields.STARTDATE]?form[EnergyManagementFields.STARTDATE].format('YYYY-MM-DD HH:mm:ss'):null,[EnergyManagementFields.ENDDATE]:form[EnergyManagementFields.ENDDATE]?form[EnergyManagementFields.ENDDATE].format('YYYY-MM-DD HH:mm:ss'):null});
+      if (response.code !== 200) {
+        showErrorNotification(response.message);
+        return;
+      }
+      showSuccessNotification(t('message.updateSuccess'));
     }
     modalVisible.value = false;
     fetchHydroelectricityData();
   } catch (error) {
-    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   } finally {
     confirmLoading.value = false;
   }
@@ -176,11 +179,15 @@ const handleModalCancel = () => {
 const handleDelete = async (record) => {
   try {
     record[EnergyManagementFields.IS_DELETED] = 1;
-    await deleteHydroelectricity(record);
-    showNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
+    var response = await deleteHydroelectricity(record);
+    if (response.code !== 200) {
+      showErrorNotification(response.message);
+      return;
+    }
+    showSuccessNotification(t('message.deleteSuccess'));
     fetchHydroelectricityData();
   } catch (error) {
-    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(t('message.pleaseTryAgainLater'));
   }
 };
 

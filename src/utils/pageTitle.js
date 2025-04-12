@@ -1,6 +1,6 @@
 export function getPageTitle(routePath) {
   switch (routePath) {
-      case '/':
+      case '/home':
           return 'message.home';
       case '/position':
           return 'message.positionManage';
@@ -44,8 +44,10 @@ export function getPageTitle(routePath) {
           return 'message.administratormanagement';
       case '/rolemanagement':
           return 'message.rolemanagement';
-      case '/zeroconfig':
-          return 'message.zeroconfig';
+      case '/admintypemanagement':
+          return 'message.admintypemanagement';
+      case '/menumanagement':
+          return 'message.menumanagement';
        case '/systemmodule':
           return 'message.systemmodule';
       default:

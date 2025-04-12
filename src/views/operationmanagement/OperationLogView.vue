@@ -52,7 +52,7 @@ import {
   getColumns 
 } from '@/entities/log.entity';
 import { fetchOperationlogs,deleteOperationlogByRange, deleteOperationlog } from '@/api/utilityapi';
-import { showNotification } from '@/utils/index';
+import { showErrorNotification, showSuccessNotification } from '@/utils/index';
 import { getPageTitle } from '@/utils/pageTitle';
 
 const { t } = useI18n();
@@ -99,7 +99,7 @@ const fetchLogData = async () => {
       pagination.total = result.total;
     }
   } catch (error) {
-    showNotification('error', t('message.operationFailed'), error.message);
+    showErrorNotification(error.message);
   } finally {
     loading.value = false;
   }
@@ -141,11 +141,15 @@ const deleteLogBySevenDays = () => {
 
 const handleDelete = async (record) => {
   try {
-    deleteOperationlog(record[LogFields.ID]);
-    showNotification('success', t('message.deleteSuccess'));
+    var response = deleteOperationlog(record[LogFields.ID]);
+    if (response && response.StatusCode !== 200) {
+      showErrorNotification(error.message || t('message.deleteFailed'));
+      return;
+    }
+    showSuccessNotification(t('message.deleteSuccess'));
     fetchLogData();
   } catch (error) {
-    showNotification('error', t('message.deleteFailed'), error.message);
+    showErrorNotification(error.message);
   }
 };
 

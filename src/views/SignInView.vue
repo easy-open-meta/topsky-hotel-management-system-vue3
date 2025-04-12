@@ -48,7 +48,7 @@ import bgImage from '@/assets/login_bg.png';
 
 import { ref, reactive, onBeforeMount,computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { showNotification } from '@/utils/index';
+import { showErrorNotification, showSuccessNotification } from '@/utils/index';
 import { signIn } from '../api/basicapi';
 import { useI18n } from 'vue-i18n';
 
@@ -81,20 +81,18 @@ const onFinish = async () => {
       localStorage.setItem('username',Source.Name);
       localStorage.setItem('account',Source.Number);
       router.push('/');
-       showNotification('success', '登录成功', '欢迎回来');
+       showSuccessNotification(t('message.welcomeBack'));
     } else {
-      showNotification('error', '登录失败', '请检查用户名和密码');
+      showErrorNotification(t('message.checkUsernameAndPassword'));
     }
   } catch (error) {
-      console.error('SignIn error:', error);
-      showNotification('error', '登录失败', '请稍后重试');
+    showErrorNotification(t('message.pleaseTryAgainLater'));
   } finally {
     loading.value = false;
   }
 };
 
 const onFinishFailed = (errorInfo) => {
-  console.log('Failed:', errorInfo);
 };
 
 onBeforeMount(() => {

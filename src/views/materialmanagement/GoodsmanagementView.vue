@@ -65,7 +65,7 @@ import {
   getFormRules 
 } from '@/entities/goods.entity';
 import { fetchGoodss, addGoods, updateGoods, deleteGoods } from '@/api/goodsapi';
-import { showNotification } from '@/utils/index';
+import { showErrorNotification, showSuccessNotification } from '@/utils/index';
 import generateSnowflakeId from '@/utils/snowflake';
 
 const { t } = useI18n();
@@ -120,7 +120,7 @@ const fetchGoodsData = async () => {
       pagination.total = result.total;
     }
   } catch (error) {
-    showNotification('error', t('message.operationTitle'), t('message.fetchDataFailed'));
+    showErrorNotification(error.message || t('message.fetchDataFailed'));
   } finally {
     loading.value = false;
   }
@@ -166,17 +166,25 @@ const handleModalOk = async () => {
     };
 
     if (form.modifystatus === 'update') {
-      await updateGoods(payload);
-      showNotification('success', t('message.operationTitle'), t('message.updateSuccess'));
+      var response = await updateGoods(payload);
+      if (response && response.StatusCode !== 200) {
+        showErrorNotification(response.message);
+        return;
+      }
+      showSuccessNotification(t('message.updateSuccess'));
     } else {
-      await addGoods(payload);
-      showNotification('success', t('message.operationTitle'), t('message.addSuccess'));
+      var response = await addGoods(payload);
+      if (response && response.StatusCode !== 200) {
+        showErrorNotification(response.message);
+        return;
+      }
+      showSuccessNotification(t('message.addSuccess'));
     }
     
     modalVisible.value = false;
     fetchGoodsData();
   } catch (error) {
-    showNotification('error', t('message.operationTitle'), error.message);
+    showErrorNotification(error.message);
   } finally {
     confirmLoading.value = false;
   }
@@ -189,12 +197,15 @@ const handleModalCancel = () => {
 const handleDelete = async (record) => {
   try {
     record[DepartmentFields.IS_DELETED] = 1;
-    await deleteDepartment(record);
-    showNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
+    var response = await deleteDepartment(record);
+    if (response && response.StatusCode === 200) {
+      showErrorNotification(response.message);
+      return;
+    }
+    showSuccessNotification(t('message.deleteSuccess'));
     fetchDepartmentData();
   } catch (error) {
-    console.error('Delete error:', error);
-    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   }
 };
 

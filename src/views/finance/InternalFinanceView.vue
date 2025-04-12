@@ -82,7 +82,7 @@ import {
 } from '@/entities/employee.entity';
 import { fetchDepartments } from '@/api/departmentapi';
 import { fetchEmployees } from '@/api/employeeapi';
-import { formatDate,showNotification } from '@/utils/index';
+import { formatDate, showErrorNotification, showSuccessNotification } from '@/utils/index';
 import { useI18n } from 'vue-i18n';
 import generateSnowflakeId from '@/utils/snowflake';
 import dayjs from 'dayjs';
@@ -153,7 +153,7 @@ const fetchInternalfinanceData = async () => {
       throw new Error('数据格式错误');
     }
   } catch (error) {
-    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   } finally {
     loading.value = false;
   }
@@ -171,7 +171,7 @@ const fetchSelectDepartments = async () => {
       value: item[DepartmentFields.NUMBER],
     }));
   } catch (error) {
-    showNotification('error', t('message.fetchDataFailed'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   }
 };
 
@@ -187,7 +187,7 @@ const fetchSelectPersons = async () => {
       value: item[EmployeeFields.NUMBER],
     }));
   } catch (error) {
-    showNotification('error', t('message.fetchDataFailed'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   }
 };
 
@@ -237,16 +237,30 @@ const handleModalOk = async () => {
     await formRef.value.validate();
     confirmLoading.value = true;
     if (form.modifystatus === 'update') {
-      await updateInternalFinance({ ...form});
-      showNotification('success', t('message.operationTitle') , t('message.updateSuccess'));
+      var response = await updateInternalFinance({ ...form});
+      if(response && response.StatusCode === 200)
+      {
+        showSuccessNotification(t('message.updateSuccess'));
+      }
+      else
+      {
+        showErrorNotification(response.Message);        
+      }
     } else {
-      await addInternalFinance({ ...form});
-      showNotification('success', t('message.operationTitle') , t('message.addSuccess'));
+      var response = await addInternalFinance({ ...form});
+      if(response && response.StatusCode === 200)
+      {
+        showSuccessNotification(t('message.addSuccess'));
+      }
+      else
+      {
+        showErrorNotification(response.Message);        
+      }
     }
     modalVisible.value = false;
     fetchInternalfinanceData();
   } catch (error) {
-    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   } finally {
     confirmLoading.value = false;
   }
@@ -259,12 +273,18 @@ const handleModalCancel = () => {
 const handleDelete = async (record) => {
   try {
     record[InternalFinanceFields.IS_DELETED] = 1;
-    await deleteInternalFinance(record);
-    showNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
+    var response = await deleteInternalFinance(record);
+    if(response && response.StatusCode === 200)
+    {
+      showSuccessNotification(t('message.deleteSuccess'));
+    }
+    else
+    {
+      showErrorNotification(t('message.pleaseTryAgainLater'));
+    }
     fetchInternalfinanceData();
   } catch (error) {
-    console.error('Delete error:', error);
-    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   }
 };
 

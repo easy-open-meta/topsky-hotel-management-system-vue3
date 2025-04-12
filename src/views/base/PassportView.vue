@@ -31,7 +31,7 @@
   import { ref, onMounted, computed, reactive } from 'vue';
   import { useRoute } from 'vue-router';
   import { getPageTitle } from '@/utils/pageTitle';
-  import { showNotification } from '@/utils/index';
+  import { showErrorNotification, showSuccessNotification } from '@/utils/index';
   import { fetchPassports, addPassport, updatePassport, deletePassport } from '@/api/passportapi';
   import { 
     PassportFields, 
@@ -86,10 +86,10 @@
       }));
       pagipassport.total = result.total;
       } else {
-        throw new Error('数据格式错误');
+        showErrorNotification('数据格式错误');
       }
     } catch (error) {
-      showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+      showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
     } finally {
       loading.value = false;
     }
@@ -125,16 +125,30 @@
       await formRef.value.validate();
       confirmLoading.value = true;
       if (form.modifystatus === 'update') {
-        await updatePassport({ ...form});
-        showNotification('success', t('message.operationTitle') , t('message.updateSuccess'));
+        var response = await updatePassport({ ...form});
+        if(response && response.StatusCode === 200)
+        {
+          showSuccessNotification(t('message.updateSuccess'));
+        }
+        else
+        {
+          showErrorNotification(response.Message);        
+        }
       } else {
-        await addPassport({ ...form});
-        showNotification('success', t('message.operationTitle') , t('message.addSuccess'));
+        var response = await addPassport({ ...form});
+        if(response && response.StatusCode === 200)
+        {
+          showSuccessNotification(t('message.addSuccess'));
+        }
+        else
+        {
+          showErrorNotification(response.Message);        
+        }
       }
       modalVisible.value = false;
       fetchPassportData();
     } catch (error) {
-      showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+      showErrorNotification(t('message.pleaseTryAgainLater'));
     } finally {
       confirmLoading.value = false;
     }
@@ -147,12 +161,18 @@
   const handleDelete = async (record) => {
     try {
       record[PassportFields.IS_DELETED] = 1;
-      await deletePassport(record);
-      showNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
+      var response = await deletePassport(record);
+      if(response && response.StatusCode === 200)
+      {
+        showSuccessNotification(t('message.deleteSuccess'));
+      }
+      else
+      {
+        showErrorNotification(response.Message);        
+      }
       fetchPassportData();
     } catch (error) {
-      console.error('Delete error:', error);
-      showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+      showErrorNotification(t('message.pleaseTryAgainLater'));
     }
   };
   

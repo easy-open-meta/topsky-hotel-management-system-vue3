@@ -32,7 +32,7 @@
 import { ref, onMounted, computed, reactive } from 'vue';
 import { useRoute } from 'vue-router';
 import { getPageTitle } from '@/utils/pageTitle';
-import { showNotification } from '@/utils/index';
+import { showErrorNotification, showSuccessNotification } from '@/utils/index';
 import { fetchPositions, addPosition, updatePosition, deletePosition } from '@/api/positionapi';
 import { 
   PositionFields, 
@@ -91,7 +91,7 @@ const fetchPositionData = async () => {
       throw new Error('数据格式错误');
     }
   } catch (error) {
-    showNotification('error', t('message.operationTitle'), error.message || t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   } finally {
     loading.value = false;
   }
@@ -131,16 +131,30 @@ const handleModalOk = async () => {
     await formRef.value.validate();
     confirmLoading.value = true;
     if (form.modifystatus === 'update') {
-      await updatePosition({ ...form});
-      showNotification('success', t('message.operationTitle') , t('message.updateSuccess'));
+      var response = await updatePosition({ ...form});
+      if(response && response.StatusCode === 200)
+      {
+        showSuccessNotification('success', t('message.operationTitle') , t('message.updateSuccess'));
+      }
+      else
+      {
+        showErrorNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+      }
     } else {
-      await addPosition({ ...form});
-      showNotification('success', t('message.operationTitle') , t('message.addSuccess'));
+      var response = await addPosition({ ...form});
+      if(response && response.StatusCode === 200)
+      {
+        showSuccessNotification('success', t('message.operationTitle') , t('message.addSuccess'));
+      }
+      else
+      {
+        showErrorNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+      }
     }
     modalVisible.value = false;
     fetchPositionData();
   } catch (error) {
-    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   } finally {
     confirmLoading.value = false;
   }
@@ -153,12 +167,18 @@ const handleModalCancel = () => {
 const handleDelete = async (record) => {
   try {
     record[PositionFields.IS_DELETED] = 1;
-    await deletePosition(record);
-    showNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
+    var response = await deletePosition(record);
+    if(response && response.StatusCode === 200)
+    {
+      showSuccessNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
+    }
+    else
+    {
+      showErrorNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    }
     fetchPositionData();
   } catch (error) {
-    console.error('Delete error:', error);
-    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   }
 };
 

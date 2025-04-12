@@ -32,7 +32,7 @@
 import { ref, onMounted, computed, reactive } from 'vue';
 import { useRoute } from 'vue-router';
 import { getPageTitle } from '@/utils/pageTitle';
-import { showNotification } from '@/utils/index';
+import { showErrorNotification, showSuccessNotification } from '@/utils/index';
 import { fetchNations, addNation, updateNation, deleteNation } from '@/api/nationapi';
 import { 
   NationFields, 
@@ -91,7 +91,7 @@ const fetchNationData = async () => {
       throw new Error('数据格式错误');
     }
   } catch (error) {
-    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   } finally {
     loading.value = false;
   }
@@ -130,16 +130,30 @@ const handleModalOk = async () => {
     await formRef.value.validate();
     confirmLoading.value = true;
     if (form.modifystatus === 'update') {
-      await updateNation({ ...form});
-      showNotification('success', t('message.operationTitle') , t('message.updateSuccess'));
+      var response = await updateNation({ ...form});
+      if(response && response.StatusCode === 200)
+      {
+        showSuccessNotification(t('message.updateSuccess'));
+      }
+      else
+      {
+        showErrorNotification(response.Message);        
+      }
     } else {
-      await addNation({ ...form});
-      showNotification('success', t('message.operationTitle') , t('message.addSuccess'));
+      var response = await addNation({ ...form});
+      if(response && response.StatusCode === 200)
+      {
+        showSuccessNotification(t('message.addSuccess'));
+      }
+      else
+      {
+        showErrorNotification(response.Message);        
+      }
     }
     modalVisible.value = false;
     fetchNationData();
   } catch (error) {
-    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(t('message.pleaseTryAgainLater'));
   } finally {
     confirmLoading.value = false;
   }
@@ -152,12 +166,18 @@ const handleModalCancel = () => {
 const handleDelete = async (record) => {
   try {
     record[NationFields.IS_DELETED] = 1;
-    await deleteNation(record);
-    showNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
+    var response = await deleteNation(record);
+    if(response && response.StatusCode === 200)
+    {
+      showSuccessNotification(t('message.deleteSuccess'));
+    }
+    else
+    {
+      showErrorNotification(response.Message);        
+    }
     fetchNationData();
   } catch (error) {
-    console.error('Delete error:', error);
-    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(t('message.pleaseTryAgainLater'));
   }
 };
 

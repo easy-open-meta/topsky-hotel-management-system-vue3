@@ -64,7 +64,6 @@
   import { useRoute } from 'vue-router';
   import { getPageTitle } from '@/utils/pageTitle';
   import { useI18n } from 'vue-i18n';
-  import generateSnowflakeId from '@/utils/snowflake';
   import { 
     CustomerTypeFields, 
     initialFormValues, 
@@ -83,7 +82,7 @@
     EditOutlined, 
     DeleteOutlined 
   } from '@ant-design/icons-vue';
-  import { showNotification } from '@/utils/index';
+  import { showErrorNotification, showSuccessNotification } from '@/utils/index';
   
   const { t } = useI18n();
   const route = useRoute();
@@ -128,7 +127,7 @@ const fetchCustomerTypeData = async () => {
       throw new Error('数据格式错误');
     }
   } catch (error) {
-    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   } finally {
     loading.value = false;
   }
@@ -164,11 +163,25 @@ const handleModalOk = async () => {
     await formRef.value.validate();
     confirmLoading.value = true;
     if (form.modifystatus === 'update') {
-      await updateCustomerType({ ...form});
-      showNotification('success', t('message.operationTitle') , t('message.updateSuccess'));
+      var response = await updateCustomerType({ ...form});
+      if(response && response.StatusCode === 200)
+      {
+        showSuccessNotification(t('message.updateSuccess'));
+      }
+      else
+      {
+        showErrorNotification(t('message.pleaseTryAgainLater'));
+      }
     } else {
-      await addCustomerType({ ...form});
-      showNotification('success', t('message.operationTitle') , t('message.addSuccess'));
+      var response = await addCustomerType({ ...form});
+      if(response && response.StatusCode === 200)
+      {
+        showSuccessNotification(t('message.addSuccess'));
+      }
+      else
+      {
+        showErrorNotification(t('message.pleaseTryAgainLater'));
+      }
     }
     modalVisible.value = false;
     fetchCustomerTypeData();
@@ -186,12 +199,18 @@ const handleModalCancel = () => {
 const handleDelete = async (record) => {
   try {
     record[CustomerTypeFields.IS_DELETED] = 1;
-    await deleteCustomerType(record);
-    showNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
+    var response = await deleteCustomerType(record);
+    if(response && response.StatusCode === 200)
+    {
+      showSuccessNotification(t('message.deleteSuccess'));
+    }
+    else
+    {
+      showErrorNotification(t('message.pleaseTryAgainLater'));
+    }
     fetchCustomerTypeData();
   } catch (error) {
-    console.error('Delete error:', error);
-    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   }
 };
 

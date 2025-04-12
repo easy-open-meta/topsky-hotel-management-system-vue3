@@ -25,7 +25,8 @@ import GoodsManagement from '../views/materialmanagement/GoodsmanagementView.vue
 import OperationLog from '../views/operationmanagement/OperationLogView.vue';
 import AdminManagement from '../views/systemmanagement/AdministratorManagementView.vue';
 import RoleManagement from '../views/systemmanagement/RoleManagementView.vue';
-import ZeroConfig from '../views/systemmanagement/ZeroConfigView.vue';
+import AdminTypeManagement from '../views/systemmanagement/AdminTypeManagementView.vue';
+import MenuManagement from '../views/systemmanagement/MenuManagementView.vue';
 import SystemModule from '../views/systemmanagement/SystemModuleView.vue';
 import { checkTokenValidity } from '../utils/auth';
 
@@ -34,7 +35,11 @@ const routes = [
     path: '/',
     component: MainLayout,
     children: [
-      { path: '', component: HomeView, meta: { requiresAuth: true } },
+      { 
+        path: '/home', 
+        component: HomeView, 
+        meta: { requiresAuth: true } 
+      },
       {
         path: '/position',
         name: 'position',
@@ -168,9 +173,15 @@ const routes = [
         meta: { requiresAuth: true }
       },
       {
-        path: '/zeroconfig',
-        name: 'zeroconfig',
-        component: ZeroConfig,
+        path: '/admintypemanagement',
+        name: 'admintypemanagement',
+        component: AdminTypeManagement,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: '/menumanagement',
+        name: 'menumanagement',
+        component: MenuManagement,
         meta: { requiresAuth: true }
       },
       {

@@ -63,7 +63,7 @@
 import { ref, onMounted, computed, reactive } from 'vue';
 import { useRoute } from 'vue-router';
 import { getPageTitle } from '@/utils/pageTitle';
-import { showNotification } from '@/utils/index';
+import { showErrorNotification, showSuccessNotification } from '@/utils/index';
 import { fetchRooms, addRoom, updateRoom, deleteRoom } from '@/api/roomapi';
 import { 
   RoomFields,
@@ -138,7 +138,7 @@ const fetchRoomData = async () => {
   }));
     pagination.total = result.total;
   } catch (error) {
-    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   } finally {
     loading.value = false;
   }
@@ -156,7 +156,7 @@ const fetchSelectRoomTypes = async () => {
     }));
     roomTypes.value = result;
   } catch (error) {
-    showNotification('error', t('message.fetchDataFailed'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   }
 };
 
@@ -168,7 +168,7 @@ const fetchSelectRoomStates = async () => {
       value: item.Id,
     }));
   } catch (error) {
-    showNotification('error', t('message.fetchDataFailed'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   }
 };
 
@@ -214,16 +214,24 @@ const handleModalOk = async () => {
     await formRef.value.validate();
     confirmLoading.value = true;
     if (form.modifystatus === 'update') {
-      await updateRoom({ ...form});
-      showNotification('success', t('message.operationTitle') , t('message.updateSuccess'));
+      var response = await updateRoom({ ...form});
+      if (response && response.StatusCode !== 200) {
+        showErrorNotification(t('message.updateFailed'));
+        return;
+      }
+      showSuccessNotification(t('message.updateSuccess'));
     } else {
-      await addRoom({ ...form});
-      showNotification('success', t('message.operationTitle') , t('message.addSuccess'));
+      var response = await addRoom({ ...form});
+      if (response && response.StatusCode !== 200) {
+        showErrorNotification(t('message.addFailed'));
+        return;
+      }
+      showSuccessNotification(t('message.addSuccess'));
     }
     modalVisible.value = false;
     fetchRoomData();
   } catch (error) {
-    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   } finally {
     confirmLoading.value = false;
   }
@@ -236,12 +244,15 @@ const handleModalCancel = () => {
 const handleDelete = async (record) => {
   try {
     record[RoomFields.IS_DELETED] = 1;
-    await deleteRoom(record);
-    showNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
+    var response = await deleteRoom(record);
+    if (response && response.StatusCode !== 200) {
+      showErrorNotification(t('message.deleteFailed'));
+      return;
+    }
+    showSuccessNotification(t('message.deleteSuccess'));
     fetchRoomData();
   } catch (error) {
-    console.error('Delete error:', error);
-    showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   }
 };
 

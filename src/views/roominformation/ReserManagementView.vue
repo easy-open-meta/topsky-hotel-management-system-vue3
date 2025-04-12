@@ -57,7 +57,7 @@
   import { ref, onMounted, computed, reactive } from 'vue';
   import { useRoute } from 'vue-router';
   import { getPageTitle } from '@/utils/pageTitle';
-  import { showNotification, formatDate } from '@/utils/index';
+  import { formatDate, showErrorNotification, showSuccessNotification } from '@/utils/index';
   import { fetchResers, addReser, updateReser, deleteReser } from '@/api/reserapi';
   import { fetchRooms } from '@/api/roomapi';
   import { 
@@ -127,7 +127,7 @@
     }));
       pagination.total = result.total;
     } catch (error) {
-      showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+      showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
     } finally {
       loading.value = false;
     }
@@ -144,7 +144,7 @@ const fetchSelectRooms = async () => {
       value: item[RoomFields.NO],
     }));
   } catch (error) {
-    showNotification('error', t('message.fetchDataFailed'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   }
 };
 
@@ -194,16 +194,24 @@ const fetchSelectRooms = async () => {
       await formRef.value.validate();
       confirmLoading.value = true;
       if (form.modifystatus === 'update') {
-        await updateReser({ ...form});
-        showNotification('success', t('message.operationTitle') , t('message.updateSuccess'));
+        var response = await updateReser({ ...form});
+        if (response && response.StatusCode !== 200) {
+          showErrorNotification(t('message.operationTitle'), t('message.updateFailed'));
+          return;
+        }
+        showSuccessNotification(t('message.updateSuccess'));
       } else {
-        await addReser({ ...form});
-        showNotification('success', t('message.operationTitle') , t('message.addSuccess'));
+        var response = await addReser({ ...form});
+        if (response && response.StatusCode !== 200) {
+          showErrorNotification(t('message.operationTitle'), t('message.addFailed'));
+          return;
+        }
+        showSuccessNotification(t('message.addSuccess'));
       }
       modalVisible.value = false;
       fetchReserData();
     } catch (error) {
-      showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+      showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
     } finally {
       confirmLoading.value = false;
     }
@@ -216,12 +224,15 @@ const fetchSelectRooms = async () => {
   const handleDelete = async (record) => {
     try {
       record[ReserFields.IS_DELETED] = 1;
-      await deleteReser(record);
-      showNotification('success', t('message.operationTitle'), t('message.deleteSuccess'));
+      var response = await deleteReser(record);
+      if (response && response.StatusCode !== 200) {
+        showErrorNotification(t('message.operationTitle'), t('message.deleteFailed'));
+        return;
+      }
+      showSuccessNotification(t('message.deleteSuccess'));
       fetchReserData();
     } catch (error) {
-      console.error('Delete error:', error);
-      showNotification('error', t('message.operationTitle'), t('message.pleaseTryAgainLater'));
+      showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
     }
   };
   

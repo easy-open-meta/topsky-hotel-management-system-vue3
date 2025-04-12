@@ -47,7 +47,7 @@ import {
 } from '@/entities/room.entity';
 import { getPageTitle } from '@/utils/pageTitle';
 import { fetchRooms } from '@/api/roomapi';
-import { formatDate, showNotification, formatCurrency } from '@/utils/index';
+import { formatDate, showErrorNotification, showSuccessNotification, formatCurrency } from '@/utils/index';
 import { useI18n } from 'vue-i18n';
 import dayjs from 'dayjs';
 
@@ -82,7 +82,7 @@ const fetchRoomData = async () => {
       }));
     }
   } catch (error) {
-    showNotification('error', t('message.fetchDataFailed'), t('message.pleaseTryAgainLater'));
+    showErrorNotification(error.message || t('message.pleaseTryAgainLater'));
   } finally {
     loading.value = false;
   }

@@ -1,6 +1,7 @@
 import { notification } from 'ant-design-vue';
 import dayjs from 'dayjs';
 import { dateFieldConfig } from '@/config/dateFields';
+import i18n from '@/i18n';
 
 export const utcToChinaTime = (utcDate) => {
     if (!utcDate) return '';
@@ -9,11 +10,36 @@ export const utcToChinaTime = (utcDate) => {
     return chinaTime;
 };
 
-export const showNotification = (type, message, description) => {
-    notification[type]({
-        message: message,
-        description: description,
-    });
+export const showWarningNotification = (description) => {
+  notification['warning']({
+      message: i18n.global.t('message.operationTitle'),
+      description: description,
+      duration: 3
+  });
+};
+
+export const showErrorNotification = (description) => {
+  notification['error']({
+      message: i18n.global.t('message.operationTitle'),
+      description: description,
+      duration: 3
+  });
+};
+
+export const showInfoNotification = (description) => {
+  notification['info']({
+      message: i18n.global.t('message.operationTitle'),
+      description: description,
+      duration: 3
+  });
+};
+
+export const showSuccessNotification = (description) => {
+  notification['success']({
+      message: i18n.global.t('message.operationTitle'),
+      description: description,
+      duration: 3
+  });
 };
 
 export const formatDate = (dateString, fieldName = null) => {
@@ -50,7 +76,7 @@ export const formatDateTime = (dateString) => {
         const seconds = String(date.getSeconds()).padStart(2, '0');
         return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     } catch (error) {
-        showNotification('error', t('message.operationTitle'), error);
+      showErrorNotification(error);
         return '';
     }
 };
