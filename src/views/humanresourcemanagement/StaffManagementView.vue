@@ -11,9 +11,9 @@
           <a-button 
             @click="disabledStaff(record)" 
             style="margin-right: 15px;"
-            :danger="record[EmployeeFields.ISENABLE] === 0">
-            <StopOutlined :style="{ color: record[EmployeeFields.ISENABLE] === 1 ? '#52c41a' : '#ff4d4f' }" />
-            {{ record[EmployeeFields.ISENABLE] === 0 ? $t('message.disabled') : $t('message.enabled') }}
+            :danger="record[EmployeeFields.ISENABLE] === 1">
+            <StopOutlined :style="{ color: record[EmployeeFields.ISENABLE] === 0 ? '#52c41a' : '#ff4d4f' }" />
+            {{ record[EmployeeFields.ISENABLE] === 1 ? $t('message.disabled') : $t('message.enabled') }}
           </a-button>
           <a-button @click="resetPassword(record)" style="margin-right: 15px;"><RetweetOutlined /> {{ $t('message.resetPassword') }}</a-button>
             <a-popconfirm :title="t('message.areYouSureToDeleteRecord')" @confirm="handleDelete(record)">
@@ -28,10 +28,10 @@
         </template>
         <template v-else-if="column.key === EmployeeFields.ISENABLE">
           <a-tag 
-            :color="record[EmployeeFields.ISENABLE] === 0 ? 'success' : 'error'"
+            :color="record[EmployeeFields.ISENABLE] === 1 ? 'success' : 'error'"
             class="status-tag"
           >
-            {{ record[EmployeeFields.ISENABLE] === 0 ? t('message.enabled') : t('message.disabled') }}
+            {{ record[EmployeeFields.ISENABLE] === 1 ? t('message.enabled') : t('message.disabled') }}
           </a-tag>
         </template>
       </template>
@@ -533,7 +533,7 @@ const editStaff = (record) => {
 };
 
 const disabledStaff = async (record) => {
-  await managerEmployeeAccount({ [EmployeeFields.NUMBER]: record[EmployeeFields.NUMBER], [EmployeeFields.ISENABLE]: record[EmployeeFields.ISENABLE] === 0 ? 1 : 0 });
+  await managerEmployeeAccount({ [EmployeeFields.NUMBER]: record[EmployeeFields.NUMBER], [EmployeeFields.ISENABLE]: record[EmployeeFields.ISENABLE] === 1 ? 0 : 1 });
   fetchStaffData();
 }
 
