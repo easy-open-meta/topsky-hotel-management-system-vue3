@@ -163,7 +163,7 @@ const fetchSelectRoomTypes = async () => {
 const fetchSelectRoomStates = async () => {
   try {
     const result = await fetchRoomStates();
-    roomStateOptions.value = result.map((item) => ({
+    roomStateOptions.value = result.listSource.map((item) => ({
       label: item.Description,
       value: item.Id,
     }));

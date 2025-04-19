@@ -460,7 +460,7 @@ const fetchSelectWorkerFeatures = async () => {
   try {
     const result = await fetchWorkerFeatures({
     });
-    staffFeaturesOptions.value = result.map((item) => ({
+    staffFeaturesOptions.value = result.listSource.map((item) => ({
       label: item.Description,
       value: item.Name,
     }));
