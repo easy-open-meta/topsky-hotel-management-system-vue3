@@ -3,10 +3,9 @@ import api from '../api';
 // 获取资产列表
 export const fetchInternalFinances = async (params) => {
   try {
-    const response = await api.get('/Cash/SelectCashInfoAll', { params });
+    const response = await api.get('/Asset/SelectAssetInfoAll', { params });
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch Cashs:', error);
     throw error;
   }
 };
@@ -14,10 +13,9 @@ export const fetchInternalFinances = async (params) => {
 // 添加资产
 export const addInternalFinance = async (data) => {
   try {
-    const response = await api.post('/Cash/AddCashInfo', data);
+    const response = await api.post('/Asset/AddAssetInfo', data);
     return response.data;
   } catch (error) {
-    console.error('Failed to add Cash:', error);
     throw error;
   }
 };
@@ -25,10 +23,9 @@ export const addInternalFinance = async (data) => {
 // 更新资产
 export const updateInternalFinance = async (data) => {
   try {
-    const response = await api.post(`/Cash/UpdCashInfo`, data);
+    const response = await api.post(`/Asset/UpdAssetInfo`, data);
     return response.data;
   } catch (error) {
-    console.error('Failed to update Cash:', error);
     throw error;
   }
 };
@@ -36,10 +33,9 @@ export const updateInternalFinance = async (data) => {
 // 删除资产
 export const deleteInternalFinance = async (data) => {
   try {
-    const response = await api.post(`/Cash/DelCashInfo`,data);
+    const response = await api.post(`/Asset/DelAssetInfo`,data);
       return response.data;
   } catch (error) {
-    console.error('Failed to delete Cash:', error);
     throw error;
   }
 };

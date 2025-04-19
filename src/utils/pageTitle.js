@@ -1,7 +1,7 @@
 export function getPageTitle(routePath) {
   switch (routePath) {
-      case '/':
-          return 'message.homePage';
+      case '/home':
+          return 'message.home';
       case '/position':
           return 'message.positionManage';
       case '/nation':
@@ -10,36 +10,46 @@ export function getPageTitle(routePath) {
           return 'message.educationManage';
       case '/department':
           return 'message.departmentManage';
+      case '/passport':
+          return 'message.passportManage';
       case '/internalfinance':
           return 'message.internalFinanceBill';
-      case '/hydroelectricity':
-          return 'message.hydroelectricInfo';
+      case '/hydroelectricinformation':
+          return 'message.hydroelectricinformation';
       case '/supervisioninfo':
           return 'message.supervisionInfo';
       case '/roommap':
           return 'message.roomMapOverview';
-      case '/addroom':
-          return 'message.addRoom';
+      case '/roommanagement':
+          return 'message.roomManagement';
       case '/roomconfig':
           return 'message.roomConfig';
+      case '/resermanagement':
+          return 'message.reserManagement';
       case '/viplevel':
           return 'message.vipLevelRules';
       case '/customer':
-          return 'message.customerInfoManage';
+          return 'message.customer';
       case '/customerspend':
-          return 'message.customerSpendBill';
+          return 'message.customerspend';
+      case '/customertype':
+          return 'message.customertype';
       case '/staffmanagement':
-          return 'message.staffManage';
+          return 'message.staffmanagement';
       case '/goodsmanagement':
-          return 'message.goodsManage';
+          return 'message.goodsmanagement';
       case '/operationlog':
-          return 'message.operationLog';
-      case '/addadmin':
-          return 'message.addAdmin';
-      case '/zeroconfig':
-          return 'message.zeroConfig';
+          return 'message.operationlog';
+      case '/administratormanagement':
+          return 'message.administratormanagement';
+      case '/rolemanagement':
+          return 'message.rolemanagement';
+      case '/admintypemanagement':
+          return 'message.admintypemanagement';
+      case '/menumanagement':
+          return 'message.menumanagement';
        case '/systemmodule':
-          return 'message.systemModule';
+          return 'message.systemmodule';
       default:
           return 'message.defaultTitle';
   }

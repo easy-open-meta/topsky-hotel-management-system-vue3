@@ -1,12 +1,32 @@
 <template>
-  <div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
-    <a-card :title="signInLabel" style="width: 400px">
+  <div 
+    :style="{ 
+      display: 'flex', 
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      minHeight: '100vh',
+      background: `url(${bgImage}) center/cover no-repeat`,
+      position: 'relative'
+    }"
+  >
+    <div 
+      style="
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.6);
+        z-index: 1;
+      "
+    ></div>
+    <a-card :title="signInLabel" style="width: 400px; z-index: 2; box-shadow: 0 2px 8px rgba(0,0,0,0.1)">
       <a-form :model="form" @finish="onFinish" @finish-failed="onFinishFailed">
-        <a-form-item :label="usernameLabel" name="adminAccount" :rules="[{ required: true, message: 'Please input your username!' }]">
-          <a-input v-model:value="form.adminAccount" />
+        <a-form-item :label="usernameLabel" name="Account" :rules="[{ required: true, message: 'Please input your username!' }]">
+          <a-input v-model:value="form.Account" />
         </a-form-item>
-        <a-form-item :label="passwordLabel" name="adminPassword" :rules="[{ required: true, message: 'Please input your password!' }]">
-          <a-input-password v-model:value="form.adminPassword" />
+        <a-form-item :label="passwordLabel" name="Password" :rules="[{ required: true, message: 'Please input your password!' }]">
+          <a-input-password v-model:value="form.Password" />
         </a-form-item>
         <a-form-item>
           <a-button type="primary" html-type="submit" :loading="loading">{{ $t('message.signin') }}</a-button>
@@ -24,8 +44,11 @@
 </template>
 
 <script setup>
+import bgImage from '@/assets/login_bg.png';
+
 import { ref, reactive, onBeforeMount,computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { showErrorNotification, showSuccessNotification } from '@/utils/index';
 import { signIn } from '../api/basicapi';
 import { useI18n } from 'vue-i18n';
 
@@ -44,33 +67,32 @@ const passwordLabel = computed(() => t('message.password'));
 const router = useRouter();
 const loading = ref(false);
 const form = reactive({
-  adminAccount: '',
-  adminPassword: '',
+  Account: '',
+  Password: '',
 });
 
 const onFinish = async () => {
   loading.value = true;
   try {
     const response = await signIn(form);
-    if (response && response.user_token) {
-      localStorage.setItem('token', response.user_token);
-      localStorage.setItem('username',response.AdminName);
-      localStorage.setItem('account',response.AdminAccount);
+    if (response && response.StatusCode === 200) {
+      const { Source } = response;
+      localStorage.setItem('token', Source.UserToken);
+      localStorage.setItem('username',Source.Name);
+      localStorage.setItem('account',Source.Number);
       router.push('/');
-       window.$notification('success', '登录成功', '欢迎回来');
+       showSuccessNotification(t('message.welcomeBack'));
     } else {
-      window.$notification('error', '登录失败', '请检查用户名和密码');
+      showErrorNotification(t('message.checkUsernameAndPassword'));
     }
   } catch (error) {
-      console.error('SignIn error:', error);
-      window.$notification('error', '登录失败', '请稍后重试');
+    showErrorNotification(t('message.pleaseTryAgainLater'));
   } finally {
     loading.value = false;
   }
 };
 
 const onFinishFailed = (errorInfo) => {
-  console.log('Failed:', errorInfo);
 };
 
 onBeforeMount(() => {

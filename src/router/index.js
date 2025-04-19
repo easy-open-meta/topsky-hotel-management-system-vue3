@@ -3,24 +3,30 @@ import HomeView from '../views/HomeView.vue';
 import NotFound from '../views/responsepage/NotFound.vue';
 import MainLayout from '../layouts/MainLayout.vue';
 import SignIn from '../views/SignInView.vue';
-import Position from '../views/basic/PositionView.vue';
-import Nation from '../views/basic/NationView.vue';
-import Qualification from '../views/basic/QualificationView.vue';
-import Department from '../views/basic/DepartmentView.vue';
+import Position from '../views/base/PositionView.vue';
+import Nation from '../views/base/NationView.vue';
+import Qualification from '../views/base/QualificationView.vue';
+import Department from '../views/base/DepartmentView.vue';
+import Passport from '../views/base/PassportView.vue';
 import InternalFinance from '../views/finance/InternalFinanceView.vue';
-import Hydroelectricity from '../views/hydroelectricity/HydroelectricityView.vue';
+import Hydroelectricity from '../views/hydroelectricity/HydroelectricityInfoView.vue';
 import Supervision from '../views/supervision/SupervisionView.vue';
 import RoomMap from '../views/roominformation/RoomMapView.vue';
-import AddRoom from '../views/roominformation/AddRoomView.vue';
+import RoomManagement from '../views/roominformation/RoomManagementView.vue';
 import RoomConfig from '../views/roominformation/RoomConfigView.vue';
+import ReserManagement from '../views/roominformation/ReserManagementView.vue';
 import VipLevel from '../views/customermanagement/VipLevelView.vue';
 import Customer from '../views/customermanagement/CustomerView.vue';
 import CustomerSpend from '../views/customermanagement/CustomerSpendView.vue';
+import CustomerType from '../views/customermanagement/CustomerTypeView.vue';
 import StaffManagement from '../views/humanresourcemanagement/StaffManagementView.vue';
+import EmployeeDetail from '../views/humanresourcemanagement/EmployeeDetailView.vue';
 import GoodsManagement from '../views/materialmanagement/GoodsmanagementView.vue';
 import OperationLog from '../views/operationmanagement/OperationLogView.vue';
-import AddAdmin from '../views/systemmanagement/AddAdminiView.vue';
-import ZeroConfig from '../views/systemmanagement/ZeroConfigView.vue';
+import AdminManagement from '../views/systemmanagement/AdministratorManagementView.vue';
+import RoleManagement from '../views/systemmanagement/RoleManagementView.vue';
+import AdminTypeManagement from '../views/systemmanagement/AdminTypeManagementView.vue';
+import MenuManagement from '../views/systemmanagement/MenuManagementView.vue';
 import SystemModule from '../views/systemmanagement/SystemModuleView.vue';
 import { checkTokenValidity } from '../utils/auth';
 
@@ -29,7 +35,11 @@ const routes = [
     path: '/',
     component: MainLayout,
     children: [
-      { path: '', component: HomeView, meta: { requiresAuth: true } },
+      { 
+        path: '/home', 
+        component: HomeView, 
+        meta: { requiresAuth: true } 
+      },
       {
         path: '/position',
         name: 'position',
@@ -55,14 +65,20 @@ const routes = [
         meta: { requiresAuth: true }
       },
       {
+        path: '/passport',
+        name: 'passport',
+        component: Passport,
+        meta: { requiresAuth: true }
+      },
+      {
         path: '/internalfinance',
         name: 'internalfinance',
         component: InternalFinance,
         meta: { requiresAuth: true }
       },
       {
-        path: '/hydroelectricity',
-        name: 'hydroelectricity',
+        path: '/hydroelectricinformation',
+        name: 'hydroelectricinformation',
         component: Hydroelectricity,
         meta: { requiresAuth: true }
       },
@@ -79,15 +95,21 @@ const routes = [
         meta: { requiresAuth: true }
       },
       {
-        path: '/addroom',
-        name: 'addroom',
-        component: AddRoom,
+        path: '/roommanagement',
+        name: 'roommanagement',
+        component: RoomManagement,
         meta: { requiresAuth: true }
       },
       {
         path: '/roomconfig',
         name: 'roomconfig',
         component: RoomConfig,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: '/resermanagement',
+        name: 'resermanagement',
+        component: ReserManagement,
         meta: { requiresAuth: true }
       },
       {
@@ -109,9 +131,21 @@ const routes = [
         meta: { requiresAuth: true }
       },
       {
+        path: '/customertype',
+        name: 'customertype',
+        component: CustomerType,
+        meta: { requiresAuth: true }
+      },
+      {
         path: '/staffmanagement',
         name: 'staffmanagement',
         component: StaffManagement,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: '/employeedetail/:employeeId',
+        name: 'employeedetail',
+        component: EmployeeDetail,
         meta: { requiresAuth: true }
       },
       {
@@ -127,15 +161,27 @@ const routes = [
         meta: { requiresAuth: true }
       },
       {
-        path: '/addadmin',
-        name: 'addadmin',
-        component: AddAdmin,
+        path: '/administratormanagement',
+        name: 'administratormanagement',
+        component: AdminManagement,
         meta: { requiresAuth: true }
       },
       {
-        path: '/zeroconfig',
-        name: 'zeroconfig',
-        component: ZeroConfig,
+        path: '/rolemanagement',
+        name: 'rolemanagement',
+        component: RoleManagement,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: '/admintypemanagement',
+        name: 'admintypemanagement',
+        component: AdminTypeManagement,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: '/menumanagement',
+        name: 'menumanagement',
+        component: MenuManagement,
         meta: { requiresAuth: true }
       },
       {
@@ -143,7 +189,7 @@ const routes = [
         name: 'systemmodule',
         component: SystemModule,
         meta: { requiresAuth: true }
-      }
+      },
     ]
   },
   {

@@ -1,9 +1,9 @@
 <template></template>
 <script setup>
 import { onMounted } from 'vue';
-import { showNotification } from '../utils/index.js';
+import { showErrorNotification,showInfoNotification,showSuccessNotification,showWarningNotification } from '../utils/index.js';
 
 onMounted(() => {
-    window.$notification = showNotification;
+    window.$notification = showInfoNotification;
 });
 </script>

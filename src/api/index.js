@@ -1,6 +1,7 @@
 import axios from 'axios';
 import router from '../router';
-import moment from 'moment';
+import dayjs from 'dayjs';
+import { BaseFields } from '../entities/common.entity';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -19,14 +20,14 @@ api.interceptors.request.use(
     if (account && config.data) {
       let url = config.url.toLowerCase();
       url = url.replace(config.baseURL.toLowerCase(), '');
-      console.log(config.data);
       if (url.includes('/add') || url.includes('/insert')) {
-        config.data.datains_usr = account;
-        config.data.datains_date = moment().format('YYYY-MM-DD');
+        config.data[BaseFields.DATA_INS_USER] = account;
+        config.data[BaseFields.DATA_INS_DATE] = dayjs().format('YYYY-MM-DD HH:mm:ss');
       } else if (url.includes('/upd') || url.includes('/update')) {
-        config.data.datachg_usr = account;
-        config.data.datachg_date = moment().format('YYYY-MM-DD');
+        config.data[BaseFields.DATA_CHG_USER] = account;
+        config.data[BaseFields.DATA_CHG_DATE] = dayjs().format('YYYY-MM-DD HH:mm:ss');
       }
+      config.data[BaseFields.USER_TOKEN] = token;
     }
     return config;
   },

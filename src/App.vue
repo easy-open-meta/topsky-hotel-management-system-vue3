@@ -1,13 +1,13 @@
 <template>
   <ConfigProvider :locale="antdLocale">
     <GlobalNotification />
-    <router-view />
+    <router-view v-if="isRouterAlive" />
   </ConfigProvider>
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from 'vue';
-import { showNotification } from './utils/index.js';
+import { onMounted, ref, watch, provide, nextTick } from 'vue';
+import { showErrorNotification,showInfoNotification,showSuccessNotification,showWarningNotification } from './utils/index.js';
 import GlobalNotification from './components/GlobalNotification.vue';
 import { checkTokenValidity } from './utils/auth';
 import { useI18n } from 'vue-i18n';
@@ -17,6 +17,15 @@ import enUS from 'ant-design-vue/es/locale/en_US';
 
 const { locale } = useI18n();
 const antdLocale = ref(zhCN);
+const isRouterAlive = ref(true);
+
+const reload = () => {
+  isRouterAlive.value = false;
+  nextTick(() => {
+    isRouterAlive.value = true;
+  });
+};
+provide('reload', reload);
 
 const changeLanguage = (language) => {
     localStorage.setItem('locale', language);
@@ -28,15 +37,17 @@ watch(
     (newLocale) => {
         if (newLocale === 'zh-CN') {
             antdLocale.value = zhCN;
+            reload();
         } else {
             antdLocale.value = enUS;
+            reload();
         }
     },
     { immediate: true }
 );
 
 onMounted(() => {
-  window.$notification = showNotification;
+  window.$notification = showInfoNotification;
   checkTokenValidity();
 });
 </script>

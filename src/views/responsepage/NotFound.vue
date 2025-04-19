@@ -3,6 +3,7 @@
     <div class="not-found-content">
       <h1>404</h1>
       <p>{{ t('message.pageNotFound') }}</p>
+      <p><router-link to="/"><a-button>{{ $t('message.backToHome') }}</a-button></router-link></p>
       <img src="../../assets/404 NotFound.png" />
       <p>
         Picture design from the

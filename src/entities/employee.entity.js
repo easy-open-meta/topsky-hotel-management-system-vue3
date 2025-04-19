@@ -1,0 +1,206 @@
+import { BaseFields, BaseInitialValues } from './common.entity';
+import { formatDate } from '@/utils/index';
+
+export const EmployeeSpecificFields  = {
+    NUMBER: 'EmployeeId',
+    NAME: 'EmployeeName',
+    GENDER: 'Gender',
+    GENDERNAME: 'GenderName',
+    DATEOFBIRTH: 'DateOfBirth',
+    ETHNICITY: 'Ethnicity',
+    ETHNICITYNAME: 'EthnicityName',
+    PHONENUMBER: 'PhoneNumber',
+    DEPARTMENT: 'Department',
+    DEPARTMENTNAME: 'DepartmentName',
+    ADDRESS: 'Address',
+    POSITION: 'Position',
+    POSITIONNAME: 'PositionName',
+    IDCARDTYPE: 'IdCardType',
+    IDCARDTYPENAME: 'IdCardTypeName',
+    IDCARDNUMBER: 'IdCardNumber',
+    HIREDATE: 'HireDate',
+    POLITICALAFFILIATION: 'PoliticalAffiliation',
+    POLITICALAFFILIATIONNAME: 'PoliticalAffiliationName',
+    EDUCATIONLEVEL: 'EducationLevel',
+    EDUCATIONLEVELNAME: 'EducationLevelName',
+    EMAILADDRESS: 'EmailAddress',
+    ISENABLE: 'IsEnable',
+  };
+
+  export const EmployeeFields = {
+    ...EmployeeSpecificFields,
+    ...BaseFields
+  };
+  
+  export const Gender = {
+    MALE: 1,
+    FEMALE: 0
+  };
+
+  export const initialFormValues = {
+    ...BaseInitialValues,
+    [EmployeeFields.NUMBER]: null,
+    [EmployeeFields.NAME]: '',
+    [EmployeeFields.GENDER]: null,
+    [EmployeeFields.GENDERNAME]: '',
+    [EmployeeFields.DATEOFBIRTH]: null,
+    [EmployeeFields.ETHNICITY]: '',
+    [EmployeeFields.ETHNICITYNAME]: '',
+    [EmployeeFields.PHONENUMBER]: '',
+    [EmployeeFields.DEPARTMENT]: '',
+    [EmployeeFields.DEPARTMENTNAME]: '',
+    [EmployeeFields.ADDRESS]: '',
+    [EmployeeFields.POSITION]: '',
+    [EmployeeFields.POSITIONNAME]: '',
+    [EmployeeFields.IDCARDTYPE]: null,
+    [EmployeeFields.IDCARDNUMBER]: '',
+    [EmployeeFields.HIREDATE]: null,
+    [EmployeeFields.POLITICALAFFILIATION]: null,
+    [EmployeeFields.POLITICALAFFILIATIONNAME]: '',
+    [EmployeeFields.EDUCATIONLEVEL]: '',
+    [EmployeeFields.EDUCATIONLEVELNAME]: '',
+    [EmployeeFields.EMAILADDRESS]: '',
+    [EmployeeFields.ISENABLE]: 0,
+    modifystatus: ''
+  };
+  
+  export const getColumns = (t) => [
+    {
+        title: t('message.staffId'),
+        dataIndex: EmployeeFields.NUMBER,
+        key: EmployeeFields.NUMBER,
+        sorter: (a, b) => a[EmployeeFields.NUMBER].localeCompare(b[EmployeeFields.NUMBER]),
+        defaultSortOrder: 'ascend'
+      },
+      {
+        title: t('message.staffName'),
+        dataIndex: EmployeeFields.NAME,
+        key: EmployeeFields.NAME,
+      },
+      {
+        title: t('message.staffSex'),
+        dataIndex: EmployeeFields.GENDER,
+        key: EmployeeFields.GENDER,
+        hidden: true,
+      },
+      {
+        title: t('message.staffSex'),
+        dataIndex: EmployeeFields.GENDERNAME,
+        key: EmployeeFields.GENDERNAME,
+      },
+      {
+        title: t('message.staffBirthday'),
+        dataIndex: EmployeeFields.DATEOFBIRTH,
+        key: EmployeeFields.DATEOFBIRTH,
+        customRender: ({ text }) => formatDate(text, EmployeeFields.DATEOFBIRTH)
+      },
+      {
+        title: t('message.staffEducation'),
+        dataIndex: EmployeeFields.EDUCATIONLEVEL,
+        key: EmployeeFields.EDUCATIONLEVEL,
+        hidden: true,
+      },
+      {
+        title: t('message.staffEducation'),
+        dataIndex: EmployeeFields.EDUCATIONLEVELNAME,
+        key: EmployeeFields.EDUCATIONLEVELNAME
+      },
+      {
+        title: t('message.staffNation'),
+        dataIndex: EmployeeFields.ETHNICITY,
+        key: EmployeeFields.ETHNICITY,
+        hidden: true
+      },
+      {
+        title: t('message.staffNation'),
+        dataIndex: EmployeeFields.ETHNICITYNAME,
+        key: EmployeeFields.ETHNICITYNAME
+      },
+      {
+        title: t('message.staffDepartment'),
+        dataIndex: EmployeeFields.DEPARTMENT,
+        key: EmployeeFields.DEPARTMENT,
+        hidden: true
+      },
+      {
+        title: t('message.staffDepartment'),
+        dataIndex: EmployeeFields.DEPARTMENTNAME,
+        key: EmployeeFields.DEPARTMENTNAME
+      },
+      {
+        title: t('message.staffPosition'),
+        dataIndex: EmployeeFields.POSITION,
+        key: EmployeeFields.POSITION,
+        hidden: true
+      },
+      {
+        title: t('message.staffPosition'),
+        dataIndex: EmployeeFields.POSITIONNAME,
+        key: EmployeeFields.POSITIONNAME
+      },
+      {
+        title: t('message.staffFace'),
+        dataIndex: EmployeeFields.POLITICALAFFILIATION,
+        key: EmployeeFields.POLITICALAFFILIATION,
+        hidden: true
+      },
+      {
+        title: t('message.staffFace'),
+        dataIndex: EmployeeFields.POLITICALAFFILIATIONNAME,
+        key: EmployeeFields.POLITICALAFFILIATIONNAME
+      },
+      {
+        title: t('message.staffCardType'),
+        dataIndex: EmployeeFields.IDCARDTYPE,
+        key: EmployeeFields.IDCARDTYPE,
+        hidden: true
+      },
+      {
+        title: t('message.staffCardType'),
+        dataIndex: EmployeeFields.IDCARDTYPENAME,
+        key: EmployeeFields.IDCARDTYPENAME
+      },
+      {
+        title: t('message.staffCardID'),
+        dataIndex: EmployeeFields.IDCARDNUMBER,
+        key: EmployeeFields.IDCARDNUMBER
+      },
+      {
+        title: t('message.staffTel'),
+        dataIndex: EmployeeFields.PHONENUMBER,
+        key: EmployeeFields.PHONENUMBER
+      },
+      {
+        title: t('message.staffAddress'),
+        dataIndex: EmployeeFields.ADDRESS,
+        key: EmployeeFields.ADDRESS
+      },
+      {
+        title: t('message.staffEnable'),
+        dataIndex: EmployeeFields.ISENABLE,
+        key: EmployeeFields.ISENABLE
+      },
+    {
+      title: t('message.operation'),
+      key: 'operation'
+    }
+  ];
+  
+  export const getFormRules = (t) => ({
+    [EmployeeFields.NAME]: [
+      { required: true, message: t('message.pleaseInputStaffName'), trigger: 'blur' }
+    ],
+    [EmployeeFields.GENDER]: [{ required: true, message: t('message.pleaseInputStaffSex'), trigger: 'blur' }],
+    [EmployeeFields.PHONENUMBER]: [{ required: true, message: t('message.pleaseInputStaffTel'), trigger: 'blur' }],
+    [EmployeeFields.EDUCATIONLEVEL]: [{ required: true, message: t('message.pleaseInputStaffEducation'), trigger: 'blur' }],
+    [EmployeeFields.POLITICALAFFILIATION]: [{ required: true, message: t('message.pleaseInputStaffFace'), trigger: 'blur' }],
+    [EmployeeFields.ETHNICITY]: [{ required: true, message: t('message.pleaseInputStaffNation'), trigger: 'blur' }],
+    [EmployeeFields.DEPARTMENT]: [{ required: true, message: t('message.pleaseInputStaffDepartment'), trigger: 'blur' }],
+    [EmployeeFields.POSITION]: [{ required: true, message: t('message.pleaseInputStaffPosition'), trigger: 'blur' }],
+    [EmployeeFields.IDCARDTYPE]: [{ required: true, message: t('message.pleaseInputStaffCardType'), trigger: 'blur' }],
+    [EmployeeFields.IDCARDNUMBER]: [{ required: true, message: t('message.pleaseInputStaffCardID'), trigger: 'blur' }],
+    [EmployeeFields.ADDRESS]: [{ required: true, message: t('message.pleaseInputStaffAddress'), trigger: 'blur' }],
+    [EmployeeFields.DATEOFBIRTH]: [{ required: true, message: t('message.pleaseInputStaffBirthday'), trigger: 'blur' }],
+    [EmployeeFields.HIREDATE]: [{ required: true, message: t('message.pleaseInputStaffTime'), trigger: 'blur' }],
+    [EmployeeFields.EMAILADDRESS]: [{ required: true, message: t('message.pleaseInputStaffEmail'), trigger: 'blur' }],
+  });
